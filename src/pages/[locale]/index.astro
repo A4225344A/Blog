@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { locales, localePrefix, messages, type Locale } from '../../i18n';
+import { getContentGraph } from '../../utils/build-graph';
+export function getStaticPaths() {
+  return locales.map(locale => ({ params: { locale: localePrefix[locale] }, props: { locale } }));
+}
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = messages[locale];
+// Exercise typed collection loading and graph derivation during the static build.
+await getContentGraph();
+---
+<BaseLayout locale={locale}>
+  <h1>{t.title}</h1>
+  <p>{t.tagline}</p>
+  <p>{t.pending}</p>
+</BaseLayout>

@@ -1,0 +1,6 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist", "node_modules", ".corepack"],
+  "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true }
+}

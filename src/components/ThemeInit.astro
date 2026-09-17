@@ -1,0 +1,11 @@
+<script is:inline>
+  (() => {
+    let theme = 'system';
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') theme = saved;
+    } catch { /* Storage may be disabled; system is the safe default. */ }
+    document.documentElement.dataset.theme = theme === 'system'
+      ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+  })();
+</script>

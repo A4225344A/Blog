@@ -2,6 +2,57 @@
 
 A bilingual engineering knowledge platform built with Astro.
 
+**Current implementation: V1 Phase 1–3 only.** The feature lists below describe the
+approved V1 target. Full content views, search/SEO, CI/deployment, and the first
+article are deferred. Current pages are bilingual foundation placeholders.
+
+## Run the foundation
+
+Use Node.js 22.12+ and pnpm 10.32.1 (pinned in `package.json`).
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run content:validate
+pnpm run test
+pnpm run check
+pnpm run build
+pnpm run test:build
+pnpm dev
+```
+
+If pnpm is not on PATH, use `corepack pnpm` (Windows: `corepack.cmd pnpm`).
+The lockfile fixes the installed dependency versions. Builds validate content
+before Astro runs. Astro 5 is the selected foundation major; upgrading the framework
+major is a separate change.
+
+For a GitHub Pages user site, set `SITE_URL=https://username.github.io` and
+`SITE_BASE=/`. For a repository site, use the same origin and
+`SITE_BASE=/repository-name/`. PowerShell example:
+
+```powershell
+$env:SITE_URL = 'https://username.github.io'
+$env:SITE_BASE = '/repository-name/'
+pnpm run build
+pnpm run test:build
+```
+
+Without these variables, local builds use `http://localhost:4321` and `/`.
+No production workflow is installed in this phase.
+
+Optional integration check: `pnpm run test:collections` temporarily creates
+exclusive test fixture files in the five collections, runs Astro's real build,
+and removes those exact files in a finally block. Run it while other content
+editors/build processes are stopped, then run `pnpm run build` again to leave
+the output based only on repository content.
+
+Content collections are intentionally empty. Add Markdown Articles with YAML
+frontmatter under `src/content/articles/{zh-tw,en}/` and JSON entities in the
+other four collection directories. `src/content/schemas.ts` is authoritative;
+Article `id`, `translationKey`, and `slug` are separate fields. Do not publish
+test fixtures or invent Project maturity. Test-only examples are in
+`tests/fixtures.ts`. See the implementation status in `docs/architecture.md`
+for validation IDs, reading-time assumptions, and deferred work.
+
 > **Engineering knowledge, built from real systems.**
 
 Traditional Chinese:

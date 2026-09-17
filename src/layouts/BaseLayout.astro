@@ -1,0 +1,30 @@
+---
+import ThemeInit from '../components/ThemeInit.astro';
+import ThemeSelect from '../components/ThemeSelect.astro';
+import { locales, messages, type Locale } from '../i18n';
+import { localePath } from '../utils/routes';
+import '../styles/global.css';
+interface Props { locale: Locale; title?: string; languageLinks?: Partial<Record<Locale, string>> }
+const { locale, title, languageLinks = {} } = Astro.props;
+const t = messages[locale];
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <ThemeInit />
+    <title>{title ?? t.title}</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">{t.skip}</a>
+    <header>
+      <a href={localePath(locale, '', import.meta.env.BASE_URL)}>{t.title}</a>
+      <nav aria-label={t.language}>
+        {locales.map(target => <a href={languageLinks[target] ?? localePath(target, '', import.meta.env.BASE_URL)} lang={target} hreflang={target} aria-current={target === locale ? 'page' : undefined}>{target === 'zh-TW' ? '繁體中文' : 'English'}</a>)}
+      </nav>
+      <div><ThemeSelect locale={locale} /></div>
+    </header>
+    <main id="main" tabindex="-1"><slot /></main>
+  </body>
+</html>

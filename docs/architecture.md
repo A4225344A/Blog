@@ -9,6 +9,67 @@ This document is the shared architecture source of truth for:
 
 It describes only implemented or explicitly approved architecture.
 
+## Implementation Status — Phase 1–3
+
+Implemented: Astro static foundation, strict TypeScript, five shared Zod schemas,
+raw-file schema/graph validation, build-time reverse indexes and reading estimates,
+locale/URL utilities, bilingual foundation pages and light/dark/system controls.
+The remaining sections describe the approved V1 target unless marked implemented.
+Full content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
+and the first complete article (Phase 7) are not implemented by this change.
+
+Implementation details:
+
+- `src/content/schemas.ts` is the shared schema/type source for the CLI and Astro
+  Content Collections. Strict schemas reject unknown fields, including all five
+  forbidden Article fields. Article `slug` is explicit presentation metadata;
+  `id` is the loader key and every graph relationship uses stable IDs.
+- Articles use `.md` with YAML frontmatter under the locale directories. Other
+  entities use one JSON object per file. MDX/YAML entity files are rejected in
+  this phase; MDX integration is not installed. Empty directories are intentional.
+  Synthetic entities live only in tests; AI SRE Platform data awaits verified
+  maturity/details and remains reserved as the initial featured Project.
+- `content:validate` reads raw files before Astro ingestion, catches duplicate IDs
+  within each entity type (even if a duplicate has invalid metadata), then validates
+  schemas and graph references. Errors return exit code 1. `build` runs this command
+  first; Content Collections also preflight raw files before loader deduplication.
+- Hard diagnostic IDs: `E_CONTENT_READ`, `E_SCHEMA`, `E_DUPLICATE_ID`,
+  `E_FORBIDDEN_ARTICLE_FIELD`, `E_MISSING_REFERENCE`. Missing-reference messages name
+  the owning entity, field, target collection and target ID.
+- Nonblocking warning IDs: `W_ARTICLE_NO_TOPIC`, `W_ARTICLE_NO_SKILL`,
+  `W_ARTICLE_NO_PATH`, `W_ARTICLE_NO_PROJECT`, `W_DEPRECATED_SKILL`,
+  `W_TRANSLATION_SINGLE_LOCALE`. Translation warnings count distinct locales.
+  Membership warnings apply only to published Articles. Deprecated Skill warnings
+  include Article skills/prerequisites, Project skills, Skill prerequisites and
+  supersession references.
+- V1 validates the eight specified Article/LearningPath/Project reference types.
+  Skill prerequisite/supersession and Topic parent integrity/cycle checks are deferred;
+  empty LearningPath sections remain valid. No additional graph blockers are added.
+- `getContentGraph()` loads the five typed collections during the static build,
+  validates them, and derives in-memory reverse indexes and reading times. Skill
+  `articleIds` includes both taught and prerequisite references. Index membership
+  is deduplicated without changing authoritative LearningPath section order.
+- Reading time sums Han characters / 400 and other words / 200, rounds up and has
+  a one-minute floor. Fenced code, HTML tags and Markdown image/link destinations
+  are excluded. A positive integer `estimatedMinutesOverride` replaces the estimate.
+  This is a documented heuristic, not a Markdown rendering or NLP subsystem.
+- `SITE_URL` is an HTTP(S) origin, defaulting to `http://localhost:4321` for local
+  builds. `SITE_BASE` defaults to `/` and normalizes repository paths to `/name/`.
+  Set both for production. Astro uses static directory output and trailing slashes.
+  Internal page links and assets use the configured base. Absolute URL helpers
+  reuse that path; production SEO/feed output is deferred to Phase 5.
+- Foundation routes are `/`, `/zh-tw/`, `/en/` only. They are minimal holding pages,
+  not the Phase 4 homepage/content views. Translation helpers select published
+  equivalents by translationKey and target locale, falling back to localized home.
+  The layout accepts equivalent language URLs for future content views.
+- A small inline head script resolves the theme before styles paint; the bundled
+  controller persists explicit choices, follows OS changes in system mode, and
+  handles blocked storage. CSS follows OS preference when JavaScript is disabled.
+  No React, hydration framework, remote service or browser graph computation is used.
+
+Reference: [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
+and [configuration](https://docs.astro.build/en/reference/configuration-reference/).
+
 ## Product Definition
 
 The system is a **bilingual engineering knowledge platform** combining:
@@ -164,7 +225,7 @@ src/
 AGENTS.md
 CLAUDE.md
 README.md
-astro.config.mjs
+astro.config.ts
 package.json
 pnpm-lock.yaml
 tsconfig.json
