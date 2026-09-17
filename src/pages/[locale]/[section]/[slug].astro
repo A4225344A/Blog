@@ -9,6 +9,8 @@ import { entityText } from '../../../i18n/content';
 import { getContentGraph } from '../../../utils/build-graph';
 import { isCase, orderedPathArticles, publishedArticles } from '../../../utils/catalog';
 import { localePath, translatedArticlePath } from '../../../utils/routes';
+import { articlePath } from '../../../utils/routes';
+import { articleJsonLd } from '../../../utils/seo';
 export async function getStaticPaths() {
   const { graph } = await getContentGraph();
   const paths = publishedArticles(graph.articles).map(article => ({ params: { locale: localePrefix[article.locale], section: isCase(article) ? 'cases' : 'blog', slug: article.slug }, props: { locale: article.locale, kind: 'article', id: article.id } }));
@@ -34,10 +36,11 @@ const articles = publishedArticles(graph.articles, locale);
 const base = import.meta.env.BASE_URL;
 const languageLinks = Object.fromEntries(locales.map(target => [target, article ? translatedArticlePath(article, target, graph.articles, base) : localePath(target, `${kind}/${encodeURIComponent(id)}`, base)]));
 const articleReverse = reverse.articles.get(id);
+const alternates = article ? Object.fromEntries(publishedArticles(graph.articles).filter(a => a.translationKey === article.translationKey).map(a => [a.locale, articlePath(a, base)])) : languageLinks;
 ---
-<BaseLayout locale={locale} title={text.title} languageLinks={languageLinks}>
+<BaseLayout locale={locale} title={text.title} description={text.description} languageLinks={languageLinks} alternates={alternates} article={Boolean(article)} jsonLd={article ? articleJsonLd(article, Astro.site?.href ?? 'http://localhost:4321', base) : undefined}>
   <article>
-    <h1>{text.title}</h1><p class="lead">{text.description}</p>
+    <h1 data-pagefind-meta="title">{text.title}</h1><p class="lead" data-pagefind-meta="description">{text.description}</p>
     {article && <>
       <p class="muted">{readingTimes.get(id)} {t.minutes} · {article.difficulty}</p>
       {article.publishedAt && <p>{t.published}: <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></p>}

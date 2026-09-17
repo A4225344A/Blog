@@ -5,9 +5,14 @@ import { locales, messages, type Locale } from '../i18n';
 import { localePath } from '../utils/routes';
 import '../styles/global.css';
 import { sections, ui } from '../i18n/ui';
-interface Props { locale: Locale; title?: string; languageLinks?: Partial<Record<Locale, string>> }
-const { locale, title, languageLinks = {} } = Astro.props;
+import { absoluteUrl, withBase } from '../utils/routes';
+import { safeJson } from '../utils/seo';
+interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean }
+const { locale, title, description, languageLinks = {}, alternates = languageLinks, jsonLd, article = false, search = false } = Astro.props;
 const t = messages[locale];
+const site = Astro.site?.href ?? 'http://localhost:4321';
+const canonical = absoluteUrl(Astro.url.pathname, site);
+const equivalentLinks = Object.keys(alternates).length ? alternates : Object.fromEntries(locales.map(target => [target, localePath(target, '', import.meta.env.BASE_URL)]));
 ---
 <!doctype html>
 <html lang={locale}>
@@ -16,6 +21,17 @@ const t = messages[locale];
     <meta name="viewport" content="width=device-width" />
     <ThemeInit />
     <title>{title ?? t.title}</title>
+    <meta name="description" content={description ?? t.tagline} />
+    <link rel="canonical" href={canonical} />
+    {Object.entries(equivalentLinks).map(([target, path]) => <link rel="alternate" hreflang={target} href={absoluteUrl(path, site)} />)}
+    <meta property="og:title" content={title ?? t.title} />
+    <meta property="og:description" content={description ?? t.tagline} />
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={locale === 'zh-TW' ? 'zh_TW' : 'en_US'} />
+    <meta property="og:image" content={absoluteUrl(withBase('images/social-card.png', import.meta.env.BASE_URL), site)} />
+    <link rel="alternate" type="application/rss+xml" title={`${t.title} RSS`} href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)} />
+    {jsonLd !== undefined && <script type="application/ld+json" set:html={safeJson(jsonLd)} />}
   </head>
   <body>
     <a class="skip" href="#main">{t.skip}</a>
@@ -28,8 +44,9 @@ const t = messages[locale];
     </header>
     <nav class="site-nav" aria-label={ui[locale].explore}>
       {sections.map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)}>{ui[locale][section]}</a>)}
+      <a href={localePath(locale, 'search', import.meta.env.BASE_URL)}>{ui[locale].search}</a>
     </nav>
-    <main id="main" tabindex="-1"><slot /></main>
+    <main id="main" tabindex="-1" data-pagefind-body={!search || undefined} data-pagefind-ignore={search || undefined}><slot /></main>
     <footer><p>{t.tagline}</p></footer>
   </body>
 </html>

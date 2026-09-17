@@ -30,6 +30,7 @@ ol.cards { list-style: decimal; padding-inline-start: 1.5rem; }
 .cards a { font-weight: 650; font-size: 1.1rem; }
 .cards p { margin-bottom: 0; }
 .muted { opacity: .8; }
+#search { --pagefind-ui-primary: var(--link); --pagefind-ui-text: var(--fg); --pagefind-ui-background: var(--bg); --pagefind-ui-border: var(--fg); --pagefind-ui-tag: var(--bg); }
 .lead { font-size: 1.2rem; max-width: 65ch; }
 .prose { max-width: 75ch; overflow-wrap: anywhere; }
 .prose h2 { margin-top: 2.5rem; }

@@ -4,3 +4,7 @@ dist/
 .corepack/
 .pnpm-store/
 .env
+.playwright/
+test-results/
+playwright-report/
+.phase*-validation.log

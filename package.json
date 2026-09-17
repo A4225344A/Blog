@@ -4,18 +4,37 @@
   "version": "0.1.0",
   "type": "module",
   "packageManager": "pnpm@10.32.1",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "content:validate": "tsx scripts/validate-content.ts",
     "test": "tsx --test tests/*.test.ts",
     "check": "astro check && tsc --noEmit",
-    "build": "tsx scripts/validate-content.ts && astro build",
+    "build": "tsx scripts/validate-content.ts && astro build && pagefind --site dist",
     "preview": "astro preview",
     "test:build": "tsx scripts/verify-build.ts",
-    "test:collections": "tsx scripts/verify-collections.ts"
+    "test:collections": "tsx scripts/verify-collections.ts",
+    "test:browser": "playwright test"
   },
-  "dependencies": { "astro": "^5.18.0", "yaml": "^2.8.2", "zod": "^3.25.76" },
-  "devDependencies": { "@astrojs/check": "^0.9.6", "@types/node": "^22.19.0", "tsx": "^4.21.0", "typescript": "^5.9.3" },
-  "pnpm": { "onlyBuiltDependencies": ["esbuild", "sharp"] }
+  "dependencies": {
+    "astro": "^5.18.0",
+    "yaml": "^2.8.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@playwright/test": "1.58.0",
+    "@types/node": "^22.19.0",
+    "pagefind": "1.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  }
 }
