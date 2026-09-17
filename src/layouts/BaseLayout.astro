@@ -4,6 +4,7 @@ import ThemeSelect from '../components/ThemeSelect.astro';
 import { locales, messages, type Locale } from '../i18n';
 import { localePath } from '../utils/routes';
 import '../styles/global.css';
+import { sections, ui } from '../i18n/ui';
 interface Props { locale: Locale; title?: string; languageLinks?: Partial<Record<Locale, string>> }
 const { locale, title, languageLinks = {} } = Astro.props;
 const t = messages[locale];
@@ -25,6 +26,10 @@ const t = messages[locale];
       </nav>
       <div><ThemeSelect locale={locale} /></div>
     </header>
+    <nav class="site-nav" aria-label={ui[locale].explore}>
+      {sections.map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)}>{ui[locale][section]}</a>)}
+    </nav>
     <main id="main" tabindex="-1"><slot /></main>
+    <footer><p>{t.tagline}</p></footer>
   </body>
 </html>

@@ -1,0 +1,10 @@
+{
+  "id": "ai-sre-platform",
+  "title": "AI SRE Platform",
+  "description": "A hands-on architecture lab integrating AWS infrastructure, Kubernetes GitOps, observability, and AI-assisted incident handling. It is designed for learning, demonstration, and experimentation rather than production deployment.",
+  "maturity": "lab",
+  "featuredSkills": [],
+  "relatedArticles": [],
+  "relatedLearningPaths": [],
+  "repositoryUrl": "https://github.com/A4225344A/AI_SRE_Platform"
+}

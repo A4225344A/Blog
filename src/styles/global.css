@@ -17,3 +17,25 @@ select { font: inherit; margin-inline-start: .5rem; padding: .25rem; }
 .skip { position: absolute; top: -10rem; left: 1rem; background: var(--bg); padding: .5rem; }
 .skip:focus { top: 1rem; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+.site-nav { max-width: 70rem; margin: auto; padding: 1rem 1.5rem; gap: 1rem 1.5rem; border-bottom: 1px solid currentColor; }
+footer { max-width: 70rem; margin: auto; padding: 2rem 1.5rem; border-top: 1px solid currentColor; }
+section { margin-block: 2.5rem; }
+.hero { margin-top: 0; padding-block: 2rem; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3.7rem); max-width: 25ch; }
+.eyebrow { letter-spacing: .15em; font-size: .85rem; font-weight: 700; }
+.button { display: inline-block; border: 1px solid; padding: .6rem 1rem; border-radius: .3rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; padding: 0; list-style: none; }
+ol.cards { list-style: decimal; padding-inline-start: 1.5rem; }
+.cards li { border: 1px solid color-mix(in srgb, var(--fg) 25%, transparent); border-radius: .5rem; padding: 1.25rem; }
+.cards a { font-weight: 650; font-size: 1.1rem; }
+.cards p { margin-bottom: 0; }
+.muted { opacity: .8; }
+.lead { font-size: 1.2rem; max-width: 65ch; }
+.prose { max-width: 75ch; overflow-wrap: anywhere; }
+.prose h2 { margin-top: 2.5rem; }
+.prose pre { padding: 1rem; overflow-x: auto; border-radius: .3rem; }
+.prose img { max-width: 100%; height: auto; }
+.prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.prose td, .prose th { padding: .5rem; border: 1px solid currentColor; }
+.toc { display: block; margin: 2rem 0; }
+@media (max-width: 40rem) { header nav { margin-inline-start: 0; } main { padding-block: 2rem; } }

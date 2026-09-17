@@ -9,13 +9,13 @@ This document is the shared architecture source of truth for:
 
 It describes only implemented or explicitly approved architecture.
 
-## Implementation Status — Phase 1–3
+## Implementation Status — Phase 1–4
 
 Implemented: Astro static foundation, strict TypeScript, five shared Zod schemas,
 raw-file schema/graph validation, build-time reverse indexes and reading estimates,
 locale/URL utilities, bilingual foundation pages and light/dark/system controls.
 The remaining sections describe the approved V1 target unless marked implemented.
-Full content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
+Content views (Phase 4) are implemented. Search/SEO (Phase 5), CI/deployment workflows (Phase 6),
 and the first complete article (Phase 7) are not implemented by this change.
 
 Implementation details:
@@ -26,9 +26,9 @@ Implementation details:
   `id` is the loader key and every graph relationship uses stable IDs.
 - Articles use `.md` with YAML frontmatter under the locale directories. Other
   entities use one JSON object per file. MDX/YAML entity files are rejected in
-  this phase; MDX integration is not installed. Empty directories are intentional.
-  Synthetic entities live only in tests; AI SRE Platform data awaits verified
-  maturity/details and remains reserved as the initial featured Project.
+  this phase; MDX integration is not installed. Synthetic entities live only in tests.
+  AI SRE Platform is the featured Project with maintainer-confirmed `lab` maturity,
+  description and repository URL; no production claims are made.
 - `content:validate` reads raw files before Astro ingestion, catches duplicate IDs
   within each entity type (even if a duplicate has invalid metadata), then validates
   schemas and graph references. Errors return exit code 1. `build` runs this command
@@ -58,8 +58,12 @@ Implementation details:
   Set both for production. Astro uses static directory output and trailing slashes.
   Internal page links and assets use the configured base. Absolute URL helpers
   reuse that path; production SEO/feed output is deferred to Phase 5.
-- Foundation routes are `/`, `/zh-tw/`, `/en/` only. They are minimal holding pages,
-  not the Phase 4 homepage/content views. Translation helpers select published
+- Localized Home, Start, Learn, Topics, Blog, Cases, Projects and About views are
+  implemented, with Topic/Path/Project detail aggregators and canonical Article pages.
+  Only published Articles appear publicly. LearningPath article order is preserved
+  while filtering by locale/status. The root is a language chooser. Shared entities
+  keep a single stable ID; Chinese display labels live in `src/i18n/content.ts` and
+  fall back to their source text. Translation helpers select published
   equivalents by translationKey and target locale, falling back to localized home.
   The layout accepts equivalent language URLs for future content views.
 - A small inline head script resolves the theme before styles paint; the bundled

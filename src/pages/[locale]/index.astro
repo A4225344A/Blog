@@ -1,18 +1,28 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import EntityList from '../../components/EntityList.astro';
 import { locales, localePrefix, messages, type Locale } from '../../i18n';
+import { ui } from '../../i18n/ui';
 import { getContentGraph } from '../../utils/build-graph';
-export function getStaticPaths() {
-  return locales.map(locale => ({ params: { locale: localePrefix[locale] }, props: { locale } }));
-}
+import { publishedArticles, isCase } from '../../utils/catalog';
+import { localePath } from '../../utils/routes';
+import { siteConfig } from '../../config/site';
+export function getStaticPaths() { return locales.map(locale => ({ params: { locale: localePrefix[locale] }, props: { locale } })); }
 interface Props { locale: Locale }
 const { locale } = Astro.props;
-const t = messages[locale];
-// Exercise typed collection loading and graph derivation during the static build.
-await getContentGraph();
+const t = ui[locale];
+const { graph } = await getContentGraph();
+const articles = publishedArticles(graph.articles, locale);
+const href = (section: string) => localePath(locale, section, import.meta.env.BASE_URL);
 ---
 <BaseLayout locale={locale}>
-  <h1>{t.title}</h1>
-  <p>{t.tagline}</p>
-  <p>{t.pending}</p>
+  <section class="hero"><p class="eyebrow">ENGINEERING KNOWLEDGE</p><h1>{messages[locale].tagline}</h1><a class="button" href={href('start')}>{t.explore}</a></section>
+  <section><h2><a href={href('start')}>{t.start}</a></h2><p>{t.startIntro}</p></section>
+  <section><h2><a href={href('learn')}>{t.learn}</a></h2><EntityList entries={graph['learning-paths']} section="learn" locale={locale} /></section>
+  <section><h2>{t.featuredTopics}</h2><EntityList entries={graph.topics.filter(topic => siteConfig.featuredTopicIds.some(id => id === topic.id))} section="topics" locale={locale} /></section>
+  <section><h2>{t.featuredProject}</h2><EntityList entries={graph.projects.filter(p => p.id === siteConfig.featuredProjectId)} section="projects" locale={locale} /></section>
+  <section><h2><a href={href('cases')}>{t.latestCases}</a></h2><ArticleList articles={articles.filter(isCase).slice(0, 3)} locale={locale} /></section>
+  <section><h2><a href={href('blog')}>{t.latestArticles}</a></h2><ArticleList articles={articles.filter(a => !isCase(a)).slice(0, 3)} locale={locale} /></section>
+  <section><h2><a href={href('about')}>{t.experience}</a></h2><p>{t.aboutIntro}</p></section>
 </BaseLayout>

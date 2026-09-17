@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleList from '../../../components/ArticleList.astro';
+import EntityList from '../../../components/EntityList.astro';
+import { locales, localePrefix, type Locale } from '../../../i18n';
+import { ui } from '../../../i18n/ui';
+import { entityText } from '../../../i18n/content';
+import { getContentGraph } from '../../../utils/build-graph';
+import { isCase, orderedPathArticles, publishedArticles } from '../../../utils/catalog';
+import { localePath, translatedArticlePath } from '../../../utils/routes';
+export async function getStaticPaths() {
+  const { graph } = await getContentGraph();
+  const paths = publishedArticles(graph.articles).map(article => ({ params: { locale: localePrefix[article.locale], section: isCase(article) ? 'cases' : 'blog', slug: article.slug }, props: { locale: article.locale, kind: 'article', id: article.id } }));
+  for (const locale of locales) for (const [kind, entries] of [['topics', graph.topics], ['learn', graph['learning-paths']], ['projects', graph.projects]] as const)
+    for (const entry of entries) paths.push({ params: { locale: localePrefix[locale], section: kind, slug: entry.id }, props: { locale, kind, id: entry.id } });
+  return paths;
+}
+interface Props { locale: Locale; kind: string; id: string }
+const { locale, kind, id } = Astro.props;
+const { graph, reverse, readingTimes } = await getContentGraph();
+const t = ui[locale];
+const article = kind === 'article' ? graph.articles.find(a => a.id === id) : undefined;
+const topic = kind === 'topics' ? graph.topics.find(a => a.id === id) : undefined;
+const path = kind === 'learn' ? graph['learning-paths'].find(a => a.id === id) : undefined;
+const project = kind === 'projects' ? graph.projects.find(a => a.id === id) : undefined;
+const entity = article ?? topic ?? path ?? project;
+if (!entity) throw new Error(`Missing entity ${id}`);
+const text = article ? { title: article.title, description: article.description } : entityText(entity, locale);
+const entry = article ? (await getCollection('articles')).find(a => a.id === id) : undefined;
+const rendered = entry ? await render(entry) : undefined;
+const Content = rendered?.Content;
+const articles = publishedArticles(graph.articles, locale);
+const base = import.meta.env.BASE_URL;
+const languageLinks = Object.fromEntries(locales.map(target => [target, article ? translatedArticlePath(article, target, graph.articles, base) : localePath(target, `${kind}/${encodeURIComponent(id)}`, base)]));
+const articleReverse = reverse.articles.get(id);
+---
+<BaseLayout locale={locale} title={text.title} languageLinks={languageLinks}>
+  <article>
+    <h1>{text.title}</h1><p class="lead">{text.description}</p>
+    {article && <>
+      <p class="muted">{readingTimes.get(id)} {t.minutes} · {article.difficulty}</p>
+      {article.publishedAt && <p>{t.published}: <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></p>}
+      {article.updatedAt && <p>{t.updated}: <time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></p>}
+      <h2>{t.topics}</h2><EntityList entries={graph.topics.filter(topic => article.topics.includes(topic.id))} section="topics" locale={locale} />
+      <h2>{t.skills}</h2><ul>{graph.skills.filter(skill => article.skills.includes(skill.id)).map(skill => <li>{entityText(skill, locale).title}</li>)}</ul>
+      {article.prerequisiteSkills.length > 0 && <><h2>{t.prerequisites}</h2><ul>{graph.skills.filter(skill => article.prerequisiteSkills.includes(skill.id)).map(skill => <li>{entityText(skill, locale).title}</li>)}</ul></>}
+      {rendered && rendered.headings.length > 0 && <nav class="toc" aria-label={t.contents}><h2>{t.contents}</h2><ul>{rendered.headings.filter(h => h.depth === 2).map(h => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul></nav>}
+      {Content && <div class="prose"><Content /></div>}
+      <section><h2>{t.recommended}</h2><ArticleList articles={articles.filter(a => article.recommendedArticles.includes(a.id))} locale={locale} /></section>
+      <section><h2>{t.learn}</h2><EntityList entries={graph['learning-paths'].filter(p => articleReverse?.learningPathIds.includes(p.id))} section="learn" locale={locale} /></section>
+      <section><h2>{t.projects}</h2><EntityList entries={graph.projects.filter(p => articleReverse?.projectIds.includes(p.id))} section="projects" locale={locale} /></section>
+    </>}
+    {topic && <ArticleList articles={articles.filter(a => a.topics.includes(topic.id))} locale={locale} />}
+    {path && <>{path.targetAudience.length > 0 && <p>{t.audience}: {path.targetAudience.join(' · ')}</p>}{orderedPathArticles(path, graph.articles, locale).map(section => <section><h2>{entityText(section, locale).title}</h2><p>{entityText(section, locale).description}</p><ArticleList articles={section.articles} locale={locale} ordered /></section>)}</>}
+    {project && <><p>{project.maturity}</p>{project.repositoryUrl && <a href={project.repositoryUrl}>{t.repository}</a>}<h2>{t.skills}</h2><ul>{graph.skills.filter(s => project.featuredSkills.includes(s.id)).map(s => <li>{entityText(s, locale).title}</li>)}</ul><h2>{t.related}</h2><ArticleList articles={articles.filter(a => project.relatedArticles.includes(a.id))} locale={locale} /><h2>{t.paths}</h2><EntityList entries={graph['learning-paths'].filter(p => project.relatedLearningPaths.includes(p.id))} section="learn" locale={locale} /></>}
+  </article>
+</BaseLayout>
