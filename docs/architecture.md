@@ -9,14 +9,14 @@ This document is the shared architecture source of truth for:
 
 It describes only implemented or explicitly approved architecture.
 
-## Implementation Status — Phase 1–5
+## Implementation Status — Phase 1–6
 
 Implemented: Astro static foundation, strict TypeScript, five shared Zod schemas,
 raw-file schema/graph validation, build-time reverse indexes and reading estimates,
 locale/URL utilities, bilingual foundation pages and light/dark/system controls.
 The remaining sections describe the approved V1 target unless marked implemented.
-Content views (Phase 4) and search/SEO (Phase 5) are implemented. CI/deployment
-workflows (Phase 6) and the first complete article (Phase 7) are pending.
+Content views (Phase 4), search/SEO (Phase 5), and CI/deployment workflows (Phase 6)
+are implemented. The first complete article (Phase 7) is pending.
 
 Implementation details:
 
@@ -83,6 +83,16 @@ Implementation details:
   build-time endpoints. They require no deployed server. RSS GUIDs use stable IDs.
   Public route collisions fail sitemap generation, not graph validation. Draft and
   archived Articles are excluded from all routes, aggregations, feeds and search.
+- CI validates PRs and main pushes with read-only repository permissions. It runs
+  frozen install, content validation, tests, Astro/TypeScript checks and both root
+  and production-base builds, HTML checks and Chromium tests. The production base
+  derives from GITHUB_REPOSITORY, handling owner.github.io repositories specially.
+- Only successful main push CI uploads `verified-site`. A separate workflow_run
+  deployment checks event, conclusion, branch, repository and current main SHA,
+  downloads that run's artifact, repackages and deploys it without rebuilding or
+  checking out code. Only the deploy job has Pages write/OIDC permissions. All
+  external actions are pinned to resolved commit hashes. Human review/protection
+  rules must be configured in GitHub; local validation is not independent review.
 
 Reference: [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
 and [configuration](https://docs.astro.build/en/reference/configuration-reference/).
