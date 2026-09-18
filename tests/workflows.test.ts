@@ -38,8 +38,13 @@ test('deployment accepts only successful same-repository main pushes and downloa
   assert.equal(download?.with?.['run-id'], '${{ github.event.workflow_run.id }}');
   assert.ok(job.steps.some(s => typeof s.with?.script === 'string' && s.with.script.includes('workflow_run.head_sha')));
 });
-test('all external workflow actions use immutable commit hashes', () => {
+test('workflow action hashes match the reviewed commit allowlist', () => {
+  const pins = z.record(z.object({ commit: z.string().regex(/^[a-f0-9]{40}$/), version: z.string().regex(/^v\d+$/) }).strict()).parse(JSON.parse(readFileSync('.github/action-pins.json', 'utf8')));
   for (const file of ['.github/workflows/ci.yml', '.github/workflows/deploy.yml'])
     for (const job of Object.values(workflow(file).jobs)) for (const step of job.steps)
-      if (step.uses) assert.match(step.uses, /^[\w-]+\/[\w-]+@[a-f0-9]{40}$/);
+      if (step.uses) {
+        const [action, sha] = step.uses.split('@');
+        assert.ok(action && pins[action], `Unreviewed action: ${step.uses}`);
+        assert.equal(sha, pins[action]?.commit, `Unreviewed commit: ${step.uses}`);
+      }
 });
