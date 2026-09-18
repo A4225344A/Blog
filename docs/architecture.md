@@ -18,7 +18,8 @@ The remaining sections describe the approved V1 target unless marked implemented
 Content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
 and the complete bilingual implementation article (Phase 7) are implemented.
 Status: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`. Claude review has not passed.
-The human authorized completion while independent review was unavailable.
+The human authorized completion while independent review was unavailable. The first
+Claude review returned CHANGES_REQUIRED; Builder fixes await independent re-review.
 
 Implementation details:
 
@@ -36,17 +37,23 @@ Implementation details:
   schemas and graph references. Errors return exit code 1. `build` runs this command
   first; Content Collections also preflight raw files before loader deduplication.
 - Hard diagnostic IDs: `E_CONTENT_READ`, `E_SCHEMA`, `E_DUPLICATE_ID`,
-  `E_FORBIDDEN_ARTICLE_FIELD`, `E_MISSING_REFERENCE`. Missing-reference messages name
+  `E_FORBIDDEN_ARTICLE_FIELD`, `E_MISSING_REFERENCE`, `E_ROUTE_COLLISION`,
+  `E_UNKNOWN_ENTITY_TRANSLATION`. Missing-reference messages name
   the owning entity, field, target collection and target ID.
 - Nonblocking warning IDs: `W_ARTICLE_NO_TOPIC`, `W_ARTICLE_NO_SKILL`,
   `W_ARTICLE_NO_PATH`, `W_ARTICLE_NO_PROJECT`, `W_DEPRECATED_SKILL`,
-  `W_TRANSLATION_SINGLE_LOCALE`. Translation warnings count distinct locales.
+  `W_TRANSLATION_SINGLE_LOCALE`, `W_MISSING_ENTITY_TRANSLATION`. Translation warnings count distinct locales.
   Membership warnings apply only to published Articles. Deprecated Skill warnings
   include Article skills/prerequisites, Project skills, Skill prerequisites and
   supersession references.
 - V1 validates the eight specified Article/LearningPath/Project reference types.
   Skill prerequisite/supersession and Topic parent integrity/cycle checks are deferred;
   empty LearningPath sections remain valid. No additional graph blockers are added.
+  Route uniqueness and editorial translation-key integrity are separate validation
+  boundaries: colliding published Article URLs report both source files; stale
+  translation keys fail, while missing translations warn. The normal repository CLI
+  and Astro preflight validate the editorial catalog; CLI custom content roots omit
+  that repository-specific catalog unless supplied directly to `validateContent`.
 - `getContentGraph()` loads the five typed collections during the static build,
   validates them, and derives in-memory reverse indexes and reading times. Skill
   `articleIds` includes both taught and prerequisite references. Index membership
@@ -64,16 +71,21 @@ Implementation details:
   implemented, with Topic/Path/Project detail aggregators and canonical Article pages.
   Only published Articles appear publicly. LearningPath article order is preserved
   while filtering by locale/status. The root is a language chooser. Shared entities
-  keep a single stable ID; Chinese display labels live in `src/i18n/content.ts` and
-  fall back to their source text. Translation helpers select published
+  keep a single stable ID; Chinese display labels live in `src/i18n/content.ts`,
+  namespaced by collection and, for sections, by owning LearningPath. Audience text
+  is localized there; difficulty/maturity labels are exhaustive typed UI maps.
+  Missing translations fall back to source text with a diagnostic. Translation helpers select published
   equivalents by translationKey and target locale, falling back to localized home.
-  The layout accepts equivalent language URLs for future content views.
+  Optional relationship sections disappear when no public entries remain. Featured
+  Topic order follows the configured ID array, not collection enumeration order.
 - A small inline head script resolves the theme before styles paint; the bundled
   controller persists explicit choices, follows OS changes in system mode, and
   handles blocked storage. CSS follows OS preference when JavaScript is disabled.
   No React, hydration framework, remote service or browser graph computation is used.
 
-- Pagefind indexes generated public HTML after every production build. Main content
+- Pagefind indexes canonical Articles and Topic/LearningPath/Project detail pages
+  after every production build. Homes, section indexes and the language chooser
+  are not indexed. Main content
   includes title, description, body and rendered Topic/Skill labels; navigation and
   search UI are excluded. Language detection uses document lang. The localized
   search page loads its local UI bundle with explicit base/bundle paths. Use build
@@ -81,10 +93,20 @@ Implementation details:
 - All public pages have canonical, description and Open Graph metadata. Article
   hreflang lists only published equivalents (language navigation still falls back
   to home). Articles emit escaped JSON-LD (`TechArticle`, or `Article` for opinion).
+  The language chooser and both homes share one reciprocal three-entry hreflang
+  cluster with the base root as `x-default`. Other pages keep their own equivalent
+  cluster; the unrelated home is not their x-default. Section descriptions are localized.
 - Static `sitemap.xml`, localized `rss.xml`, and `robots.txt` are generated by Astro
-  build-time endpoints. They require no deployed server. RSS GUIDs use stable IDs.
-  Public route collisions fail sitemap generation, not graph validation. Draft and
+  build-time endpoints. They require no deployed server. RSS GUIDs use stable IDs,
+  localized channel titles and absolute Atom self URLs. Published Article collisions
+  fail raw content validation; the sitemap retains a final route uniqueness guard. Draft and
   archived Articles are excluded from all routes, aggregations, feeds and search.
+  For project hosting, `/Blog/robots.txt` is a generated reference file, not the
+  origin-root crawler configuration. Sitemap discovery and crawler policy require
+  the maintainer to configure `https://a4225344a.github.io/robots.txt` in the owner-site
+  repository and include `https://a4225344a.github.io/Blog/sitemap.xml`. Search Console
+  submission is another discovery mechanism, but does not configure crawler policy.
+  Local output checks cannot prove either external step.
 - CI validates PRs and main pushes with read-only repository permissions. It runs
   frozen install, content validation, tests, Astro/TypeScript checks and both root
   and production-base builds, HTML checks and Chromium tests. The production base
@@ -93,7 +115,10 @@ Implementation details:
   deployment checks event, conclusion, branch, repository and current main SHA,
   downloads that run's artifact, repackages and deploys it without rebuilding or
   checking out code. Only the deploy job has Pages write/OIDC permissions. All
-  external actions are pinned to resolved commit hashes. Human review/protection
+  external actions are pinned to resolved commit hashes, recorded in
+  `.github/action-pins.json`. The pnpm v4 annotated tag was peeled upstream to
+  `b906affcce14559ad1aafd4ab0e942779e9f58b1`; tests verify allowlist consistency,
+  not live upstream object types. Human review/protection
   rules must be configured in GitHub; local validation is not independent review.
 - The first complete bilingual Article describes this repository, including its
   validation boundary, routes, theme, Pagefind, SEO and artifact deployment. The
@@ -107,7 +132,11 @@ Implementation details:
 - `pnpm run test` runs deterministic Node tests; `pnpm run check` checks Astro and
   all TypeScript. `pnpm run build` validates content, builds static output and runs
   Pagefind. `pnpm run test:build` verifies every public HTML path and local resource,
-  canonical/alternate links, sitemap, RSS, robots and Article JSON-LD presence.
+  canonical URLs, reciprocal/self hreflang (including the home x-default cluster),
+  search indexing markers, featured order, section descriptions, sitemap, RSS,
+  generated robots text and Article JSON-LD presence. It does not inspect live robots.
+  `scripts/validate-all.ps1` runs the required commands plus `test:build`; collection
+  integration and browser checks are additional explicit commands.
 - `pnpm run test:collections` exclusively creates temporary test files, exercises
   actual Astro rendering for all entities and case/draft/archive visibility, and
   removes exactly those files. Run the regular build afterward. CI does this before
@@ -119,7 +148,8 @@ Implementation details:
 - GitHub-hosted workflow execution, environment protection and public deployment
   cannot be proven by local tests. Enable Pages with GitHub Actions, require CI on
   main PRs, and configure human approval on the `github-pages` environment before
-  production. No workflow has been pushed or deployment performed by this build.
+  the first push to main. These are hard preconditions, not optional follow-up work.
+  No workflow has been pushed or deployment performed by this build.
 - Shared entity translations are presentation data, not additional graph entities.
   New entities fall back to source-language names until editorial translations are
   added. Reading time is heuristic. Pagefind reports no stemming for `zh-tw`;
