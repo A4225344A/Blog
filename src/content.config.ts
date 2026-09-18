@@ -10,7 +10,7 @@ if (result.errors.length) throw new Error(result.errors.map(e => `[${e.id}] ${e.
 
 const generateId = ({ data }: { data: Record<string, unknown> }) => {
   if (typeof data.id !== 'string') throw new Error('Missing stable entity ID');
-  return data.id;
+  return data.id.trim();
 };
 export const collections = {
   articles: defineCollection({ loader: glob({ pattern: '**/*.md', base: './src/content/articles', generateId }), schema: schemas.articles }),

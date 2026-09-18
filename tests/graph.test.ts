@@ -8,6 +8,10 @@ import { schemas, type ContentGraph } from '../src/content/schemas';
 test('valid bilingual graph has no diagnostics', () => {
   assert.deepEqual(validateGraph(graph()), { errors: [], warnings: [] });
 });
+test('duplicate IDs are checked with the same normalization as schemas and loaders', () => {
+  const entries: RawEntry[] = [article(), article({ id: ' article-en ' })].map((data, index) => ({ collection: 'articles', source: `${index}.md`, data, body: '' }));
+  assert.ok(validateContent(entries).errors.some(error => error.id === 'E_DUPLICATE_ID'));
+});
 for (const kind of Object.keys(schemas) as (keyof ContentGraph)[]) {
   test(`duplicate stable IDs fail in ${kind}, before loader deduplication`, () => {
     const g = graph();

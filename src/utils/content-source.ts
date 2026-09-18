@@ -44,7 +44,7 @@ export function validateContent(entries: RawEntry[]) {
   for (const entry of entries) {
     const data = entry.data;
     if (typeof data === 'object' && data !== null && 'id' in data && typeof data.id === 'string') {
-      const key = `${entry.collection}:${data.id}`;
+      const key = `${entry.collection}:${data.id.trim()}`;
       if (seen.has(key)) errors.push({ id: 'E_DUPLICATE_ID', entity: entry.source, message: `${key} also defined in ${seen.get(key)}` });
       seen.set(key, entry.source);
     }
