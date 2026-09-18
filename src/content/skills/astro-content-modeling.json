@@ -1,0 +1,9 @@
+{
+  "id": "astro-content-modeling",
+  "name": "Astro content modeling",
+  "description": "Model static content with schemas, types and stable references.",
+  "category": "Platform Engineering",
+  "aliases": [],
+  "prerequisites": [],
+  "status": "active"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "knowledge-platform",
+  "title": "Build an engineering knowledge platform",
+  "description": "From a content model and Astro foundation to GitHub Pages delivery.",
+  "targetAudience": [
+    "Engineers / 工程師",
+    "Technical writers / 技術寫作者"
+  ],
+  "sections": [
+    {
+      "id": "foundation",
+      "title": "Start with a complete example",
+      "description": "Understand the repository implementation before adapting it.",
+      "articleIds": [
+        "astro-knowledge-platform-zh-tw",
+        "astro-knowledge-platform-en"
+      ]
+    }
+  ]
+}

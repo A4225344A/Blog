@@ -1,0 +1,9 @@
+{
+  "id": "kubernetes-gitops",
+  "name": "Kubernetes GitOps",
+  "description": "Declarative Kubernetes delivery through Git-managed configuration.",
+  "category": "Cloud Native",
+  "aliases": [],
+  "prerequisites": [],
+  "status": "active"
+}

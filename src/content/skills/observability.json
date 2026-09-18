@@ -1,0 +1,9 @@
+{
+  "id": "observability",
+  "name": "Observability",
+  "description": "Explore metrics, logs and system behavior in an architecture lab.",
+  "category": "SRE",
+  "aliases": [],
+  "prerequisites": [],
+  "status": "active"
+}

@@ -9,14 +9,16 @@ This document is the shared architecture source of truth for:
 
 It describes only implemented or explicitly approved architecture.
 
-## Implementation Status — Phase 1–6
+## Implementation Status — V1 Phase 1–7
 
 Implemented: Astro static foundation, strict TypeScript, five shared Zod schemas,
 raw-file schema/graph validation, build-time reverse indexes and reading estimates,
 locale/URL utilities, bilingual foundation pages and light/dark/system controls.
 The remaining sections describe the approved V1 target unless marked implemented.
-Content views (Phase 4), search/SEO (Phase 5), and CI/deployment workflows (Phase 6)
-are implemented. The first complete article (Phase 7) is pending.
+Content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
+and the complete bilingual implementation article (Phase 7) are implemented.
+Status: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`. Claude review has not passed.
+The human authorized completion while independent review was unavailable.
 
 Implementation details:
 
@@ -26,7 +28,7 @@ Implementation details:
   `id` is the loader key and every graph relationship uses stable IDs.
 - Articles use `.md` with YAML frontmatter under the locale directories. Other
   entities use one JSON object per file. MDX/YAML entity files are rejected in
-  this phase; MDX integration is not installed. Synthetic entities live only in tests.
+  V1; MDX integration is not installed. Synthetic entities live only in tests.
   AI SRE Platform is the featured Project with maintainer-confirmed `lab` maturity,
   description and repository URL; no production claims are made.
 - `content:validate` reads raw files before Astro ingestion, catches duplicate IDs
@@ -93,6 +95,35 @@ Implementation details:
   checking out code. Only the deploy job has Pages write/OIDC permissions. All
   external actions are pinned to resolved commit hashes. Human review/protection
   rules must be configured in GitHub; local validation is not independent review.
+- The first complete bilingual Article describes this repository, including its
+  validation boundary, routes, theme, Pagefind, SEO and artifact deployment. The
+  `knowledge-platform` LearningPath owns its ordered Article membership. It is not
+  falsely attached to AI SRE Platform, so two `W_ARTICLE_NO_PROJECT` warnings remain.
+  Six initial Skills describe platform modeling/delivery and the confirmed lab
+  domains. Cases remain an honest empty state until actual case content is authored.
+
+## V1 Validation and Operational Boundary
+
+- `pnpm run test` runs deterministic Node tests; `pnpm run check` checks Astro and
+  all TypeScript. `pnpm run build` validates content, builds static output and runs
+  Pagefind. `pnpm run test:build` verifies every public HTML path and local resource,
+  canonical/alternate links, sitemap, RSS, robots and Article JSON-LD presence.
+- `pnpm run test:collections` exclusively creates temporary test files, exercises
+  actual Astro rendering for all entities and case/draft/archive visibility, and
+  removes exactly those files. Run the regular build afterward. CI does this before
+  building the production artifact. Do not run content editors concurrently.
+- `pnpm run test:browser` uses locally installed Chromium against Astro preview to
+  check theme, denied storage, narrow-screen navigation, search and Article language
+  equivalence. Tests run at root and production base in CI. `PLAYWRIGHT_BROWSERS_PATH`
+  defaults to `.playwright`; install Chromium there before local browser tests.
+- GitHub-hosted workflow execution, environment protection and public deployment
+  cannot be proven by local tests. Enable Pages with GitHub Actions, require CI on
+  main PRs, and configure human approval on the `github-pages` environment before
+  production. No workflow has been pushed or deployment performed by this build.
+- Shared entity translations are presentation data, not additional graph entities.
+  New entities fall back to source-language names until editorial translations are
+  added. Reading time is heuristic. Pagefind reports no stemming for `zh-tw`;
+  actual Traditional Chinese queries are covered by browser tests.
 
 Reference: [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
 and [configuration](https://docs.astro.build/en/reference/configuration-reference/).

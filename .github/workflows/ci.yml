@@ -26,6 +26,7 @@ jobs:
       - run: pnpm run content:validate
       - run: pnpm run test
       - run: pnpm run check
+      - run: pnpm run test:collections
       - run: pnpm exec tsx scripts/configure-pages.ts
       - run: pnpm exec playwright install --with-deps chromium
       - name: Build and verify user-site paths

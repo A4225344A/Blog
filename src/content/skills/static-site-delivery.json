@@ -1,0 +1,9 @@
+{
+  "id": "static-site-delivery",
+  "name": "Static site delivery",
+  "description": "Validate and deliver static build artifacts.",
+  "category": "Platform Engineering",
+  "aliases": [],
+  "prerequisites": [],
+  "status": "active"
+}

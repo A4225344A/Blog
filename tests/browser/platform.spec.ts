@@ -43,3 +43,26 @@ test('local search returns working canonical URLs in both locales', async ({ pag
     await expect(page.locator('main')).toContainText('lab');
   }
 });
+test('Article translation preserves context and search indexes Skill text', async ({ page }) => {
+  await page.goto('en/blog/astro-knowledge-platform/');
+  await expect(page.locator('h1')).toContainText('Building a Zero-Cost');
+  await page.getByRole('link', { name: '繁體中文', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`${base}zh-tw/blog/astro-knowledge-platform/$`));
+  await expect(page.locator('h1')).toContainText('使用 Astro');
+  await expect(page.locator('.toc a').first()).toBeVisible();
+  for (const [locale, query] of [['en', 'Astro content modeling'], ['zh-tw', '內容建模']]) {
+    await page.goto(`${locale}/search/`);
+    await page.locator('.pagefind-ui__search-input').fill(query ?? '');
+    await expect(page.locator('.pagefind-ui__result-link').first()).toBeVisible();
+    const articleResult = page.locator(`.pagefind-ui__result-link[href="${base}${locale}/blog/astro-knowledge-platform/"]`).first();
+    // Broad Chinese terms also match aggregators; verify across real result pages.
+    for (let pageNumber = 0; pageNumber < 10 && !await articleResult.isVisible(); pageNumber++) {
+      const more = page.locator('.pagefind-ui__button');
+      if (!await more.isVisible()) break;
+      const previousCount = await page.locator('.pagefind-ui__result-link').count();
+      await more.click();
+      await expect.poll(() => page.locator('.pagefind-ui__result-link').count()).toBeGreaterThan(previousCount);
+    }
+    await expect(articleResult).toBeVisible();
+  }
+});
