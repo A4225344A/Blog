@@ -2,6 +2,10 @@ import type { Article, ContentGraph, LearningPath } from '../content/schemas';
 import type { Locale } from '../i18n';
 import { articlePath, localePath } from './routes';
 import { sections } from '../i18n/ui';
+export function resolveOrderedIds<T extends { id: string }>(ids: readonly string[], entries: readonly T[]): T[] {
+  const byId = new Map(entries.map(entry => [entry.id, entry]));
+  return ids.flatMap(id => { const entry = byId.get(id); return entry ? [entry] : []; });
+}
 export function isCase(article: Article): boolean {
   return article.contentType === 'troubleshooting' || article.contentType === 'case-study';
 }

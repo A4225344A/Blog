@@ -3,7 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ArticleList from '../../../components/ArticleList.astro';
 import EntityList from '../../../components/EntityList.astro';
 import { locales, localePrefix, type Locale } from '../../../i18n';
-import { ui, sections, type Section } from '../../../i18n/ui';
+import { ui, sections, sectionDescriptions, type Section } from '../../../i18n/ui';
 import { getContentGraph } from '../../../utils/build-graph';
 import { publishedArticles, isCase } from '../../../utils/catalog';
 import { localePath } from '../../../utils/routes';
@@ -17,7 +17,7 @@ const { graph } = await getContentGraph();
 const articles = publishedArticles(graph.articles, locale);
 const languageLinks = Object.fromEntries(locales.map(target => [target, localePath(target, section, import.meta.env.BASE_URL)]));
 ---
-<BaseLayout locale={locale} title={t[section]} languageLinks={languageLinks}>
+<BaseLayout locale={locale} title={t[section]} description={sectionDescriptions[locale][section]} languageLinks={languageLinks}>
   <h1>{t[section]}</h1>
   {section === 'start' && <><p>{t.startIntro}</p><h2>{t.learn}</h2><EntityList entries={graph['learning-paths']} section="learn" locale={locale} /><h2>{t.topics}</h2><EntityList entries={graph.topics} section="topics" locale={locale} /></>}
   {section === 'learn' && <EntityList entries={graph['learning-paths']} section="learn" locale={locale} />}

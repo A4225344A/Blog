@@ -26,6 +26,8 @@ test('actual CLI exits zero for warnings and nonzero for duplicate, missing and 
     await writeArticle(article({ topics: [], skills: [] }));
     await writeArticle(article({ topics: [], skills: [] }), join(root, 'articles', 'duplicate.md'));
     result = run(); assert.equal(result.status, 1); assert.match(result.stderr, /E_DUPLICATE_ID/);
+    await writeArticle(article({ id: 'different', topics: [], skills: [] }), join(root, 'articles', 'duplicate.md'));
+    result = run(); assert.equal(result.status, 1); assert.match(result.stderr, /E_ROUTE_COLLISION.*articles\/duplicate.md.*articles\/a.md/);
     await writeFile(file, '---\nid: one\nid: two\n---\n');
     result = run(); assert.equal(result.status, 1); assert.match(result.stderr, /E_CONTENT_READ/);
   } finally { await rm(root, { recursive: true, force: true }); }

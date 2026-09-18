@@ -3,9 +3,10 @@ import { glob } from 'astro/loaders';
 import { fileURLToPath } from 'node:url';
 import { schemas } from './content/schemas';
 import { readContent, validateContent } from './utils/content-source';
+import { chinese } from './i18n/content';
 
 // Validate raw files before a loader can collapse duplicate physical IDs.
-const result = validateContent(await readContent(fileURLToPath(new URL('./content/', import.meta.url))));
+const result = validateContent(await readContent(fileURLToPath(new URL('./content/', import.meta.url))), chinese);
 if (result.errors.length) throw new Error(result.errors.map(e => `[${e.id}] ${e.entity}: ${e.message}`).join('\n'));
 
 const generateId = ({ data }: { data: Record<string, unknown> }) => {

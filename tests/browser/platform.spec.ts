@@ -40,7 +40,7 @@ test('local search returns working canonical URLs in both locales', async ({ pag
     await expect(result).toBeVisible();
     await expect(result).toHaveAttribute('href', `${base}${locale}/projects/ai-sre-platform/`);
     await result.click();
-    await expect(page.locator('main')).toContainText('lab');
+    await expect(page.locator('main')).toContainText(/lab/i);
   }
 });
 test('Article translation preserves context and search indexes Skill text', async ({ page }) => {
@@ -55,14 +55,26 @@ test('Article translation preserves context and search indexes Skill text', asyn
     await page.locator('.pagefind-ui__search-input').fill(query ?? '');
     await expect(page.locator('.pagefind-ui__result-link').first()).toBeVisible();
     const articleResult = page.locator(`.pagefind-ui__result-link[href="${base}${locale}/blog/astro-knowledge-platform/"]`).first();
-    // Broad Chinese terms also match aggregators; verify across real result pages.
-    for (let pageNumber = 0; pageNumber < 10 && !await articleResult.isVisible(); pageNumber++) {
-      const more = page.locator('.pagefind-ui__button');
-      if (!await more.isVisible()) break;
-      const previousCount = await page.locator('.pagefind-ui__result-link').count();
-      await more.click();
-      await expect.poll(() => page.locator('.pagefind-ui__result-link').count()).toBeGreaterThan(previousCount);
-    }
     await expect(articleResult).toBeVisible();
+    for (const href of await page.locator('.pagefind-ui__result-link').evaluateAll(links => links.map(link => link.getAttribute('href'))))
+      expect(href).toMatch(new RegExp(`${base}${locale}/(?:blog|cases|topics|learn|projects)/[^/]+/$`));
+  }
+});
+
+test('detail pages localize metadata and omit empty optional relationships', async ({ page }) => {
+  for (const [locale, difficulty, recommended, projects, related, paths] of [
+    ['en', 'Intermediate', 'Recommended reading', 'Projects', 'Related articles', 'Related learning paths'],
+    ['zh-tw', '中階', '延伸閱讀', '專案', '相關文章', '相關學習路徑'],
+  ] as const) {
+    await page.goto(`${locale}/blog/astro-knowledge-platform/`);
+    await expect(page.locator('main')).toContainText(difficulty);
+    await expect(page.getByRole('heading', { name: recommended, exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: projects, exact: true })).toHaveCount(0);
+    await page.goto(`${locale}/projects/ai-sre-platform/`);
+    await expect(page.getByRole('heading', { name: related, exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: paths, exact: true })).toHaveCount(0);
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'Maturity: Lab' : '成熟度: 實驗室（lab）');
+    await page.goto(`${locale}/learn/knowledge-platform/`);
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'For: Engineers · Technical writers' : '適合對象: 工程師 · 技術寫作者');
   }
 });

@@ -37,7 +37,7 @@ pnpm preview
 
 Frozen install 使用已提交的 lockfile。內容驗證會在正式建置前執行；`check` 同時執行 Astro 診斷及 TypeScript no-emit 檢查。`build` 先產生 `dist/`，再讓 Pagefind 建立搜尋索引。`test:build` 檢查實際 HTML、連結與資源，以及 canonical、sitemap、RSS、robots.txt 是否符合設定的部署路徑。
 
-編輯時可以使用 `pnpm dev`，但它不會建立 Pagefind 索引。搜尋測試應使用 build 後的 preview。Windows 若找不到 pnpm，可改用 `corepack.cmd pnpm`；`scripts/validate-all.ps1` 會透過 Corepack 執行本機品質檢查。
+編輯時可以使用 `pnpm dev`，但它不會建立 Pagefind 索引。搜尋測試應使用 build 後的 preview。Windows 若找不到 pnpm，可改用 `corepack.cmd pnpm`；`scripts/validate-all.ps1` 會透過 Corepack 執行五項必要指令與建置產物檢查。整合測試與 Chromium 測試需另外執行 `test:collections` 和 `test:browser`。
 
 ## 五種實體，共用一份文章來源
 
@@ -93,7 +93,7 @@ Astro 會靜態產生 `/zh-tw/` 與 `/en/`，以及 Start、Learn、Topics、Blo
 
 `tutorial`、`concept`、`reference`、`opinion` 對應 `/blog/:slug/`；`troubleshooting`、`case-study` 對應 `/cases/:slug/`。路徑工具還會加入語言與部署 base。只有 `status: published` 的文章產生公開頁面；draft 與 archived 仍接受內容驗證，但不進入公開列表、feeds 或搜尋。
 
-文章的語言切換依 translation key 尋找已發布對應版本，並使用目標自己的 slug 與內容類型路由。找不到時返回目標語言首頁；SEO 的 hreflang 只列出真正存在的已發布翻譯。共用的非文章實體維持單一 ID，繁體中文顯示文字放在 `src/i18n/content.ts`，沒有翻譯時使用來源文字。
+文章的語言切換依 translation key 尋找已發布對應版本，並使用目標自己的 slug 與內容類型路由。找不到時返回目標語言首頁；SEO 的 hreflang 只列出真正存在的已發布翻譯。語言入口與兩個首頁構成互相對應的群組，以語言入口作為 `x-default`。共用的非文章實體維持單一 ID，繁體中文顯示文字放在 `src/i18n/content.ts`，依 collection 與所屬學習路徑區分命名空間。缺少翻譯時會警告並使用來源文字，找不到對應實體的翻譯鍵則會報錯。適合對象、難度與成熟度的顯示文字也依語言切換，不改變關聯擁有權。
 
 首頁依序呈現 Hero、Start Here、LearningPaths、精選 Topics、精選 Project、最新 Cases、最新 Articles、About／Experience。空清單會明確顯示尚無已發布內容，不會為了填版面而虛構事件或工作經歷。
 
@@ -105,13 +105,13 @@ Astro 會靜態產生 `/zh-tw/` 與 `/en/`，以及 Start、Learn、Topics、Blo
 
 閱讀時間在建置時計算：漢字以每分鐘 400 字、其他詞語以每分鐘 200 詞估算，加總後向上取整且至少一分鐘。Fenced code、HTML tags、Markdown 連結／圖片目的網址不列入估算。這是可預期的近似值，不代表個別讀者的速度。
 
-Pagefind 索引建置後的主要內容，包含標題、描述、內文及已顯示的 Topic／Skill 名稱，排除全站導覽與搜尋介面。搜尋頁只載入本地 Pagefind 檔案，bundle 與結果網址都帶有部署 base。不同語言使用分開的索引。目前 Pagefind 對 `zh-tw` 不提供 stemming，因此不會跨詞根形式擴展匹配；瀏覽器測試會實際查詢兩種語言並開啟結果。
+Pagefind 索引 canonical Article 與 Topic、LearningPath、Project 詳情頁的主要內容，包含標題、描述、內文及已顯示的 Topic／Skill 名稱。首頁、分類索引頁、語言入口、全站導覽與搜尋介面都排除。搜尋頁只載入本地 Pagefind 檔案，bundle 與結果網址都帶有部署 base。不同語言使用分開的索引。目前 Pagefind 對 `zh-tw` 不提供 stemming，因此不會跨詞根形式擴展匹配；瀏覽器測試會實際查詢兩種語言並開啟結果。
 
 ## 在建置階段產生 SEO 與 feeds
 
 共用 Layout 輸出 title、description、canonical、Open Graph、分享圖片、語言 alternate links 與 RSS discovery link。技術文章使用 `TechArticle` JSON-LD，opinion 使用 `Article`。JSON 序列化會跳脫 `<`，避免文字終止 script element。
 
-Astro 的 `sitemap.xml.ts`、`robots.txt.ts` 與語言目錄下的 `rss.xml.ts` 是建置時 endpoint，最後產生靜態檔案，不是部署後的 backend API。RSS 使用穩定 Article ID 作 GUID、canonical URL 作連結。Sitemap 使用公開路由清單，若路由碰撞會中止建置，避免兩份內容互相覆蓋。Robots 允許一般 crawler 與 OAI-SearchBot，並指向設定好的 sitemap。
+Astro 的 `sitemap.xml.ts`、`robots.txt.ts` 與語言目錄下的 `rss.xml.ts` 是建置時 endpoint，最後產生靜態檔案，不是部署後的 backend API。RSS 使用穩定 Article ID 作 GUID、canonical URL 作連結，並提供在地化頻道標題與絕對 Atom self URL。已發布文章的路由碰撞會在內容驗證階段列出兩個來源檔案；sitemap 另保留最終唯一性檢查。產生的 robots 文字允許一般 crawler 與 OAI-SearchBot，並指向設定好的 sitemap。儲存庫網站的 crawler 只採用 origin 根目錄的 robots，因此 `/Blog/robots.txt` 本身無法設定爬取政策或 sitemap discovery。維護者須在發布前設定使用者網站根目錄的 robots 與 sitemap 指令；本機驗證只檢查產生的文字。
 
 ## 分開設定 GitHub Pages 的 origin 與 base
 

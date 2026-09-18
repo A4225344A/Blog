@@ -2,6 +2,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { article } from './fixtures';
 import { articleJsonLd, rssXml, safeJson, sitemapXml, xmlEscape } from '../src/utils/seo';
+import { locales, localePrefix, messages } from '../src/i18n';
+test('RSS channel titles and Atom self URLs follow locale and hosting base', () => {
+  for (const base of ['/', '/Blog/']) for (const locale of locales) {
+    const xml = rssXml([], locale, 'https://example.github.io', base);
+    assert.ok(xml.includes(`<title>${messages[locale].title}</title>`));
+    assert.ok(xml.includes('xmlns:atom="http://www.w3.org/2005/Atom"'));
+    assert.ok(xml.includes(`<atom:link href="https://example.github.io${base}${localePrefix[locale]}/rss.xml" rel="self" type="application/rss+xml"/>`));
+  }
+});
 test('RSS filters unpublished/wrong-locale Articles and preserves stable GUIDs', () => {
   const articles = [article({ title: 'A & <B>', description: '"quoted"', publishedAt: new Date('2026-09-01') }), article({ id: 'private', status: 'draft' }), article({ id: 'archived', status: 'archived' }), article({ id: 'zh', locale: 'zh-TW' })];
   const xml = rssXml(articles, 'en', 'https://example.github.io', '/repo/');

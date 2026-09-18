@@ -7,12 +7,13 @@ import '../styles/global.css';
 import { sections, ui } from '../i18n/ui';
 import { absoluteUrl, withBase } from '../utils/routes';
 import { safeJson } from '../utils/seo';
-interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean }
-const { locale, title, description, languageLinks = {}, alternates = languageLinks, jsonLd, article = false, search = false } = Astro.props;
+interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean; indexContent?: boolean }
+const { locale, title, description, languageLinks = {}, alternates = languageLinks, jsonLd, article = false, indexContent = false } = Astro.props;
 const t = messages[locale];
 const site = Astro.site?.href ?? 'http://localhost:4321';
 const canonical = absoluteUrl(Astro.url.pathname, site);
 const equivalentLinks = Object.keys(alternates).length ? alternates : Object.fromEntries(locales.map(target => [target, localePath(target, '', import.meta.env.BASE_URL)]));
+const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => localePath(target, '', import.meta.env.BASE_URL))].includes(Astro.url.pathname);
 ---
 <!doctype html>
 <html lang={locale}>
@@ -24,6 +25,7 @@ const equivalentLinks = Object.keys(alternates).length ? alternates : Object.fro
     <meta name="description" content={description ?? t.tagline} />
     <link rel="canonical" href={canonical} />
     {Object.entries(equivalentLinks).map(([target, path]) => <link rel="alternate" hreflang={target} href={absoluteUrl(path, site)} />)}
+    {isHomeCluster && <link rel="alternate" hreflang="x-default" href={absoluteUrl(import.meta.env.BASE_URL, site)} />}
     <meta property="og:title" content={title ?? t.title} />
     <meta property="og:description" content={description ?? t.tagline} />
     <meta property="og:type" content={article ? 'article' : 'website'} />
@@ -46,7 +48,7 @@ const equivalentLinks = Object.keys(alternates).length ? alternates : Object.fro
       {sections.map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)}>{ui[locale][section]}</a>)}
       <a href={localePath(locale, 'search', import.meta.env.BASE_URL)}>{ui[locale].search}</a>
     </nav>
-    <main id="main" tabindex="-1" data-pagefind-body={!search || undefined} data-pagefind-ignore={search || undefined}><slot /></main>
+    <main id="main" tabindex="-1" data-pagefind-body={indexContent || undefined} data-pagefind-ignore={!indexContent || undefined}><slot /></main>
     <footer><p>{t.tagline}</p></footer>
   </body>
 </html>

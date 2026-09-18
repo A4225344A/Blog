@@ -3,6 +3,8 @@ import { join, relative } from 'node:path';
 import { parseDocument } from 'yaml';
 import { schemas, type ContentGraph } from '../content/schemas';
 import { validateGraph, type Diagnostic } from './graph';
+import { validateEntityTranslations, type EntityTranslations } from '../i18n/content';
+import { articlePath } from './routes';
 
 export interface RawEntry { collection: keyof ContentGraph; source: string; data: unknown; body: string }
 export async function readContent(root: string): Promise<RawEntry[]> {
@@ -37,7 +39,7 @@ export async function readContent(root: string): Promise<RawEntry[]> {
   return result;
 }
 
-export function validateContent(entries: RawEntry[]) {
+export function validateContent(entries: RawEntry[], translations?: EntityTranslations) {
   const graph: ContentGraph = { articles: [], skills: [], topics: [], 'learning-paths': [], projects: [] };
   const errors: Diagnostic[] = [];
   const seen = new Map<string, string>();
@@ -66,5 +68,15 @@ export function validateContent(entries: RawEntry[]) {
     }
   }
   const validation = validateGraph(graph);
-  return { graph, errors: [...errors, ...validation.errors.filter(e => e.id !== 'E_DUPLICATE_ID')], warnings: validation.warnings };
+  const routes = new Map<string, string>();
+  for (const entry of entries.filter(entry => entry.collection === 'articles')) {
+    const parsed = schemas.articles.safeParse(entry.data);
+    if (!parsed.success || parsed.data.status !== 'published') continue;
+    const route = articlePath(parsed.data);
+    const previous = routes.get(route);
+    if (previous) errors.push({ id: 'E_ROUTE_COLLISION', entity: entry.source, message: `${route} also rendered by ${previous}` });
+    routes.set(route, entry.source);
+  }
+  const editorial = translations ? validateEntityTranslations(graph, translations) : { errors: [], warnings: [] };
+  return { graph, errors: [...errors, ...validation.errors.filter(e => e.id !== 'E_DUPLICATE_ID'), ...editorial.errors], warnings: [...validation.warnings, ...editorial.warnings] };
 }

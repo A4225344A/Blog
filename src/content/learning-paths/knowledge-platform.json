@@ -3,8 +3,8 @@
   "title": "Build an engineering knowledge platform",
   "description": "From a content model and Astro foundation to GitHub Pages delivery.",
   "targetAudience": [
-    "Engineers / 工程師",
-    "Technical writers / 技術寫作者"
+    "Engineers",
+    "Technical writers"
   ],
   "sections": [
     {
