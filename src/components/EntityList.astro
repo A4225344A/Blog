@@ -1,0 +1,12 @@
+---
+import type { Locale } from '../i18n';
+import { entityText } from '../i18n/content';
+import { ui } from '../i18n/ui';
+import { localePath } from '../utils/routes';
+interface Props { entries: { id: string; title?: string; name?: string; description: string }[]; locale: Locale; section: 'topics' | 'learn' | 'projects' }
+const { entries, locale, section } = Astro.props;
+---
+{entries.length ? <ul class="cards">{entries.map(entry => {
+  const text = entityText(section === 'learn' ? 'learning-paths' : section, entry, locale);
+  return <li><a href={localePath(locale, `${section}/${encodeURIComponent(entry.id)}`, import.meta.env.BASE_URL)}>{text.title}</a><p>{text.description}</p></li>;
+})}</ul> : <p class="muted">{ui[locale].empty}</p>}

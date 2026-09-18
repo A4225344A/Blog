@@ -1,0 +1,32 @@
+---
+import { messages, type Locale } from '../i18n';
+interface Props { locale: Locale }
+const t = messages[Astro.props.locale];
+---
+<label for="theme">{t.theme}</label>
+<select id="theme" aria-label={t.theme}>
+  <option value="system">{t.system}</option>
+  <option value="light">{t.light}</option>
+  <option value="dark">{t.dark}</option>
+</select>
+<script>
+  import { parseTheme, resolvedTheme } from '../utils/theme';
+  const select = document.querySelector<HTMLSelectElement>('#theme');
+  const media = matchMedia('(prefers-color-scheme: dark)');
+  let preference = parseTheme(null);
+  try { preference = parseTheme(localStorage.getItem('theme')); } catch { /* Use system. */ }
+  function apply() {
+    document.documentElement.dataset.theme = resolvedTheme(preference, media.matches);
+    if (select) select.value = preference;
+  }
+  select?.addEventListener('change', () => {
+    preference = parseTheme(select.value);
+    try { localStorage.setItem('theme', preference); } catch { /* Keep the preference for this page. */ }
+    apply();
+  });
+  media.addEventListener('change', apply);
+  window.addEventListener('storage', event => {
+    if (event.key === 'theme' || event.key === null) { preference = parseTheme(event.newValue); apply(); }
+  });
+  apply();
+</script>

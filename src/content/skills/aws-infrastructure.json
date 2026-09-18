@@ -1,0 +1,9 @@
+{
+  "id": "aws-infrastructure",
+  "name": "AWS infrastructure",
+  "description": "Infrastructure concepts explored in the AI SRE architecture lab.",
+  "category": "Cloud Native",
+  "aliases": [],
+  "prerequisites": [],
+  "status": "active"
+}

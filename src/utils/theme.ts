@@ -1,0 +1,7 @@
+export type Theme = 'light' | 'dark' | 'system';
+export function parseTheme(value: unknown): Theme {
+  return value === 'light' || value === 'dark' ? value : 'system';
+}
+export function resolvedTheme(theme: Theme, systemDark: boolean): 'light' | 'dark' {
+  return theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
+}

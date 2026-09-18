@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { locales, localePrefix, type Locale } from '../../i18n';
+import { ui } from '../../i18n/ui';
+import { localePath, withBase } from '../../utils/routes';
+export function getStaticPaths() { return locales.map(locale => ({ params: { locale: localePrefix[locale] }, props: { locale } })); }
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const languageLinks = Object.fromEntries(locales.map(target => [target, localePath(target, 'search', import.meta.env.BASE_URL)]));
+---
+<BaseLayout locale={locale} title={ui[locale].search} languageLinks={languageLinks} search>
+  <h1>{ui[locale].search}</h1>
+  <link rel="stylesheet" href={withBase('pagefind/pagefind-ui.css', import.meta.env.BASE_URL)} />
+  <div id="search" data-base={import.meta.env.BASE_URL}></div>
+  <p id="search-status" role="status">{locale === 'zh-TW' ? '搜尋載入中；也可使用主題導覽。' : 'Loading search; you can also browse Topics.'}</p>
+  <noscript><p>{locale === 'zh-TW' ? '搜尋需要 JavaScript。請使用主題與文章目錄瀏覽內容。' : 'Search needs JavaScript. Browse Topics or Articles instead.'}</p></noscript>
+  <script is:inline src={withBase('pagefind/pagefind-ui.js', import.meta.env.BASE_URL)} defer></script>
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.getElementById('search');
+      const status = document.getElementById('search-status');
+      if (root && typeof window.PagefindUI === 'function') {
+        new window.PagefindUI({ element: '#search', baseUrl: root.dataset.base, bundlePath: root.dataset.base + 'pagefind/', showImages: false });
+        if (status) status.hidden = true;
+      }
+    });
+  </script>
+</BaseLayout>

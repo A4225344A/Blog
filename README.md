@@ -1,323 +1,174 @@
 # Engineering Knowledge Platform
 
-A bilingual engineering knowledge platform built with Astro.
+> Engineering knowledge, built from real systems.
+>
+> 從實作、排障到架構，建立可循序學習的工程知識。
 
-> **Engineering knowledge, built from real systems.**
+**Status: IMPLEMENTED_PENDING_INDEPENDENT_REVIEW**
 
-Traditional Chinese:
+V1 Phase 1–7 is implemented. Claude independent review has not passed. Local
+validation is Builder evidence; the human remains the final merge authority.
 
-> **從實作、排障到架構，建立可循序學習的工程知識。**
+## What is implemented
 
-## Overview
+- Astro 5 static output, strict TypeScript, Markdown and pnpm.
+- Five content entities: Article, Topic, Skill, LearningPath and Project.
+- Raw-file schema/graph validation, reverse indexes and build-time reading time.
+- Traditional Chinese and English Home, Start, Learn, Topics, Blog, Cases,
+  Projects, About and Search pages, with detail views and canonical Articles.
+- Accessible wrapping navigation, language switching, static TOC and three-state theme.
+- Local Pagefind search, canonical/hreflang/Open Graph/JSON-LD, sitemap, RSS and robots.
+- Read-only PR/main CI and a separate deployment workflow using the successful
+  main CI artifact, with pinned Actions and deployment-only Pages/OIDC permissions.
+- The complete bilingual Astro implementation article and its LearningPath.
+- AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
+  for learning, demonstration and experimentation, not production deployment.
 
-This project combines:
-- structured Learning Paths
-- technical references
-- troubleshooting Case Studies
-- Project showcases
-- long-form engineering Articles
-- Topic-based discovery
-- static search
+No backend, database, authentication, accounts, AI functionality, progress tracking,
+quiz or interactive Skill Graph is implemented. The AI SRE lab is content about
+an external project, not an AI feature in this website. Cases currently have no
+published entries; About does not invent employment history or operational metrics.
 
-The platform is:
-- static-first
-- Git-managed
-- strongly typed
-- bilingual
-- SEO-friendly
-- AI-search-friendly
-- deployable on GitHub Pages
-- designed for near-zero infrastructure cost
+## Local development
 
-## V1 Scope
-
-Included:
-- Astro
-- strict TypeScript
-- zh-TW / English
-- Light / Dark / System
-- Article
-- Skill
-- Topic
-- LearningPath
-- Project
-- Content Graph V1
-- reverse indexes
-- basic content validation
-- Home
-- Start
-- Learn
-- Topics
-- Blog
-- Cases
-- Projects
-- About
-- static search
-- SEO
-- Sitemap
-- RSS
-- robots.txt
-- GitHub Actions
-- GitHub Pages
-
-Excluded:
-- AI recommendation
-- AI chat
-- interactive Skill Graph
-- quiz
-- learning dashboard
-- user accounts
-- authentication
-- database
-- backend API
-
-## Core Architecture
-
-Five entities:
-
-```text
-Article
-Skill
-Topic
-LearningPath
-Project
-```
-
-Relationship ownership:
-
-```text
-LearningPath
-→ owns ordered Article membership
-
-Project
-→ owns project-related Article membership
-
-Article
-→ owns Topic / Skill / prerequisite / recommendation references
-```
-
-Reverse relationships are derived at build-time.
-
-See `docs/architecture.md`.
-
-## Routes
-
-Localized prefixes:
-- `/zh-tw/`
-- `/en/`
-
-Main sections:
-- `/start`
-- `/learn`
-- `/topics`
-- `/blog`
-- `/cases`
-- `/projects`
-- `/about`
-
-Canonical Article routing:
-
-```text
-troubleshooting
-case-study
-→ /cases/:slug/
-```
-
-```text
-tutorial
-concept
-reference
-opinion
-→ /blog/:slug/
-```
-
-## Content Structure
-
-```text
-src/content/
-├─ articles/
-│  ├─ zh-tw/
-│  └─ en/
-├─ topics/
-├─ skills/
-├─ learning-paths/
-└─ projects/
-```
-
-One Article remains one canonical entity.
-
-## First Article
-
-Traditional Chinese:
-
-> 使用 Astro 建立零成本技術知識平台：從內容模型到 GitHub Pages
-
-English:
-
-> Building a Zero-Cost Engineering Knowledge Platform with Astro and GitHub Pages
-
-Initial featured Project: **AI SRE Platform**.
-
-## Development Workflow
-
-```text
-Codex
-= Primary Builder
-
-Claude Code
-= Independent Reviewer
-
-Human
-= Final Merge Authority
-```
-
-Workflow:
-
-```text
-Human Requirement
-↓
-Codex Build
-↓
-Validation
-↓
-Pull Request
-↓
-Claude Review
-↓
-Codex Fix
-↓
-Claude Re-review
-↓
-Human Gate
-↓
-Merge
-```
-
-Rules:
-- `AGENTS.md`
-- `CLAUDE.md`
-
-## Local Development
-
-V1 should expose at minimum:
+Use Node.js 22.12+ and pnpm 10.32.1, pinned in `package.json`.
 
 ```bash
-pnpm install
-pnpm dev
+pnpm install --frozen-lockfile
 pnpm run content:validate
 pnpm run test
 pnpm run check
 pnpm run build
+pnpm run test:build
+pnpm preview
 ```
 
-Use `pnpm` consistently.
+Use `pnpm dev` while editing. Search requires the generated Pagefind index, so use
+build and preview to test it. On Windows, `corepack.cmd pnpm` works when pnpm is
+not on PATH. `scripts/validate-all.ps1` runs the five required commands above plus
+`test:build`. Collection integration and browser tests require the separate commands below.
 
-## Content Validation
+Additional validation:
 
-Hard failures:
-- duplicate IDs
-- invalid Topic references
-- invalid Skill references
-- invalid prerequisite references
-- invalid recommended Article references
-- invalid LearningPath Article references
-- invalid Project references
-- forbidden Article `learningPaths`
-- forbidden Article `projects`
+```bash
+pnpm run test:collections
+# This temporarily writes exclusive fixtures and removes them afterward.
+pnpm run build
+pnpm run test:build
+```
 
-Warnings:
-- Article without Topic
-- Article without Skill
-- Article not used by LearningPath
-- Article not used by Project
-- deprecated Skill still referenced
-- incomplete translation pair
+Stop concurrent content editing during the collection fixture test. It covers
+actual Markdown rendering, case canonical routing, and unpublished exclusion.
 
-Advanced graph checks are deferred.
+Browser tests require Chromium. On PowerShell:
 
-## Theme
+```powershell
+$env:PLAYWRIGHT_BROWSERS_PATH = Join-Path (Get-Location) '.playwright'
+corepack.cmd pnpm exec playwright install chromium
+corepack.cmd pnpm run test:browser
+```
 
-Support:
-- `light`
-- `dark`
-- `system`
+On Linux/macOS, use `PLAYWRIGHT_BROWSERS_PATH=.playwright pnpm exec playwright install chromium`
+then `pnpm run test:browser`. CI installs browser system dependencies too.
 
-Default: `system`.
+## Content and ownership
 
-## Internationalization
+```text
+src/content/
+  articles/{zh-tw,en}/       Markdown + YAML frontmatter
+  topics/                   One JSON object per file
+  skills/                   One JSON object per file
+  learning-paths/            One JSON object per file
+  projects/                 One JSON object per file
+```
 
-Support:
-- `zh-TW`
-- `en`
+`src/content/schemas.ts` is authoritative for metadata types. `id` is stable entity
+identity, `translationKey` groups Article translations, and `slug` is presentation.
+Never use a slug as the persistent reference key.
 
-Language switching should preserve equivalent page context when translations exist.
+- LearningPath owns Article membership and order.
+- Project owns related Articles, featured Skills and related LearningPaths.
+- Article owns Topic, Skill, prerequisite Skill and recommended Article references.
+- Reverse relationships are derived during the build.
 
-## Search
+Article metadata rejects `order`, `level`, `learningPaths`, `projects` and
+`estimatedMinutes`. Reading time is derived; only a positive integer
+`estimatedMinutesOverride` is allowed as an exception. Markdown is supported;
+MDX is not installed. Source files remain trusted Git-managed author content.
 
-Preferred: Pagefind.
+Only published Articles become public pages. Troubleshooting and case-study use
+`/cases/:slug/`; other types use `/blog/:slug/`. Both include the locale and base.
+Aggregators link to those canonical URLs. Shared entity Chinese labels are in
+`src/i18n/content.ts`, namespaced by collection and owning path for sections.
+Absent translations fall back to source text with `W_MISSING_ENTITY_TRANSLATION`;
+stale translation keys fail with `E_UNKNOWN_ENTITY_TRANSLATION`. The normal CLI and
+Astro preflight check these editorial mappings; custom CLI roots validate their own
+content without applying this repository's translation catalog.
 
-No backend search service is required.
-
-## SEO
-
-Canonical Article pages should provide:
-- title
-- description
-- canonical
-- Open Graph
-- hreflang
-- JSON-LD
-- static HTML content
-
-Published content should be discoverable through sitemap, RSS, robots.txt, and internal links.
+Content validation fails for duplicate entity IDs, required missing references,
+forbidden fields, published Article route collisions (`E_ROUTE_COLLISION`), stale
+translation keys and schema/read errors. The six V1 graph warning categories and
+the editorial translation warning remain nonblocking.
+The two initial Article-to-Project membership warnings are intentional: the Astro
+implementation article is not part of the AI SRE lab. Advanced graph checks remain
+deferred. See [architecture](docs/architecture.md) for exact diagnostic IDs.
 
 ## GitHub Pages
 
-Hosting target: GitHub Pages.
+`SITE_URL` is an HTTP(S) origin; `SITE_BASE` is a separate path. Defaults are
+`http://localhost:4321` and `/`. For the current repository:
 
-Support both:
-- `https://username.github.io/`
-- `https://username.github.io/repository-name/`
-
-Correct Astro `site` and `base` handling is required.
-
-## CI / Deployment
-
-Expected quality gate:
-
-```text
-install
-↓
-content validation
-↓
-tests
-↓
-Astro check
-↓
-build
+```powershell
+$env:SITE_URL = 'https://a4225344a.github.io'
+$env:SITE_BASE = '/Blog/'
+corepack.cmd pnpm run build
+corepack.cmd pnpm run test:build
+corepack.cmd pnpm run test:browser
 ```
 
-Pull Requests do not deploy.
+A user-site repository such as `username/username.github.io` uses base `/`.
+Other repositories use `/repository-name/`. CI derives both settings from
+`GITHUB_REPOSITORY`. Production URLs, internal links, assets, search results and
+feeds use these values. A repository-level robots.txt is generated under the base;
+crawlers that only consult the origin-root robots.txt remain subject to that host's
+root configuration, which this repository cannot replace. The project-base file
+does not satisfy crawler configuration or sitemap discovery. Before production,
+configure the owner-site repository's origin-root `https://a4225344a.github.io/robots.txt`
+with the intended crawler policy and `Sitemap: https://a4225344a.github.io/Blog/sitemap.xml`.
+Search Console submission can aid sitemap discovery; it cannot set crawler policy.
+`test:build` verifies generated text only, not this external configuration.
 
-Deployment occurs only after successful CI on `main`.
+## CI, deployment and human gate
 
-## Governance Files
+CI runs frozen install → content validation → tests → Astro/TypeScript checks →
+collection integration test → root/production builds and browser/output checks.
+PRs never deploy. Only a main push uploads `verified-site`.
 
-```text
-AGENTS.md
-CLAUDE.md
-docs/architecture.md
-.github/pull_request_template.md
-README.md
-```
+The deployment workflow runs after successful main push CI from this repository,
+rejects stale SHAs, downloads that exact run's artifact, and deploys without a
+source checkout or rebuild. Only its deploy job receives Pages write/OIDC rights.
 
-Responsibilities:
-- `AGENTS.md` → how Codex builds
-- `CLAUDE.md` → how Claude reviews
-- `docs/architecture.md` → what the system is
-- PR template → human quality gate
-- `README.md` → how humans understand and use the repository
+Before the first push to main, the maintainer must complete these hard preconditions:
 
-## License
+1. Enable GitHub Actions as the repository's Pages source.
+2. Require CI and human-approved PRs before merging to main.
+3. Configure required human reviewers for the `github-pages` environment.
+4. Obtain independent review and resolve its findings.
+5. Configure the origin-root robots policy and sitemap directive described above.
+6. Choose the code/content license before production publication.
 
-Choose an explicit license before public release if the repository will contain reusable code or learning content.
+These settings are not automatically configured by repository files. The Builder
+has not pushed these commits, executed hosted CI or deployed the site.
+
+## Review and known limits
+
+Read `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md` and the latest V1 handoff.
+The current review-fix report is [V1 Claude Review Fixes](docs/handoff-review-fixes.md),
+including per-finding dispositions and validation evidence.
+The earlier Phase 1–3 handoff is historical. Review should focus on ownership,
+publication filtering, base URLs, search/translation, theme accessibility and the
+CI artifact trust boundary. Chromium tests do not replace a full accessibility or
+cross-browser audit. Pagefind does not stem `zh-tw` terms; Chinese query behavior
+is tested. Reading time is an estimate. No V2/V3 features were added.
+
+An explicit license should be chosen before public reuse of the code/content.

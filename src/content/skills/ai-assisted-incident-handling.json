@@ -1,0 +1,9 @@
+{
+  "id": "ai-assisted-incident-handling",
+  "name": "AI-assisted incident handling",
+  "description": "Experiment with AI assistance during incident analysis in a lab.",
+  "category": "AI Engineering",
+  "aliases": [],
+  "prerequisites": [],
+  "status": "active"
+}

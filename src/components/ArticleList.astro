@@ -1,0 +1,12 @@
+---
+import type { Article } from '../content/schemas';
+import type { Locale } from '../i18n';
+import { ui } from '../i18n/ui';
+import { articlePath } from '../utils/routes';
+interface Props { articles: Article[]; locale: Locale; ordered?: boolean }
+const { articles, locale, ordered = false } = Astro.props;
+const List = ordered ? 'ol' : 'ul';
+---
+{articles.length ? <List class="cards">
+  {articles.map(article => <li><a href={articlePath(article, import.meta.env.BASE_URL)}>{article.title}</a><p>{article.description}</p></li>)}
+</List> : <p class="muted">{ui[locale].empty}</p>}
