@@ -602,7 +602,7 @@ PRs must not deploy production.
 
 ## Deployment Gate
 
-Deploy only after CI succeeds on `main`. Prefer the exact CI-verified SHA. Only the deploy workflow should receive GitHub Pages write/OIDC permissions.
+CI and deployment share one workflow with separate jobs. Deploy only after CI succeeds on `main`, using the exact CI-verified artifact. The deploy job must use the `github-pages` environment with required human reviewers. Only the deploy job should receive GitHub Pages write/OIDC permissions.
 
 ## Testing
 
