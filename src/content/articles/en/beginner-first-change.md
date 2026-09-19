@@ -16,24 +16,11 @@ updatedAt: 2026-09-20
 status: published
 ---
 
-A home page alone does not make a maintainable blog. This article separates writing from layout, generates deployable output and explains how this repository validates and publishes it.
+For a second article, I do not want another copy of the HTML with its title, heading and body edited by hand. The page shell should be shared, leaving the article file for the writing.
 
-Continue the small `engineering-blog` project from the previous article. It is a minimal Astro example, not a replacement for this site's complete Content Graph.
+Continue with `engineering-blog` and try this with one Markdown file and one Astro layout. Later, connect the local output to this site's publishing workflow, noting where the small example and the actual repository differ.
 
-## Content, layout and delivery responsibilities
-
-<figure class="learning-diagram">
-<figcaption>Architecture: from writing an article to delivering a page</figcaption>
-<ol role="list">
-<li><strong>1. Markdown and layout</strong><span>Content supplies the writing; a layout shares headings, navigation and styles.</span></li>
-<li><strong>2. Astro build</strong><span>Combines both into static files in dist.</span></li>
-<li><strong>3. CI and human approval</strong><span>This repository validates first; successful main CI waits for deployment approval.</span></li>
-<li><strong>4. GitHub Pages</strong><span>Publishes the verified artifact without rebuilding on the live site.</span></li>
-</ol>
-<p>CI and approval describe this repository. A new repository still needs its own workflow and environment settings.</p>
-</figure>
-
-## Write an article with Markdown
+## Give the repeated HTML a layout
 
 Create `src/layouts/PostLayout.astro`. A layout supplies the page shell; the slot receives the article body:
 
@@ -99,19 +86,21 @@ In `src/pages/index.astro`, add this below the paragraph:
 <a href={`${base}posts/build-notes/`}>Read the build notes</a>
 ```
 
-Save and run dev. Verify that the home page reaches the article, its title and body render, and its return link works. On Windows, Ctrl+S saves and pnpm.cmd selects the command wrapper.
+Save with Ctrl+S, run dev and follow the link from home. The title, description and body appear together, but come from two files: Markdown supplies the text and the layout places it on the page. The return link lives in the layout too, ready to share with later articles.
 
-## How the example differs from this repository
+## Where articles live as the site grows
 
 Markdown under pages directly creates routes, which makes the content/layout relationship easy to inspect. **This repository stores published articles under src/content/articles**, validates them with Content Collections and schemas, and renders them through canonical routes.
 
-An ID identifies content; a slug controls its URL. LearningPath owns series order and Project owns related-article membership. Reverse relationships are computed during building. An article appearing in several aggregations should still have one body.
+This site also lists the same article under topics, series and projects. Those pages link back to one body. LearningPath records the series order; Project records its related articles. The build then computes where each article is referenced.
 
-The small example explains Astro without changing the repository's authoritative ownership. The existing full model handles bilingual content and relationships.
+That is also why content has a stable ID separate from its URL slug. When a URL changes, series and projects still refer to the original ID. The one-article example can stay small for now, without that relationship model.
 
-## GitHub Pages needs an explicit base
+## The link works locally. What about under /Blog/?
 
-Create `astro.config.mjs`:
+The link above uses `base` for a reason. This site is deployed under `/Blog/`, and article URLs must start there too. A link hardcoded to `/posts/build-notes/` sends the browser to the origin root, skipping `/Blog/`.
+
+Add `astro.config.mjs` to the example so the build can use that path:
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -139,7 +128,20 @@ Replace YOUR_USERNAME and Blog with your account and repository. Stop dev with C
 
 A successful build creates `dist`. Preview serves that output; source changes require another build. These steps remain local and do not upload the site.
 
-## This repository publishes after validation and approval
+## Which files actually get published?
+
+After inspecting the local result, there is another question for deployment: are the files going live the ones that passed the checks? This repository uses the following workflow.
+
+<figure class="learning-diagram">
+<figcaption>Architecture: from writing an article to delivering a page</figcaption>
+<ol role="list">
+<li><strong>1. Markdown and layout</strong><span>Content supplies the writing; a layout shares headings, navigation and styles.</span></li>
+<li><strong>2. Astro build</strong><span>Combines both into static files in dist.</span></li>
+<li><strong>3. CI and human approval</strong><span>This repository validates first; successful main CI waits for deployment approval.</span></li>
+<li><strong>4. GitHub Pages</strong><span>Publishes the verified artifact without rebuilding on the live site.</span></li>
+</ol>
+<p>CI and approval require a repository workflow and environment settings. The local example above has not added them.</p>
+</figure>
 
 Its single CI workflow contains separate validation and deployment jobs:
 
@@ -150,10 +152,6 @@ Its single CI workflow contains separate validation and deployment jobs:
 
 A new repository needs source and lockfile commits, its own Actions workflow, GitHub Actions selected as the Pages source, and Required reviewers on the github-pages environment. Referencing the environment in YAML does not configure reviewers.
 
-The minimal example only defines dev, build and preview. **Do not copy the repository's test commands without implementing their scripts.** Compare the [actual workflow](https://github.com/A4225344A/Blog/blob/main/.github/workflows/ci.yml) and [Astro's GitHub Pages guidance](https://docs.astro.build/en/guides/deploy/github/). This describes the delivery design; it does not claim to have deployed anything to the reader's account.
+For the configuration, compare the [actual workflow](https://github.com/A4225344A/Blog/blob/main/.github/workflows/ci.yml) and [Astro's GitHub Pages guidance](https://docs.astro.build/en/guides/deploy/github/). The example currently has only dev, build and preview scripts. Adopting this repository's validation flow also requires implementing its content checks and test scripts.
 
-## Writing matters more than accumulating features
-
-The small blog now has a home page, an article, a shared layout and inspectable static output. A useful project write-up can follow context, decision, implementation, verification and limitations. Diagrams explain relationships while code explains implementation.
-
-The existing architecture article goes deeper into search, bilingual content, SEO and ownership. This series focuses on turning a full-stack engineer's implementation work into a readable, maintainable blog.
+What matters to me is the connection between approval and the artifact: inspect a result, approve it and publish that result. Rebuilding after approval would leave the inspected output insufficient to explain what was actually released. That is why the deployment job uses the artifact from the same CI run.
