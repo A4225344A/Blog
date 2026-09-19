@@ -140,13 +140,16 @@ Implementation details:
 - `/start/` offers two localized entries: no coding experience, or existing coding
   experience. `siteConfig.startLearningPathIds` points to LearningPath IDs, not an
   additional Article membership list. The homepage directs new readers to Start.
-- `first-website` contains three bilingual beginner lessons: tools, local website,
-  and first visible edit. It targets Windows/PowerShell with Node.js 24.x and the
+- `first-website` contains three bilingual beginner lessons: tools, a site created
+  from an empty folder, and styles/second page/navigation/build. It targets Windows/PowerShell with Node.js 24.x and the
   repository's pnpm 10.32.1. Each lesson explains where to act, what success looks
   like, common failures and recovery. Reading estimates are not practice durations.
-- The exercise downloads a ZIP pinned to the released `8974f88` snapshot so file
-  names, commands and initial heading remain reproducible. No Git installation,
-  account, publishing or remote modification is required for the exercise.
+- Readers write package.json (Astro 5.18.2), src/pages/index.astro and about.astro
+  themselves. First install creates a lockfile; it does not use frozen-lockfile
+  before that file exists. No repository download or starter project is used.
+- Article pages present TOC and body first, followed by path navigation, then
+  Topic/Skill discovery and prerequisite metadata. Topic ownership and canonical
+  classification links are preserved without placing them ahead of the lesson.
 - `web-foundations` is a human-facing Topic beneath `platform-engineering`. Three
   new Skills describe taught capabilities and prerequisite dependencies; they do
   not replace Topics or become additional core entity types.

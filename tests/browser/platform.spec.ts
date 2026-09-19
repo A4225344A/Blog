@@ -16,6 +16,12 @@ test('a beginner can follow all three lessons and switch languages without losin
     await page.getByRole('link', { name: firstTitle, exact: true }).click();
     await expect(page.locator('h1')).toHaveText(firstTitle);
     const pathNav = page.locator('nav[aria-label^="Continue this learning path"], nav[aria-label^="繼續這條學習路徑"]');
+    const topicsHeading = page.getByRole('heading', { name: locale === 'en' ? 'Topics' : '主題', exact: true });
+    const proseEnd = await page.locator('.prose').evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
+    const navigationEnd = await pathNav.evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
+    const topicsStart = await topicsHeading.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
+    expect(topicsStart).toBeGreaterThan(proseEnd);
+    expect(topicsStart).toBeGreaterThan(navigationEnd);
     await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toHaveCount(0);
     await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
     await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/beginner-local-website/$`));

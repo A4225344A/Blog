@@ -11,7 +11,7 @@ export interface EntityTranslations {
 }
 export const chinese: EntityTranslations = {
 topics: {
-  'web-foundations': { title: '網站入門', description: '認識工具、在自己的電腦開啟網站，完成第一次修改。' },
+  'web-foundations': { title: '網站入門', description: '認識工具，從空資料夾建立自己的頁面、樣式與導覽。' },
   'platform-engineering': { title: '平台工程', description: '以可維護的工具、交付流程與文件支援工程團隊。' },
   'cloud-native': { title: '雲原生', description: '容器、宣告式基礎設施與分散式系統的設計。' },
   sre: { title: '網站可靠性工程', description: '從可觀測性、排障到可靠性實務。' },
@@ -21,7 +21,7 @@ topics: {
 skills: {
   'terminal-basics': { title: '在終端機執行指令', description: '開啟 PowerShell，逐行執行指令並確認工具版本。' },
   'local-website-preview': { title: '在電腦上預覽網站', description: '找到專案資料夾、安裝所需套件，啟動與停止本機網站。' },
-  'editing-web-pages': { title: '編輯與儲存網頁', description: '修改原始檔的標題、儲存、確認瀏覽器結果，並還原修改。' },
+  'editing-web-pages': { title: '編輯與儲存網頁', description: '編寫頁面內容、樣式與連結，儲存並確認瀏覽器結果。' },
   'astro-content-modeling': { title: 'Astro 內容建模', description: '使用型別與 schema 管理靜態內容。' },
   'static-site-delivery': { title: '靜態網站交付', description: '驗證並交付可部署的靜態產物。' },
   'aws-infrastructure': { title: 'AWS 基礎設施', description: '在架構實驗室中探索 AWS 基礎設施概念。' },
@@ -30,8 +30,8 @@ skills: {
   'ai-assisted-incident-handling': { title: 'AI 輔助事件處理', description: '在實驗室中探索 AI 輔助事件分析。' },
 },
 'learning-paths': {
-  'first-website': { title: '從零開始：我的第一個網站', description: '用 Windows 完成三個步驟：準備工具、在自己的電腦開啟這個網站、修改標題並看到結果。不需要程式經驗；這一階段尚不包含公開發布。', targetAudience: ['沒有程式經驗的讀者', '會下載檔案、使用瀏覽器的 Windows 使用者'], sections: {
-    'first-local-change': { title: '準備工具 → 開啟網站 → 看到修改', description: '請依序閱讀。每篇都有操作、成功檢查與錯誤處理；頁首閱讀時間不包含安裝與練習。' },
+  'first-website': { title: '從零開始：我的第一個網站', description: '用 Windows 完成三個步驟：準備工具、從空資料夾建立自己的網站、加入樣式與第二個頁面。不需要程式經驗；這一階段尚不包含公開發布。', targetAudience: ['沒有程式經驗的讀者', '會下載檔案、使用瀏覽器的 Windows 使用者'], sections: {
+    'first-local-change': { title: '準備工具 → 建立首頁 → 加入頁面與樣式', description: '請依序閱讀。每篇都有操作、成功檢查與錯誤處理；頁首閱讀時間不包含安裝與練習。' },
   } },
   'knowledge-platform': { title: '建立工程知識平台', description: '給已能執行 Node.js 專案、修改網頁檔案的讀者：以中階架構角度理解內容模型、Astro 與 GitHub Pages 交付。', targetAudience: ['工程師', '技術寫作者'], sections: {
     foundation: { title: '從完整範例開始', description: '先理解實際儲存庫，再調整自己的內容。' },
