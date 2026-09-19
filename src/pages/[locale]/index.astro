@@ -17,12 +17,12 @@ const articles = publishedArticles(graph.articles, locale);
 const href = (section: string) => localePath(locale, section, import.meta.env.BASE_URL);
 ---
 <BaseLayout locale={locale}>
-  <section class="hero"><p class="eyebrow">ENGINEERING KNOWLEDGE</p><h1>{messages[locale].tagline}</h1><a class="button" href={href('start')}>{t.explore}</a></section>
+  <section class="hero"><p class="eyebrow">FULL-STACK ENGINEERING</p><h1>{messages[locale].tagline}</h1><a class="button" href={href('start')}>{t.explore}</a></section>
   <section><h2><a href={href('start')}>{t.start}</a></h2><p>{t.startIntro}</p></section>
+  <section><h2><a href={href('blog')}>{t.latestArticles}</a></h2><ArticleList articles={articles.filter(a => !isCase(a)).slice(0, 3)} locale={locale} /></section>
+  <section><h2>{t.featuredProject}</h2><EntityList entries={graph.projects.filter(p => p.id === siteConfig.featuredProjectId)} section="projects" locale={locale} /></section>
   <section><h2><a href={href('learn')}>{t.learn}</a></h2><EntityList entries={graph['learning-paths']} section="learn" locale={locale} /></section>
   <section><h2>{t.featuredTopics}</h2><EntityList entries={resolveOrderedIds(siteConfig.featuredTopicIds, graph.topics)} section="topics" locale={locale} /></section>
-  <section><h2>{t.featuredProject}</h2><EntityList entries={graph.projects.filter(p => p.id === siteConfig.featuredProjectId)} section="projects" locale={locale} /></section>
   <section><h2><a href={href('cases')}>{t.latestCases}</a></h2><ArticleList articles={articles.filter(isCase).slice(0, 3)} locale={locale} /></section>
-  <section><h2><a href={href('blog')}>{t.latestArticles}</a></h2><ArticleList articles={articles.filter(a => !isCase(a)).slice(0, 3)} locale={locale} /></section>
   <section><h2><a href={href('about')}>{t.experience}</a></h2><p>{t.aboutIntro}</p></section>
 </BaseLayout>

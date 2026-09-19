@@ -1,6 +1,6 @@
 {
   "id": "web-foundations",
-  "name": "Website basics",
-  "description": "Understand the tools and build your own pages, styles and navigation from an empty folder.",
+  "name": "Website engineering",
+  "description": "Static-site tool selection, development workflows and content delivery.",
   "parentId": "platform-engineering"
 }

@@ -24,13 +24,13 @@ test('path navigation follows owned section order and skips unpublished or other
   for (const id of ['draft', 'archived', 'unknown', 'article-zh']) assert.equal(pathArticleNavigation(path, content.articles, 'en', id), undefined);
 });
 
-test('real beginner path starts with zero prerequisites and teaches prerequisites before using them in both locales', async () => {
+test('Astro article series preserves bilingual order and teaches declared prerequisites before use', async () => {
   const result = validateContent(await readContent(resolve('src/content')), chinese);
   assert.deepEqual(result.errors, []);
   assert.ok(!result.warnings.some(warning => warning.id === 'W_MISSING_ENTITY_TRANSLATION'));
   const paths = result.graph['learning-paths'];
   for (const id of Object.values(siteConfig.startLearningPathIds)) assert.ok(paths.some(path => path.id === id), `Missing start route: ${id}`);
-  const beginner = paths.find(path => path.id === siteConfig.startLearningPathIds.beginner)!;
+  const beginner = paths.find(path => path.id === siteConfig.startLearningPathIds.blog)!;
   const translations: string[][] = [];
   for (const locale of locales) {
     const lessons = orderedPathArticles(beginner, result.graph.articles, locale).flatMap(section => section.articles);
@@ -38,13 +38,13 @@ test('real beginner path starts with zero prerequisites and teaches prerequisite
     assert.deepEqual(lessons[0]?.prerequisiteSkills, []);
     const learned = new Set<string>();
     for (const lesson of lessons) {
-      assert.equal(lesson.difficulty, 'beginner');
+      assert.equal(lesson.difficulty, 'intermediate');
       for (const skill of lesson.prerequisiteSkills) assert.ok(learned.has(skill), `${lesson.id} requires ${skill} before it is taught`);
       for (const skill of lesson.skills) learned.add(skill);
     }
     translations.push(lessons.map(lesson => lesson.translationKey));
   }
   assert.deepEqual(translations[0], translations[1]);
-  const experienced = paths.find(path => path.id === siteConfig.startLearningPathIds.experienced)!;
+  const experienced = paths.find(path => path.id === siteConfig.startLearningPathIds.architecture)!;
   assert.ok(orderedPathArticles(experienced, result.graph.articles, 'en').some(section => section.articles.some(lesson => lesson.difficulty === 'intermediate')));
 });
