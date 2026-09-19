@@ -150,6 +150,10 @@ Implementation details:
 - Article pages present TOC and body first, followed by path navigation, then
   Topic/Skill discovery and prerequisite metadata. Topic ownership and canonical
   classification links are preserved without placing them ahead of the lesson.
+- Beginner lessons include localized HTML/CSS architecture figures with captions,
+  ordered steps and adjacent text explanations. They render without JavaScript,
+  stack on narrow screens and use the existing theme colors. Guided observations
+  explain commands and cause/effect; no quiz engine or progress state is added.
 - `web-foundations` is a human-facing Topic beneath `platform-engineering`. Three
   new Skills describe taught capabilities and prerequisite dependencies; they do
   not replace Topics or become additional core entity types.

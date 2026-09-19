@@ -188,7 +188,8 @@ verification, including observing the deployment wait for approval.
 ## Review and known limits
 
 Read `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md` and the latest V1 handoff.
-The current report is [Beginner Learning Path](docs/handoff-beginner-path.md).
+The current report is [Illustrated Beginner Lessons](docs/handoff-illustrated-beginner.md).
+The preceding report is [Beginner Learning Path](docs/handoff-beginner-path.md).
 The workflow report is [Unified CI and Human-Gated Deployment](docs/handoff-unified-ci.md).
 The earlier [V1 Claude Review Fixes](docs/handoff-review-fixes.md) records the previous findings.
 The earlier Phase 1–3 handoff is historical. Review should focus on ownership,

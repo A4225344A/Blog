@@ -2,6 +2,30 @@ import { test, expect } from '@playwright/test';
 import { normalizeBase } from '../../src/config/hosting';
 const base = normalizeBase(process.env.SITE_BASE);
 
+test('lesson diagrams remain readable on mobile and desktop without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  for (const locale of ['zh-tw', 'en']) {
+    for (const lesson of ['beginner-tools', 'beginner-local-website', 'beginner-first-change']) {
+      for (const width of [375, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.emulateMedia({ colorScheme: width === 375 ? 'dark' : 'light' });
+        await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/${lesson}/`);
+        const figure = page.locator('figure.learning-diagram');
+        await expect(figure).toBeVisible();
+        await expect(figure.locator('figcaption')).not.toBeEmpty();
+        await expect(figure.locator('li')).toHaveCount(lesson === 'beginner-local-website' ? 3 : 4);
+        expect(await figure.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        if (locale === 'zh-tw' && lesson === 'beginner-first-change') {
+          await figure.screenshot({ path: `test-results/lesson-diagram-${width}.png` });
+        }
+      }
+    }
+  }
+  await context.close();
+});
+
 test('a beginner can follow all three lessons and switch languages without losing their place', async ({ page }) => {
   for (const [locale, beginner, experienced, firstTitle, next, previous, switchLanguage] of [
     ['zh-tw', '我沒有開發經驗', '我已經會寫程式', '第一次做網站：認識工具，找到輸入指令的地方', '下一篇', '上一篇', 'English'],
