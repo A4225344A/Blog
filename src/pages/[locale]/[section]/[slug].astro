@@ -45,9 +45,6 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
       <p class="muted">{readingTimes.get(id)} {t.minutes} · {difficultyLabels[locale][article.difficulty]}</p>
       {article.publishedAt && <p>{t.published}: <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></p>}
       {article.updatedAt && <p>{t.updated}: <time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></p>}
-      <h2>{t.topics}</h2><EntityList entries={graph.topics.filter(topic => article.topics.includes(topic.id))} section="topics" locale={locale} />
-      <h2>{t.skills}</h2><ul>{graph.skills.filter(skill => article.skills.includes(skill.id)).map(skill => <li>{entityText('skills', skill, locale).title}</li>)}</ul>
-      {article.prerequisiteSkills.length > 0 && <><h2>{t.prerequisites}</h2><ul>{graph.skills.filter(skill => article.prerequisiteSkills.includes(skill.id)).map(skill => <li>{entityText('skills', skill, locale).title}</li>)}</ul></>}
       {rendered && rendered.headings.length > 0 && <nav class="toc" aria-label={t.contents}><h2>{t.contents}</h2><ul>{rendered.headings.filter(h => h.depth === 2).map(h => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul></nav>}
       {Content && <div class="prose"><Content /></div>}
       {graph['learning-paths'].filter(path => articleReverse?.learningPathIds.includes(path.id)).map(path => {
@@ -61,6 +58,9 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
           </ul>
         </nav>;
       })}
+      <h2>{t.topics}</h2><EntityList entries={graph.topics.filter(topic => article.topics.includes(topic.id))} section="topics" locale={locale} />
+      <h2>{t.skills}</h2><ul>{graph.skills.filter(skill => article.skills.includes(skill.id)).map(skill => <li>{entityText('skills', skill, locale).title}</li>)}</ul>
+      {article.prerequisiteSkills.length > 0 && <><h2>{t.prerequisites}</h2><ul>{graph.skills.filter(skill => article.prerequisiteSkills.includes(skill.id)).map(skill => <li>{entityText('skills', skill, locale).title}</li>)}</ul></>}
       {articles.some(a => article.recommendedArticles.includes(a.id)) && <section><h2>{t.recommended}</h2><ArticleList articles={articles.filter(a => article.recommendedArticles.includes(a.id))} locale={locale} /></section>}
       {articleReverse?.learningPathIds.length ? <section><h2>{t.learn}</h2><EntityList entries={graph['learning-paths'].filter(p => articleReverse?.learningPathIds.includes(p.id))} section="learn" locale={locale} /></section> : null}
       {articleReverse?.projectIds.length ? <section><h2>{t.projects}</h2><EntityList entries={graph.projects.filter(p => articleReverse?.projectIds.includes(p.id))} section="projects" locale={locale} /></section> : null}
