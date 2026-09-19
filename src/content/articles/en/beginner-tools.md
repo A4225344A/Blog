@@ -15,7 +15,7 @@ publishedAt: 2026-09-19
 status: published
 ---
 
-You do not need to know how to code. This path has one concrete goal: open a website on your own computer, change a heading, and see your change in a browser.
+You do not need to know how to code. This path has one concrete goal: build your own website from an empty folder, add pages and styles, and see it in a browser.
 
 This first lesson prepares the tools. By the end, you will have a window for commands, an editor for files, and two working version checks. The reading estimate above does not include installation or practice.
 
@@ -37,9 +37,9 @@ A browser gets page files and turns them into a screen you can read. Start with 
 | CSS | Controls its appearance | Colors, fonts and spacing |
 | JavaScript | Responds to interaction | Changing the theme when you use a control |
 
-**Astro** is a tool for making websites. It turns your pages and content into files a browser can display. We will use a prepared example rather than ask you to write a website from a blank file.
+**Astro** is a tool for making websites. It turns your pages and content into files a browser can display. You will create your own files step by step, starting with an empty folder.
 
-**GitHub** is a website for storing and sharing code. A **repository** is a project's collection of files. **Git** records the history of file changes; it is not the same thing as GitHub. We will download a ZIP of the example, so installing Git can wait.
+**GitHub** is a website for storing and sharing code. A **repository** is a project's collection of files. **Git** records the history of file changes; it is not the same thing as GitHub. You will create files locally first, so installing Git can wait.
 
 **GitHub Pages** serves website files to visitors on the internet. These exercises stay on your computer; they do not publish a website yet.
 
@@ -107,7 +107,7 @@ This method follows the [pnpm 10 installation guide](https://pnpm.io/10.x/instal
 
 **Visual Studio Code (VS Code)** edits text and code files. It is not a browser and is different from the product named Visual Studio.
 
-Use the [official Windows installation guide](https://code.visualstudio.com/docs/setup/windows) to download the **User Installer**. Run it, complete installation, and open VS Code. You do not need to sign in, buy a service or install AI features. In the next lesson, you will use it to open the example folder.
+Use the [official Windows installation guide](https://code.visualstudio.com/docs/setup/windows) to download the **User Installer**. Run it, complete installation, and open VS Code. You do not need to sign in, buy a service or install AI features. In the next lesson, you will use it to open your own new folder.
 
 ## If something does not work
 
@@ -127,4 +127,4 @@ When asking for help, include the command, the full error and your Node.js versi
 2. `pnpm.cmd --version` prints `10.32.1`.
 3. VS Code opens.
 
-You now know where commands go. Next, you will download the example, find the correct folder and open the website locally. Use **Next lesson** in the learning-path navigation below.
+You now know where commands go. Next, you will create an empty project folder, write your first page and open your own website locally. Use **Next lesson** in the learning-path navigation below.

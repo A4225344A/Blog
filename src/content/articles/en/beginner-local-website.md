@@ -1,8 +1,8 @@
 ---
 id: beginner-local-website-en
 slug: beginner-local-website
-title: Open a website on your computer — download, find the folder and start Astro
-description: Download a fixed teaching version of this website, use the PowerShell terminal in VS Code to install its packages, and confirm that the local site works.
+title: "Build a website from an empty folder: create files and start Astro"
+description: "Create your own project folder, package.json and first Astro page, then see your website in a browser."
 locale: en
 translationKey: beginner-local-website
 contentType: tutorial
@@ -15,119 +15,129 @@ publishedAt: 2026-09-19
 status: published
 ---
 
-Your goal is to see the website running on your own computer, rather than visiting the public site. You do not need to edit code yet.
+Start with an empty folder and create each file yourself. Complete the previous lesson's Node.js 24.x, pnpm 10.32.1 and VS Code setup on Windows first.
 
-First complete the previous lesson: Node.js 24.x, pnpm 10.32.1 and VS Code should be ready. If PowerShell is still unfamiliar, use **Previous lesson** below to finish preparing your tools.
+## Step 1: Create an empty folder
 
-## Step 1: Download and extract the example
+In Windows File Explorer, open Documents and right-click → New → Folder. Name it `my-first-website`. If it already exists, choose a new name without overwriting files. In VS Code, choose **File → Open Folder** and select your new folder. If asked about trust, verify that it is the folder you created before trusting it.
 
-We will use [this website's public repository](https://github.com/A4225344A/Blog). The download below is fixed to a released example version, so the files match the instructions instead of changing whenever the site is updated.
+**Success check:** Explorer shows your folder with no files inside. You need neither a GitHub account nor this site's source code.
 
-1. In your browser, select [Download the exercise ZIP](https://github.com/A4225344A/Blog/archive/8974f88ce3d6d5fb24009e4844405caa5af13b17.zip). No GitHub sign-in is needed.
-2. Open Windows File Explorer and find your Downloads folder.
-3. Right-click the downloaded `.zip` and choose **Extract All**. Finish extraction; do not edit files inside the ZIP window.
-4. Open the extracted folder. You may need to open another folder beginning with `Blog-` until you see `package.json`, `pnpm-lock.yaml` and `src` together.
-5. Rename the folder **containing those three items** to `website-practice`. Keep it somewhere you can find. This is your project folder. If that name already exists, choose a new name rather than overwrite existing work.
+## Step 2: Create package.json
 
-The folder should look roughly like this, alongside other files:
+**Where: VS Code's Explorer and central editor.**
 
-```text
-website-practice/
-  package.json
-  pnpm-lock.yaml
-  src/
-    pages/
-      index.astro
+Right-click the folder → **New File**, name it `package.json` without a `.txt` suffix, and paste this complete content into the editor. Press **Ctrl+S**:
+
+```json
+{
+  "name": "my-first-website",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "5.18.2"
+  },
+  "packageManager": "pnpm@10.32.1"
+}
 ```
 
-A ZIP is a snapshot of files. It does not include Git history or automatically update to match the live site. GitHub explains this in its [source archive guide](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives).
+This is your tools list. `name` names the project; `private` prevents accidental package publication; `type` selects the JavaScript module format; `scripts` names available tasks; `dependencies` specifies Astro's version. Keep the braces, straight double quotes and commas. JSON cannot have a comma after the final item.
 
-## Step 2: Open the correct folder in VS Code
+The lesson pins Astro 5.18.2 to make its behavior explicit; it does not claim this is the latest version.
 
-1. Open VS Code.
-2. Select **File → Open Folder**.
-3. Select `website-practice` and confirm the folder selection.
-4. If a Workspace Trust prompt appears, verify that you opened the public example above before choosing to trust it. Do not do this automatically for downloads from unknown sources.
+## Step 3: Install Astro
 
-**Success check:** the Explorer on the left directly lists `package.json`, `pnpm-lock.yaml` and `src`. If it only lists another `Blog-...` folder, you opened the outer folder. Open the inner project folder instead.
+Choose **Terminal → New Terminal**. Check that the tab is PowerShell; otherwise open PowerShell from the terminal dropdown.
 
-`package.json` lists project tools and tasks; `pnpm-lock.yaml` records package versions. You only need to find them for now, not edit them.
-
-## Step 3: Open PowerShell in the project
-
-In VS Code, choose **Terminal → New Terminal**. A command area opens below the editor.
-
-Check that the terminal tab says **PowerShell**. If it uses a different program, use the dropdown beside the terminal controls to open a PowerShell tab. Commands go there, not in a source file or the browser address bar.
-
-**Where: the PowerShell terminal at the bottom of VS Code.** Run one line at a time:
+**Where: VS Code's lower PowerShell terminal. Enter one command at a time and press Enter. Do not paste commands into the editor.**
 
 ```powershell
 Get-Location
 ```
 
-This shows the terminal's current folder, usually ending in `website-practice`. Then check:
+It should show your new folder. Then enter:
 
 ```powershell
 Test-Path .\package.json
 ```
 
-The result should be `True`. `.\` means the current folder. If you get `False`, do not install yet: use File → Open Folder to select the correct folder, close the old terminal tab, and create a new one.
-
-## Step 4: Install the website's packages
-
-**Where: the same terminal, after the previous check returned `True`.**
+Expect `True`. If it says `False`, open the correct folder, close the old terminal and open a new one. Once confirmed, enter:
 
 ```powershell
-pnpm.cmd install --frozen-lockfile
+pnpm.cmd install
 ```
 
-This downloads Astro and other tools according to the project's list. They go into tool-managed locations such as `node_modules`. `--frozen-lockfile` means to follow the existing version list without rewriting it.
+This downloads Astro and its dependencies, creating `node_modules` and the version record `pnpm-lock.yaml`. There is no lockfile on this first install, so do not use `--frozen-lockfile` yet. Keep the generated lockfile; that option can be used when reinstalling recorded dependencies later.
 
-The first installation needs internet access and can take a while. When finished, you will normally see `Done in ...` and the `PS ...>` prompt again. Then enter:
+Wait for the `PS ...>` prompt to return, then enter:
 
 ```powershell
 $LASTEXITCODE
 ```
 
-It should print `0`, meaning the installation command succeeded. Download messages or `ERR_...` messages are not a success check. If the code is not `0`, resolve the problem below before starting the website.
+**Success check:** it prints `0` and Explorer contains `node_modules` and `pnpm-lock.yaml`. Address errors before continuing. Do not edit `node_modules` yourself.
 
-Use pnpm for this project's packages. Do not also run `npm install` in the same project or manually edit `node_modules`.
+## Step 4: Write your first page
 
-## Step 5: Start the site and open your browser
+**Where: VS Code's Explorer.**
 
-**Where: PowerShell in the same project folder.**
+Right-click your project folder → New Folder to create `src`. Inside it, create a `pages` folder. Inside `pages`, right-click → New File to create `index.astro`.
+
+Its full location must be **`src/pages/index.astro`**. Paste this complete content and press **Ctrl+S**:
+
+```astro
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>My first website</title>
+  </head>
+  <body>
+    <h1>My first website</h1>
+    <p>I am learning to build a website from scratch.</p>
+  </body>
+</html>
+```
+
+`html` wraps the page and `lang` identifies its language. In `head`, `title` names the browser tab and UTF-8 selects the text encoding. In `body`, `h1` is the visible main heading and `p` is a paragraph. Closing tags have a slash, such as `</p>`.
+
+Astro uses `src/pages/index.astro` as the home page. This small site does not need other configuration files yet. See [Astro 5's manual setup guide](https://v5.docs.astro.build/en/install-and-setup/#manual-setup).
+
+## Step 5: Start the website you wrote
+
+**Where: the same project's PowerShell terminal.**
 
 ```powershell
 pnpm.cmd run dev
 ```
 
-`run dev` runs the task called `dev` from `package.json`. This example uses that task to start Astro's local development server. You may see:
+This runs the `dev` task you defined in `scripts`. When the terminal shows something like `Local http://localhost:4321/`, copy its actual URL into your browser.
 
-```text
-Local  http://localhost:4321/
-```
+**Do not wait for the command to finish.** It keeps serving your local site. Leave the terminal open. `localhost` means your computer; the number is the service's port. If 4321 is occupied, use the number shown.
 
-**Do not wait for this command to finish.** It stays running to serve the website, so the `PS ...>` prompt does not return yet. Leave it open, copy the actual Local URL shown, and open that address in your browser.
+**Success check:** you see “My first website” and “I am learning to build a website from scratch.” Plain text is expected. Next you will add colors and a second page.
 
-`localhost` means this computer. `4321` is the port number used to find the service on it. Astro may select a different number if that port is occupied; use the address it actually prints. This is the [Astro 5 development workflow](https://v5.docs.astro.build/en/develop-and-build/).
+## Recover from common problems
 
-**Success check:** you should see **Engineering Knowledge Platform** with **繁體中文** and **English** links. This is the language-selector page. Stay on that page; the next lesson changes its heading.
-
-The address should start with `http://localhost:`, not `https://a4225344a.github.io/Blog/`. The latter is the public website and will not show changes you make on your computer.
-
-## Common problems and recovery
-
-| What happens | What to do |
+| Symptom | Next step |
 | --- | --- |
-| No `package.json`, or `ERR_PNPM_NO_PKG_MANIFEST` | You are in the wrong folder. Repeat steps 2 and 3, including the `Test-Path` check. |
-| Package version or lockfile mismatch | Check that `pnpm.cmd --version` is `10.32.1`. If you changed downloaded files, extract a fresh copy into another empty folder, preserving your work. Do not delete the lockfile or add `--force`. |
-| Download failure | Check internet access and keep the error text. Once the connection works, rerun installation in the same folder. |
-| Browser cannot connect | Confirm `run dev` is still running and use its actual Local address and port. |
-| Two `W_ARTICLE_NO_PROJECT` warnings | The sample's two Articles are not attached to a Project. These are known content warnings, not an installation failure. Stop to investigate `E_...` or `ERR_...` messages. |
-| Search has no results | Development mode has not generated a search index. That does not affect this exercise. Search needs a production build; return to the language selector for now. |
+| Cannot find package.json | Return to step 3 and check the folder and `Test-Path`. |
+| JSON parse error | Check the braces, straight quotes and commas in step 2. Do not paste the code fence's triple backticks into the file. |
+| Download failure | Keep the error, check the connection and retry `pnpm.cmd install`. Do not add `--force`. |
+| Ignored build scripts warning | pnpm 10 restricts dependency installation scripts. These text-only pages were successfully built with that restriction; do not approve all scripts automatically. If a later command fails, keep its error for investigation. |
+| 404 page | Check the saved filename is `src/pages/index.astro`, not `index.astro.txt`. |
+| Cannot connect | Keep dev running and use the terminal's actual URL and port. |
+| Page syntax error | Restore the complete index.astro from step 4 and save. |
 
-To stop the site, focus its terminal and press **Ctrl+C**. If asked to terminate the batch job, enter `Y` and press Enter. The `PS ...>` prompt returns when it stops. Next time, run `pnpm.cmd run dev` in the same folder; you do not need to reinstall packages every time.
+To stop, focus the terminal and press **Ctrl+C**; enter `Y` if asked to terminate the batch job. Run `pnpm.cmd run dev` from the same folder to restart, without reinstalling.
 
-## Check before continuing
+## Completion check
 
-You can see the language selector at a `localhost` address, identify the project folder that serves it, and stop or restart it. The next lesson changes a file so the page visibly changes too.
+You created a tools list and home page from an empty folder and saw your own website. Keep dev running and use “Next lesson” below to build a second page.
