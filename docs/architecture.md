@@ -17,10 +17,10 @@ locale/URL utilities, bilingual foundation pages and light/dark/system controls.
 The remaining sections describe the approved V1 target unless marked implemented.
 Content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
 and the complete bilingual implementation article (Phase 7) are implemented.
-Status for the beginner learning content: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
+Status: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
 The preceding V1 version received Claude's READY_WITH_MINOR_NOTES and was deployed.
-This content change is based on merged main, independently of the pending unified
-CI workflow branch; the new content and navigation require their own review.
+This branch integrates main's unified CI/deployment workflow with the beginner
+content and navigation. This integration does not establish independent approval.
 
 Implementation details:
 
@@ -112,10 +112,16 @@ Implementation details:
   frozen install, content validation, tests, Astro/TypeScript checks and both root
   and production-base builds, HTML checks and Chromium tests. The production base
   derives from GITHUB_REPOSITORY, handling owner.github.io repositories specially.
-- Only successful main push CI uploads `verified-site`. A separate workflow_run
-  deployment checks event, conclusion, branch, repository and current main SHA,
-  downloads that run's artifact, repackages and deploys it without rebuilding or
-  checking out code. Only the deploy job has Pages write/OIDC permissions. All
+- One workflow, `.github/workflows/ci.yml` (name `CI`), contains `validate` and
+  `deploy`. Only successful main push CI uploads `verified-site`. Deployment uses
+  `needs: validate`, requires a successful main push, and waits for required human
+  reviewers on the `github-pages` environment. After approval it checks the current
+  main SHA against `context.sha`, downloads the same run's artifact, and repackages
+  and deploys it without rebuilding or checking out code. The old `workflow_run`
+  workflow is removed. Main runs have distinct concurrency groups, so new validation
+  can proceed while an earlier deployment waits for approval. They do not cancel active deployments; PR runs can
+  supersede earlier PR validation, and deployment jobs share a serialized group.
+  Only the deploy job has Pages write/OIDC permissions. All
   external actions are pinned to resolved commit hashes, recorded in
   `.github/action-pins.json`. The pnpm v4 annotated tag was peeled upstream to
   `b906affcce14559ad1aafd4ab0e942779e9f58b1`; tests verify allowlist consistency,
@@ -176,7 +182,8 @@ Implementation details:
   cannot be proven by local tests. Enable Pages with GitHub Actions, require CI on
   main PRs, and configure human approval on the `github-pages` environment before
   the first push to main. These are hard preconditions, not optional follow-up work.
-  No workflow has been pushed or deployment performed by this build.
+  The preceding two-workflow version has deployed successfully. Local tests of this
+  replacement do not prove its hosted execution or that an approval was enforced.
 - Shared entity translations are presentation data, not additional graph entities.
   New entities fall back to source-language names until editorial translations are
   added. Reading time is heuristic. Pagefind reports no stemming for `zh-tw`;
@@ -269,7 +276,9 @@ Merge to main
       ↓
 CI on main
       ↓
-Deploy workflow
+Human deployment approval (github-pages environment)
+      ↓
+Deploy job in the same CI workflow
       ↓
 Astro static output
       ↓
@@ -691,6 +700,10 @@ PRs do not deploy.
 ## Deployment
 
 Deploy only after successful CI on `main`, preferably using the exact verified SHA.
+The same workflow must wait for the `github-pages` environment's required reviewers
+before starting its deploy job. YAML references the environment; GitHub repository
+settings enforce the approval. Keep required reviewers enabled. The workflow name
+`CI` and job ID `validate` remain unchanged for existing required-check settings.
 
 ## AI Roles
 

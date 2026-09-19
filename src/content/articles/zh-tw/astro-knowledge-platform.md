@@ -130,11 +130,11 @@ corepack.cmd pnpm run test:build
 
 ## 交付已驗證的同一份產物
 
-CI 在 pull request 與 main push 時執行，儲存庫權限為 read-only。流程先 frozen install、內容驗證、確定性測試與 Astro／TypeScript 檢查，再建置根路徑及 production base 版本。每個版本都接受產物檢查與 Chromium 測試。
+CI 在 pull request 與 main push 時執行，驗證 job 的儲存庫權限為 read-only。流程先 frozen install、內容驗證、確定性測試與 Astro／TypeScript 檢查，再建置根路徑及 production base 版本。每個版本都接受產物檢查與 Chromium 測試。
 
-只有 main push 會上傳 `verified-site`。獨立部署 workflow 等待 CI 成功，確認它來自本 repository 的 main push，並拒絕已不是目前 main 的 SHA。部署從指定 run 下載該份產物，重新封裝供 Pages 使用，不 checkout 或重新建置原始碼。只有 deploy job 取得 Pages write 與 OIDC 權限，外部 Actions 固定至 commit hash。
+只有 main push 會上傳 `verified-site`。同一個 workflow 內的 deploy job 使用 `needs: validate`，只接受驗證成功的 main push，並引用 `github-pages` environment，由其 required reviewers 強制人工核准後才開始執行。核准後先拒絕已不是目前 main 的 SHA，再從同次 run 下載產物，重新封裝供 Pages 使用，不 checkout 或重新建置原始碼。只有 deploy job 取得 Pages write 與 OIDC 權限，外部 Actions 固定至 commit hash。
 
-維護者仍須在 GitHub 啟用 Actions 作為 Pages source，並設定 branch／environment protection 以落實人工 gate。本機成功不能證明遠端 workflow 或公開部署已執行。獨立審查仍待進行，目前實作狀態為 `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`。
+維護者須保留 Actions 作為 Pages source，並維持 branch／environment protection。Required reviewers 由 GitHub 設定，YAML 本身不會建立審批者。在該次 CI run 選擇 Review deployments，即可核准等待中的部署。本機成功不能證明遠端執行或人工 gate 已生效。此次統一 workflow 的變更仍待獨立審查，狀態為 `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`。
 
 ## 讓 V1 保持小而可驗證
 

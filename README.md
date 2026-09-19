@@ -6,8 +6,9 @@
 
 **Status: IMPLEMENTED_PENDING_INDEPENDENT_REVIEW**
 
-The preceding V1 release received Claude's READY_WITH_MINOR_NOTES. The new beginner
-content and navigation await independent review. Local validation is Builder
+The preceding V1 release received Claude's READY_WITH_MINOR_NOTES and was deployed.
+This branch integrates main's unified CI/deployment workflow with the new beginner
+content and navigation. Independent review remains pending. Local validation is Builder
 evidence; the human remains the final merge authority.
 
 ## What is implemented
@@ -19,8 +20,8 @@ evidence; the human remains the final merge authority.
   Projects, About and Search pages, with detail views and canonical Articles.
 - Accessible wrapping navigation, language switching, static TOC and three-state theme.
 - Local Pagefind search, canonical/hreflang/Open Graph/JSON-LD, sitemap, RSS and robots.
-- Read-only PR/main CI and a separate deployment workflow using the successful
-  main CI artifact, with pinned Actions and deployment-only Pages/OIDC permissions.
+- One CI workflow with read-only validation and a deployment job using the same
+  run's main CI artifact after human approval, with deployment-only Pages/OIDC permissions.
 - The complete bilingual Astro implementation article and its LearningPath.
 - A separate Windows beginner path: tool setup → local preview → edit and restore
   a heading, with three lessons in each language and explicit readiness checks.
@@ -154,9 +155,21 @@ CI runs frozen install → content validation → tests → Astro/TypeScript che
 collection integration test → root/production builds and browser/output checks.
 PRs never deploy. Only a main push uploads `verified-site`.
 
-The deployment workflow runs after successful main push CI from this repository,
-rejects stale SHAs, downloads that exact run's artifact, and deploys without a
-source checkout or rebuild. Only its deploy job receives Pages write/OIDC rights.
+`.github/workflows/ci.yml` keeps both jobs in one run:
+
+```text
+PR:         validate → deploy skipped
+main push:  validate → human approval → deploy
+```
+
+The `deploy` job requires successful `validate` and references the `github-pages`
+environment. With Required reviewers enabled, it waits for a human to select
+**Review deployments → github-pages → Approve and deploy** in that CI run.
+Keep this environment protection enabled: the YAML alone cannot create reviewers.
+After approval, the job rejects stale SHAs, downloads that run's `verified-site`
+artifact, and deploys without a source checkout or rebuild. Only `deploy` receives
+Pages write/OIDC rights. The old separate deployment workflow is removed.
+The workflow name `CI` and job ID `validate` stay unchanged for branch protections.
 
 Before the first push to main, the maintainer must complete these hard preconditions:
 
@@ -167,13 +180,15 @@ Before the first push to main, the maintainer must complete these hard precondit
 5. Configure the origin-root robots policy and sitemap directive described above.
 6. Choose the code/content license before production publication.
 
-These settings are not automatically configured by repository files. The Builder
-has not pushed these commits, executed hosted CI or deployed the site.
+These settings are not automatically configured by repository files. The previous
+version has deployed successfully; this workflow replacement needs fresh hosted
+verification, including observing the deployment wait for approval.
 
 ## Review and known limits
 
 Read `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md` and the latest V1 handoff.
 The current report is [Beginner Learning Path](docs/handoff-beginner-path.md).
+The workflow report is [Unified CI and Human-Gated Deployment](docs/handoff-unified-ci.md).
 The earlier [V1 Claude Review Fixes](docs/handoff-review-fixes.md) records the previous findings.
 The earlier Phase 1–3 handoff is historical. Review should focus on ownership,
 publication filtering, base URLs, search/translation, theme accessibility and the

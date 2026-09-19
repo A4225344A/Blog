@@ -11,8 +11,10 @@ beginner and experienced-reader entries; the existing intermediate architecture
 Article retains its depth.
 
 Branch: `content/beginner-learning-path`, based on merged main `8974f88`.
-This branch does not include the separate `ci/unified-pages-workflow` changes.
-No merge, production deployment or independent approval is claimed here.
+The branch now integrates main `f001d48`, which includes the unified CI workflow.
+README and architecture status conflicts were resolved by retaining both the
+beginner content and the unified workflow with its human deployment gate.
+No merge into main, production deployment or independent approval is claimed here.
 
 ## Files Changed
 
@@ -62,7 +64,7 @@ The required gate is also available as `scripts/validate-all.ps1`.
 | --- | --- |
 | `pnpm install --frozen-lockfile` | Passed; lockfile unchanged |
 | `pnpm run content:validate` | Passed; zero errors, eight warnings above |
-| `pnpm run test` | 51 deterministic tests passed |
+| `pnpm run test` | 52 deterministic tests passed after main integration |
 | `pnpm run check` | Passed; Astro and strict TypeScript |
 | `pnpm run build` | Passed; 45 pages, 26 Pagefind entries across two languages |
 | `pnpm run test:build` | Passed for `/` and `/Blog/` |
@@ -73,6 +75,10 @@ The generated-output checks cover canonical links, reciprocal hreflang, assets,
 sitemap, RSS, search markers and generated robots text. Browser checks cover the
 new three-lesson journey and language switching, plus existing theme, mobile
 navigation, search and metadata behavior.
+
+After integrating main, the five required commands, `test:build` and all six
+browser tests were rerun successfully with `/Blog/`. Root-base and collection
+results above are from the preceding beginner implementation validation.
 
 ## Teaching Exercise Verification
 
@@ -106,7 +112,7 @@ their exact hashes; the final Builder response also records them.
 - The eight Project-membership warnings remain intentional; Pagefind's existing
   lack of Traditional Chinese stemming is unchanged.
 - Hosted CI, GitHub environment approvals and live deployment are maintainer-side
-  follow-up. Pending unified workflow changes require their separate review.
+  follow-up. The unified workflow is included from main; its human gate remains.
 
 ## Reviewer Focus
 
