@@ -12,6 +12,7 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
+updatedAt: 2026-09-20
 status: published
 ---
 
@@ -95,7 +96,7 @@ Astro statically generates `/zh-tw/` and `/en/`, with Start, Learn, Topics, Blog
 
 Language navigation uses translation keys for Articles. A published equivalent takes the reader to its own slug and content-type route. If no published equivalent exists, the language link falls back to the target locale's home. SEO alternate links include only actual published equivalents. The language chooser and both homes form a reciprocal cluster with the chooser as `x-default`. Shared entities have one stable ID; Traditional Chinese display text is namespaced by collection and owning path in `src/i18n/content.ts`. Missing labels warn and fall back to source text; stale translation keys fail validation. Audience, difficulty and maturity display text is localized without changing relationship ownership.
 
-The homepage follows the knowledge-first order: Hero, Start Here, LearningPaths, featured Topics, featured Project, latest Cases, latest Articles, and About/Experience. Empty sections say that nothing has been published. No invented incident report or employment history fills an empty state.
+The homepage presents the author's personal technical blog: Hero, About This Blog, latest Articles, featured Project, Article Series, featured Topics, latest Cases, and About the Author. Article Series use the existing LearningPath model. Empty sections say that nothing has been published. No invented incident report or employment history fills an empty state.
 
 ## Add theme controls and static search
 

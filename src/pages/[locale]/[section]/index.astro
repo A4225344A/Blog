@@ -22,8 +22,8 @@ const languageLinks = Object.fromEntries(locales.map(target => [target, localePa
   <h1>{t[section]}</h1>
   {section === 'start' && <>
     <p class="lead">{t.startIntro}</p>
-    <section aria-labelledby="beginner-entry"><h2 id="beginner-entry">{t.beginnerEntry}</h2><p>{t.beginnerIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.beginner)} section="learn" locale={locale} /></section>
-    <section aria-labelledby="experienced-entry"><h2 id="experienced-entry">{t.experiencedEntry}</h2><p>{t.experiencedIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.experienced)} section="learn" locale={locale} /></section>
+    <section aria-labelledby="blog-entry"><h2 id="blog-entry">{t.blogEntry}</h2><p>{t.blogIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.blog)} section="learn" locale={locale} /></section>
+    <section aria-labelledby="explore-entry"><h2 id="explore-entry">{t.exploreEntry}</h2><p>{t.exploreIntro}</p><p><a href={localePath(locale, 'projects', import.meta.env.BASE_URL)}>{t.projects}</a> · <a href={localePath(locale, 'blog', import.meta.env.BASE_URL)}>{t.blog}</a> · <a href={localePath(locale, 'about', import.meta.env.BASE_URL)}>{t.about}</a></p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.architecture)} section="learn" locale={locale} /></section>
     <h2>{t.topics}</h2><EntityList entries={graph.topics} section="topics" locale={locale} />
   </>}
   {section === 'learn' && <EntityList entries={graph['learning-paths']} section="learn" locale={locale} />}

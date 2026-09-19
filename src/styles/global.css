@@ -36,6 +36,18 @@ ol.cards { list-style: decimal; padding-inline-start: 1.5rem; }
 .prose h2 { margin-top: 2.5rem; }
 .prose pre { padding: 1rem; overflow-x: auto; border-radius: .3rem; }
 .prose img { max-width: 100%; height: auto; }
+.learning-diagram { margin: 2rem 0; padding: 1.25rem; border: 1px solid var(--link); border-radius: .6rem; }
+.learning-diagram figcaption { font-weight: 700; margin-bottom: 1rem; }
+.learning-diagram ol { display: grid; grid-template-columns: 1fr; gap: 2rem; list-style: none; padding: 0; }
+.learning-diagram li { position: relative; padding: 1rem; border: 1px solid currentColor; border-radius: .4rem; }
+.learning-diagram strong, .learning-diagram span { display: block; }
+.learning-diagram strong { color: var(--link); margin-bottom: .5rem; }
+.learning-diagram li:not(:last-child)::after { content: '↓'; position: absolute; bottom: -1.9rem; left: 50%; font-size: 1.25rem; }
+@media (min-width: 60rem) {
+  .learning-diagram ol { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .learning-diagram ol:has(li:last-child:nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .learning-diagram li:not(:last-child)::after { content: '→'; left: auto; right: -1.65rem; top: 50%; bottom: auto; }
+}
 .prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 .prose td, .prose th { padding: .5rem; border: 1px solid currentColor; }
 .toc { display: block; margin: 2rem 0; }
