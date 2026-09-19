@@ -17,9 +17,10 @@ locale/URL utilities, bilingual foundation pages and light/dark/system controls.
 The remaining sections describe the approved V1 target unless marked implemented.
 Content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
 and the complete bilingual implementation article (Phase 7) are implemented.
-Status: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`. Claude review has not passed.
-The human authorized completion while independent review was unavailable. The first
-Claude review returned CHANGES_REQUIRED; Builder fixes await independent re-review.
+Status for the beginner learning content: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
+The preceding V1 version received Claude's READY_WITH_MINOR_NOTES and was deployed.
+This content change is based on merged main, independently of the pending unified
+CI workflow branch; the new content and navigation require their own review.
 
 Implementation details:
 
@@ -123,9 +124,35 @@ Implementation details:
 - The first complete bilingual Article describes this repository, including its
   validation boundary, routes, theme, Pagefind, SEO and artifact deployment. The
   `knowledge-platform` LearningPath owns its ordered Article membership. It is not
-  falsely attached to AI SRE Platform, so two `W_ARTICLE_NO_PROJECT` warnings remain.
-  Six initial Skills describe platform modeling/delivery and the confirmed lab
-  domains. Cases remain an honest empty state until actual case content is authored.
+  falsely attached to AI SRE Platform. The new beginner Articles are also independent
+  of that lab, so eight `W_ARTICLE_NO_PROJECT` warnings remain. The six initial Skills
+  are supplemented by terminal basics, local preview and editing web pages.
+  Cases remain an honest empty state until actual case content is authored.
+
+## Beginner Entry Within V1
+
+- `/start/` offers two localized entries: no coding experience, or existing coding
+  experience. `siteConfig.startLearningPathIds` points to LearningPath IDs, not an
+  additional Article membership list. The homepage directs new readers to Start.
+- `first-website` contains three bilingual beginner lessons: tools, local website,
+  and first visible edit. It targets Windows/PowerShell with Node.js 24.x and the
+  repository's pnpm 10.32.1. Each lesson explains where to act, what success looks
+  like, common failures and recovery. Reading estimates are not practice durations.
+- The exercise downloads a ZIP pinned to the released `8974f88` snapshot so file
+  names, commands and initial heading remain reproducible. No Git installation,
+  account, publishing or remote modification is required for the exercise.
+- `web-foundations` is a human-facing Topic beneath `platform-engineering`. Three
+  new Skills describe taught capabilities and prerequisite dependencies; they do
+  not replace Topics or become additional core entity types.
+- LearningPath sections and articleIds own the sequence. Static previous/next links
+  are derived from that order after locale/publication filtering, across sections.
+  No ordering or path-membership fields are added to Article metadata.
+- Article cards show their localized difficulty before opening. The original
+  `knowledge-platform` path and Article retain intermediate depth; the path now
+  states the expected ability to run a Node.js project and edit web files.
+- Markdown writing, Git history, public deployment, macOS/Linux steps and advanced
+  learning tracks remain future content, not placeholder links or completed lessons.
+  This is content and static navigation using V1, not V1.1/V2/V3 functionality.
 
 ## V1 Validation and Operational Boundary
 

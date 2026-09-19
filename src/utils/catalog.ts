@@ -19,6 +19,11 @@ export function orderedPathArticles(path: LearningPath, articles: Article[], loc
     const article = byId.get(id); return article ? [article] : [];
   }) }));
 }
+export function pathArticleNavigation(path: LearningPath, articles: Article[], locale: Locale, articleId: string) {
+  const ordered = orderedPathArticles(path, articles, locale).flatMap(section => section.articles);
+  const index = ordered.findIndex(article => article.id === articleId);
+  return index < 0 ? undefined : { previous: ordered[index - 1], next: ordered[index + 1] };
+}
 export function publicRoutes(graph: ContentGraph, base = '/') {
   const routes = [base];
   for (const locale of ['zh-TW', 'en'] as const) {
