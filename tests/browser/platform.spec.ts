@@ -44,12 +44,12 @@ test('readers can follow the Astro series and switch languages without losing th
     await page.getByRole('link', { name: firstTitle, exact: true }).click();
     await expect(page.locator('h1')).toHaveText(firstTitle);
     const pathNav = page.locator('nav[aria-label^="Continue this series"], nav[aria-label^="繼續閱讀系列"]');
-    const topicsHeading = page.getByRole('heading', { name: locale === 'en' ? 'Topics' : '主題', exact: true });
     const proseEnd = await page.locator('.prose').evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
-    const navigationEnd = await pathNav.evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
-    const topicsStart = await topicsHeading.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
-    expect(topicsStart).toBeGreaterThan(proseEnd);
-    expect(topicsStart).toBeGreaterThan(navigationEnd);
+    const navigationStart = await pathNav.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
+    expect(navigationStart).toBeGreaterThanOrEqual(proseEnd);
+    for (const label of locale === 'en' ? ['Topics', 'Skills', 'Prerequisite skills', 'Article series'] : ['主題', '技能', '先備技能', '文章系列'])
+      await expect(page.locator('main').getByRole('heading', { name: label, exact: true })).toHaveCount(0);
+    await expect(page.locator('main')).not.toContainText(locale === 'en' ? 'min read' : '分鐘閱讀');
     await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toHaveCount(0);
     await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
     await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/beginner-local-website/$`));
@@ -139,7 +139,7 @@ test('detail pages localize metadata and omit empty optional relationships', asy
     ['zh-tw', '中階', '延伸閱讀', '專案', '相關文章', '相關系列'],
   ] as const) {
     await page.goto(`${locale}/blog/astro-knowledge-platform/`);
-    await expect(page.locator('main')).toContainText(difficulty);
+    await expect(page.locator('main')).not.toContainText(difficulty);
     await expect(page.getByRole('heading', { name: recommended, exact: true })).toHaveCount(0);
     await expect(page.getByRole('heading', { name: projects, exact: true })).toHaveCount(0);
     await page.goto(`${locale}/projects/ai-sre-platform/`);
@@ -147,6 +147,7 @@ test('detail pages localize metadata and omit empty optional relationships', asy
     await expect(page.getByRole('heading', { name: paths, exact: true })).toHaveCount(0);
     await expect(page.locator('main')).toContainText(locale === 'en' ? 'Maturity: Lab' : '成熟度: 實驗室（lab）');
     await page.goto(`${locale}/learn/knowledge-platform/`);
+    await expect(page.locator('.cards')).not.toContainText(difficulty);
     await expect(page.locator('main')).toContainText(locale === 'en' ? 'For: Engineers · Technical writers' : '適合對象: 工程師 · 技術寫作者');
   }
 });

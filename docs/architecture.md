@@ -87,7 +87,8 @@ Implementation details:
 - Pagefind indexes canonical Articles and Topic/LearningPath/Project detail pages
   after every production build. Homes, section indexes and the language chooser
   are not indexed. Main content
-  includes title, description, body and rendered Topic/Skill labels; navigation and
+  includes title, description, body and localized Topic/Skill labels supplied by
+  Article data attributes via `data-pagefind-index-attrs`; navigation and
   search UI are excluded. Language detection uses document lang. The localized
   search page loads its local UI bundle with explicit base/bundle paths. Use build
   plus preview for search; the dev server does not generate an index.
@@ -153,7 +154,11 @@ architecture Article retains its depth.
 Diagrams use static HTML/CSS, readable without JavaScript and stacked on mobile.
 Tool setup is a short prerequisite appendix, not the main narrative. The minimal
 example is explicitly separate from this repository's five-entity Content Graph.
-Article bodies and series navigation precede classification metadata. No schema,
+Article pages show dates, TOC, body and previous/next series navigation. Reading
+time and difficulty are not displayed; Article cards omit difficulty too. Topic,
+Skill, prerequisite and duplicate series panels are omitted from Article pages.
+Topic/Skill references remain searchable through build-time HTML attributes.
+Reading estimates remain derived internally. No schema,
 relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
