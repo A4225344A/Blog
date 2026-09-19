@@ -18,7 +18,7 @@ Do not act as the final reviewer of your own implementation.
 
 ## Product Definition
 
-This repository is a **bilingual engineering knowledge platform** combining:
+This repository is a **bilingual personal technical blog by a full-stack engineer** combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
@@ -27,15 +27,16 @@ This repository is a **bilingual engineering knowledge platform** combining:
 - Topic-based discovery
 - static search
 
-The product is **Knowledge-first, Portfolio-second**.
+The product shares personal projects, technical articles and architecture decisions.
+Explain unfamiliar tools clearly without framing the author as a first-time developer.
 
 Public positioning:
 
-> Engineering knowledge, built from real systems.
+> Personal projects, full-stack implementation and architecture decisions.
 
 Traditional Chinese:
 
-> 從實作、排障到架構，建立可循序學習的工程知識。
+> 記錄個人專案、全端實作與架構取捨。
 
 Primary domains:
 - Cloud Native
@@ -143,15 +144,15 @@ Required localized sections:
 
 Homepage order:
 1. Hero
-2. Start Here
-3. Learning Paths
-4. Featured Topics
-5. Featured Project
-6. Latest Cases
-7. Latest Articles
-8. About / Experience
+2. About This Blog
+3. Latest Articles
+4. Featured Project
+5. Article Series (LearningPath entities)
+6. Featured Topics
+7. Latest Cases
+8. About the Author
 
-Do not revert to a portfolio-first homepage.
+Keep articles and project context prominent; do not invent professional history or metrics.
 
 ## Core Content Entities
 

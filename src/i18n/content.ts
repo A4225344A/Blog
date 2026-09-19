@@ -11,7 +11,7 @@ export interface EntityTranslations {
 }
 export const chinese: EntityTranslations = {
 topics: {
-  'web-foundations': { title: '網站入門', description: '認識工具，從空資料夾建立自己的頁面、樣式與導覽。' },
+  'web-foundations': { title: '網站建置', description: '靜態網站的工具選型、開發流程與內容交付。' },
   'platform-engineering': { title: '平台工程', description: '以可維護的工具、交付流程與文件支援工程團隊。' },
   'cloud-native': { title: '雲原生', description: '容器、宣告式基礎設施與分散式系統的設計。' },
   sre: { title: '網站可靠性工程', description: '從可觀測性、排障到可靠性實務。' },
@@ -30,8 +30,8 @@ skills: {
   'ai-assisted-incident-handling': { title: 'AI 輔助事件處理', description: '在實驗室中探索 AI 輔助事件分析。' },
 },
 'learning-paths': {
-  'first-website': { title: '從零開始：我的第一個網站', description: '用 Windows 完成三個步驟：準備工具、從空資料夾建立自己的網站、加入樣式與第二個頁面。不需要程式經驗；這一階段尚不包含公開發布。', targetAudience: ['沒有程式經驗的讀者', '會下載檔案、使用瀏覽器的 Windows 使用者'], sections: {
-    'first-local-change': { title: '準備工具 → 建立首頁 → 加入頁面與樣式', description: '請依序閱讀。每篇都有操作、成功檢查與錯誤處理；頁首閱讀時間不包含安裝與練習。' },
+  'first-website': { title: '用 Astro 建立技術部落格', description: '從選型理由、空專案到文章、版型與部署，記錄另一種建立技術部落格的方式。', targetAudience: ['想了解 Astro 的開發者', '規劃個人技術部落格的工程師'], sections: {
+    'first-local-change': { title: '選型 → 專案結構 → 內容與交付', description: '依序理解需求、實作與取捨；指令搭配架構圖與驗證方式。' },
   } },
   'knowledge-platform': { title: '建立工程知識平台', description: '給已能執行 Node.js 專案、修改網頁檔案的讀者：以中階架構角度理解內容模型、Astro 與 GitHub Pages 交付。', targetAudience: ['工程師', '技術寫作者'], sections: {
     foundation: { title: '從完整範例開始', description: '先理解實際儲存庫，再調整自己的內容。' },
