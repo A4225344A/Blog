@@ -1,62 +1,44 @@
 ---
 id: beginner-local-website-zh-tw
 slug: beginner-local-website
-title: "從空資料夾建立網站：親手建立檔案，再啟動 Astro"
-description: "自己建立專案資料夾、package.json 與第一個 Astro 頁面，安裝工具後在瀏覽器看到自己寫的網站。"
+title: "從空專案搭建 Astro 部落格"
+description: "建立最小專案、理解檔案路由與開發流程，為文章與共用版型準備結構。"
 locale: zh-TW
 translationKey: beginner-local-website
 contentType: tutorial
-difficulty: beginner
+difficulty: intermediate
 topics: [web-foundations]
 skills: [local-website-preview]
-prerequisiteSkills: [terminal-basics]
+prerequisiteSkills: ["static-site-delivery"]
 recommendedArticles: []
 publishedAt: 2026-09-19
+updatedAt: 2026-09-20
 status: published
 ---
 
-這次從空資料夾開始，親手建立每個檔案，完成能在瀏覽器看到的首頁。先完成上一篇的 Node.js 24.x、pnpm 10.32.1 與 VS Code 安裝。
+這一篇從空專案建立 Astro 部落格的骨架。重點是理解檔案與建置流程，讓後續文章、版型與專案頁有清楚的位置。
 
-## 先理解這一篇要建出什麼
+範例使用 Node.js 24.x、pnpm 10.32.1 與 Astro 5.18.2。Astro 版本固定是為了讓範例可重現，不代表推薦追逐某個最新版。若工具已備妥，可直接進入專案結構；安裝與指令輸入位置放在文末。
 
-你會建立兩個核心檔案：`package.json` 告訴 pnpm「使用哪些工具、有哪些工作」；`src/pages/index.astro` 告訴 Astro「首頁要顯示什麼」。工具清單本身不是網頁。
+## 先看檔案責任
 
 <figure class="learning-diagram">
-<figcaption>圖 2：開發模式如何把首頁交給瀏覽器</figcaption>
-<ol>
-<li><strong>1. src/pages/index.astro</strong><span>你寫的首頁。儲存後，檔案內容才會更新。</span></li>
-<li><strong>2. Astro 開發伺服器</strong><span>pnpm run dev 啟動它；讀取頁面並回應本機請求。</span></li>
-<li><strong>3. localhost 的瀏覽器</strong><span>請求首頁 /，收到內容後顯示畫面。</span></li>
+<figcaption>架構圖：開發時的檔案與瀏覽器</figcaption>
+<ol role="list">
+<li><strong>1. 原始檔</strong><span>src/pages 定義頁面；package.json 定義工具與工作。</span></li>
+<li><strong>2. Astro dev</strong><span>pnpm run dev 啟動本機服務，讀取原始檔。</span></li>
+<li><strong>3. 瀏覽器</strong><span>向 localhost 請求頁面，顯示處理後的結果。</span></li>
 </ol>
-<p>由左到右讀取；手機上由上到下。瀏覽器請求頁面，Astro 回傳處理後的內容；它不是直接打開 .astro 檔。</p>
+<p>編輯器負責儲存檔案；終端機負責啟動工作。瀏覽器不會直接執行 .astro 檔案。</p>
 </figure>
 
-這一篇完成後，資料夾會有以下分工：
+## 從空資料夾建立專案
 
-| 檔案或資料夾 | 由誰產生 | 你需要做什麼 |
-| --- | --- | --- |
-| `package.json` | 你 | 定義工具與 dev、build、preview 工作 |
-| `src/pages/index.astro` | 你 | 寫首頁內容，持續編輯這裡 |
-| `pnpm-lock.yaml` | pnpm 安裝時產生 | 保留，記錄實際安裝的版本 |
-| `node_modules/` | pnpm 安裝時產生 | 工具本體，不用手動編輯 |
-
-安裝只需要在第一次或工具清單變更時做。**修改一個段落不需要重新安裝 Astro。** 開發伺服器則要在你看網站時保持執行；關掉它，檔案仍然存在，但 localhost 不再有人回應。
-
-## 第一步：建立空資料夾
-
-在 Windows 檔案總管的「文件」中，按右鍵 → 新增 → 資料夾，命名為 `my-first-website`。如果已存在，另取新名稱，不要覆蓋。開啟 VS Code，選 **File → Open Folder（檔案 → 開啟資料夾）**，選取這個新資料夾。若出現信任提示，確認是自己剛建立的資料夾後再選擇信任。
-
-**成功檢查：** 左側檔案總管顯示你的資料夾，裡面沒有檔案。不需要 GitHub 帳號或本站原始碼。
-
-## 第二步：建立 package.json
-
-**操作位置：VS Code 左側檔案總管與中間編輯區。**
-
-在資料夾按右鍵 → **New File（新增檔案）**，命名為 `package.json`，不要加上 `.txt`。將以下完整內容貼入編輯區，按 **Ctrl+S**：
+在你選定的位置建立 `engineering-blog` 空資料夾，用編輯器開啟。先建立 `package.json`：
 
 ```json
 {
-  "name": "my-first-website",
+  "name": "engineering-blog",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -72,107 +54,70 @@ status: published
 }
 ```
 
-這是專案的工具清單。`name` 是名稱；`private` 避免誤發布為套件；`type` 指定 JavaScript 模組格式；`scripts` 是可執行的工作；`dependencies` 列出要安裝的 Astro 版本。JSON 的括號、英文雙引號與逗號都要保留，最後一個項目後面不能多逗號。
+`scripts` 定義三種不同目的的工作：dev 邊開發邊檢視，build 產生網站檔案，preview 檢視已建置的結果。`dependencies` 則宣告專案要使用的 Astro 版本。
 
-本教學固定 Astro 5.18.2，方便確認操作結果，不代表這是最新版。
+在**此資料夾的終端機**執行：
 
-## 第三步：安裝 Astro
-
-選 **Terminal → New Terminal（終端機 → 新增終端機）**，確認分頁是 PowerShell；若不是，從終端機下拉選單開啟 PowerShell。
-
-**輸入位置：VS Code 下方的 PowerShell。一次一行，按 Enter，不是貼進編輯區。**
-
-```powershell
-Get-Location
+```bash
+pnpm install
 ```
 
-應顯示剛建立的資料夾路徑，再輸入：
+首次安裝會建立 `pnpm-lock.yaml`，所以此時不使用 `--frozen-lockfile`。把產生的 lockfile 納入 Git，後續 CI 才能按既有解析結果安裝。不要提交 `node_modules`、`dist` 或 `.astro`，可將三者加入 `.gitignore`。
 
-```powershell
-Test-Path .\package.json
+建立 `tsconfig.json`：
+
+```json
+{
+  "extends": "astro/tsconfigs/strict"
+}
 ```
 
-應顯示 `True`。若是 `False`，重新開啟正確資料夾，關閉舊終端機並開啟新的。確認後輸入：
+strict 設定為之後的版型程式提供型別約束；它不會代替 runtime 資料驗證，也不代表執行 build 就已完成全部型別檢查。
 
-```powershell
-pnpm.cmd install
-```
+## 建立首頁
 
-這會下載 Astro 與它需要的套件，建立 `node_modules` 和記錄版本的 `pnpm-lock.yaml`。首次安裝沒有 lockfile，所以不用 `--frozen-lockfile`；保留產生的 lockfile，之後重裝相同依賴才可加上這個選項。
-
-等待重新出現 `PS ...>` 提示，再輸入：
-
-```powershell
-$LASTEXITCODE
-```
-
-**成功檢查：** 顯示 `0`，且左側出現 `node_modules` 與 `pnpm-lock.yaml`。若安裝失敗，先處理錯誤。不要手動修改 `node_modules`。
-
-## 第四步：寫第一個頁面
-
-**操作位置：VS Code 左側檔案總管。**
-
-在專案資料夾按右鍵 → New Folder 建立 `src`；在 `src` 裡建立 `pages` 資料夾；在 `pages` 按右鍵 → New File 建立 `index.astro`。
-
-完整位置必須是 **`src/pages/index.astro`**。貼入以下完整內容，按 **Ctrl+S**：
+建立 `src/pages/index.astro`，內容如下。程式碼中的英文是範例文案，可換成自己的文字：
 
 ```astro
+---
+const base = import.meta.env.BASE_URL;
+---
 <!doctype html>
-<html lang="zh-TW">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>我的第一個網站</title>
+    <title>Engineering notes</title>
   </head>
   <body>
-    <h1>我的第一個網站</h1>
-    <p>我正在學習從零建立網站。</p>
+    <h1>Engineering notes</h1>
+    <p>Projects, implementation and architecture decisions.</p>
   </body>
 </html>
 ```
 
-`html` 包住整頁，`lang` 表示語言；`head` 裡的 `title` 是瀏覽器分頁名稱，UTF-8 讓中文正確顯示；`body` 裡的 `h1` 是畫面大標題，`p` 是段落。結束標籤有斜線，例如 `</p>`。
+最上面的兩條 `---` 之間是在 Astro 執行的程式碼。這裡先取得部署 base，下一篇連結文章時會使用它。下面的 HTML 定義讀者看到的內容；首頁網址來自 `index.astro` 的位置，而不是 h1 的文字。
 
-Astro 會把 `src/pages/index.astro` 當作首頁。這個小網站暫時不需要其他設定檔。手動建立流程可參考 [Astro 5 官方說明](https://v5.docs.astro.build/en/install-and-setup/#manual-setup)。
+在同一個專案終端機執行：
 
-## 第五步：啟動自己寫的網站
-
-**輸入位置：同一個專案的 PowerShell。**
-
-```powershell
-pnpm.cmd run dev
+```bash
+pnpm run dev
 ```
 
-這會執行你在 `scripts` 定義的 `dev` 工作。終端機出現類似 `Local http://localhost:4321/` 後，把實際網址貼進瀏覽器網址列。
+用瀏覽器開啟終端機顯示的 Local 網址。成功時會看到 **Engineering notes**。修改段落後儲存，再觀察畫面；不需要重新安裝套件。
 
-**這次不要等指令結束。** 它正在持續提供本機網站，保持終端機開著。`localhost` 是你的電腦，數字是服務的埠號；若 4321 被占用，使用畫面列出的其他數字。
+## 如何確認自己理解了？
 
-**成功檢查：** 看到「我的第一個網站」與「我正在學習從零建立網站。」。現在只有文字很正常，下一篇會加入顏色與第二個頁面。
+只改 `title`，瀏覽器分頁名稱會改；只改 `h1`，頁面大標題才會改。檔名仍是 index.astro，因此路徑仍是首頁。
 
-## 卡關與復原
+停止 dev 後檔案仍然存在，但 localhost 不再有服務回應。重新啟動 dev 就能繼續。這是本機服務的生命週期，與是否曾把程式放到 GitHub 是兩回事。
 
-| 狀況 | 下一步 |
-| --- | --- |
-| 找不到 package.json | 回第三步確認資料夾與 `Test-Path`。 |
-| JSON 解析錯誤 | 檢查第二步的括號、英文雙引號、逗號；不要把程式碼框的三個反引號貼進檔案。 |
-| 套件下載失敗 | 保留錯誤，確認網路後重試 `pnpm.cmd install`，不要加 `--force`。 |
-| 顯示 Ignored build scripts 警告 | pnpm 10 預設限制套件安裝腳本。本教學的純文字頁面已在這個限制下建置成功；不要直接批准所有腳本。若後續真的出錯，保留錯誤再檢查。 |
-| 顯示 404 | 確認檔案是 `src/pages/index.astro`，不是 `index.astro.txt`，並已儲存。 |
-| 無法連線 | 確認 dev 還在執行，使用終端機的實際網址與埠號。 |
-| 頁面語法錯誤 | 把 index.astro 還原為第四步完整內容，再儲存。 |
+目前資料夾應有 package.json、pnpm-lock.yaml、tsconfig.json 與 src/pages/index.astro。下一篇會把文章內容與共用版型分開。
 
-要停止：回終端機按 **Ctrl+C**；若詢問是否終止批次工作，輸入 `Y`。之後在同一資料夾執行 `pnpm.cmd run dev` 即可再啟動，不必重裝套件。
+## 前置準備與常見問題
 
-## 動手觀察：分頁名稱與畫面標題是兩件事
+Windows 可用 [Node.js 官方下載頁](https://nodejs.org/en/download) 安裝 24.x，再透過 `npm.cmd install --global pnpm@10.32.1` 安裝本系列使用的 pnpm。編輯器可用 [VS Code](https://code.visualstudio.com/docs/setup/windows)。已經有自己的開發環境就不必重裝。
 
-先預想結果，再動手：如果只改 `<title>`，頁面中的大標題會不會跟著改？
+在 VS Code 用 File → Open Folder 開啟專案，再選 Terminal → New Terminal。Windows PowerShell 可將本文的 `pnpm` 寫成 `pnpm.cmd`，不需要放寬系統執行原則。
 
-在 `src/pages/index.astro` 把 `<title>我的第一個網站</title>` 改成 `<title>我的學習筆記</title>`，保留 `h1` 原文，儲存並重新整理。你應看到**瀏覽器分頁名稱改了，大標題沒變**。因為 `title` 在 head，`h1` 在 body，兩者各有用途。
-
-接著只把 `h1` 中間的文字改成「今天開始做網站」，儲存再看。這次改的是頁面大標題。完成觀察後，可把兩處文字改回原文，接續下一篇。
-
-這個方法也能排障：畫面哪個部分不對，就回到負責那個部分的檔案與標籤，不必重新安裝所有工具。
-
-## 完成檢查
-
-你已從空資料夾建立工具清單與首頁，看到自己寫的網站。保持 dev 執行，從下方「下一篇」繼續建立第二個頁面。
+若找不到 package.json，先確認終端機的目前資料夾；404 則確認檔案真的是 src/pages/index.astro。pnpm 10 可能提示忽略部分安裝腳本，本系列純文字範例不需要直接批准所有腳本；若建置失敗，保留實際錯誤再處理。

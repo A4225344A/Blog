@@ -12,6 +12,7 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
+updatedAt: 2026-09-20
 status: published
 ---
 
@@ -95,7 +96,7 @@ Astro 會靜態產生 `/zh-tw/` 與 `/en/`，以及 Start、Learn、Topics、Blo
 
 文章的語言切換依 translation key 尋找已發布對應版本，並使用目標自己的 slug 與內容類型路由。找不到時返回目標語言首頁；SEO 的 hreflang 只列出真正存在的已發布翻譯。語言入口與兩個首頁構成互相對應的群組，以語言入口作為 `x-default`。共用的非文章實體維持單一 ID，繁體中文顯示文字放在 `src/i18n/content.ts`，依 collection 與所屬學習路徑區分命名空間。缺少翻譯時會警告並使用來源文字，找不到對應實體的翻譯鍵則會報錯。適合對象、難度與成熟度的顯示文字也依語言切換，不改變關聯擁有權。
 
-首頁依序呈現 Hero、Start Here、LearningPaths、精選 Topics、精選 Project、最新 Cases、最新 Articles、About／Experience。空清單會明確顯示尚無已發布內容，不會為了填版面而虛構事件或工作經歷。
+首頁以個人技術部落格為定位，依序呈現 Hero、認識部落格、最新文章、精選專案、文章系列、精選主題、最新案例與關於作者。文章系列沿用 LearningPath 模型。空清單會明確顯示尚無已發布內容，不會為了填版面而虛構事件或工作經歷。
 
 ## 主題控制與靜態搜尋
 

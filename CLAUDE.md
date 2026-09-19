@@ -23,14 +23,16 @@ Responsibilities:
 
 ## Product Definition
 
-The repository should implement a **bilingual engineering knowledge platform** combining:
+The repository should implement a **bilingual personal technical blog by a full-stack engineer** combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
 - Project showcases
 - long-form engineering Articles
 
-The product is **Knowledge-first, Portfolio-second**.
+The maintainer-approved positioning shares personal projects, technical articles
+and architecture decisions. Explain unfamiliar tools clearly without framing
+the author as a first-time developer. LearningPath is presented as Article Series.
 
 ## Source of Truth
 
@@ -278,13 +280,13 @@ Report over-engineering if Codex builds a large graph engine prematurely.
 
 Expected order:
 1. Hero
-2. Start Here
-3. Learning Paths
-4. Featured Topics
-5. Featured Project
-6. Latest Cases
-7. Latest Articles
-8. About / Experience
+2. About This Blog
+3. Latest Articles
+4. Featured Project
+5. Article Series (LearningPath entities)
+6. Featured Topics
+7. Latest Cases
+8. About the Author
 
 ## Start / Learn / Topics / Blog / Cases / Projects
 

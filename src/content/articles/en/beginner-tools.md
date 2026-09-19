@@ -1,161 +1,68 @@
 ---
 id: beginner-tools-en
 slug: beginner-tools
-title: Your first website — understand the tools and where to type commands
-description: A Windows guide for people with no coding experience. Learn what the tools do, install Node.js, pnpm and VS Code, then check that you are ready.
+title: "Why I use Astro for a technical blog"
+description: "A full-stack engineer's perspective on personal projects, technical writing and the tradeoffs of static builds, Git and GitHub Pages."
 locale: en
 translationKey: beginner-tools
-contentType: tutorial
-difficulty: beginner
+contentType: concept
+difficulty: intermediate
 topics: [web-foundations]
-skills: [terminal-basics]
+skills: [static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-19
+updatedAt: 2026-09-20
 status: published
 ---
 
-You do not need to know how to code. This path has one concrete goal: build your own website from an empty folder, add pages and styles, and see it in a browser.
+I am a full-stack engineer. This blog holds personal projects, implementation notes and architecture decisions. Building it is an exercise in choosing a delivery model that fits the content.
 
-This first lesson prepares the tools. By the end, you will have a window for commands, an editor for files, and two working version checks. The reading estimate above does not include installation or practice.
+This series moves from requirements to an empty project, article layouts and deployment. You may already know frontend and backend development while being new to Astro. Explanations and diagrams make the responsibilities explicit.
 
-## The big picture: you, the tools and the website
+## What does this blog need?
 
-Before installing anything, separate three actions: **write files, run tools, view results**. You will use several windows on one computer because they do different jobs.
+Articles and project descriptions do not need to be recomputed on every visit. The requirements are readable HTML, stable URLs, bilingual content and text that can be tracked alongside code in Git.
+
+This implementation therefore uses Astro's static build: content becomes website files before publication, and readers receive those files. Node.js is used during development and building; GitHub Pages does not need to run a Node.js application server.
 
 <figure class="learning-diagram">
-<figcaption>Figure 1: from the files you write to the page you see</figcaption>
-<ol>
-<li><strong>1. You and VS Code</strong><span>Write content in the editor; Ctrl+S saves it.</span></li>
-<li><strong>2. Project folder</strong><span>Stores your .astro pages and tools list.</span></li>
-<li><strong>3. Astro running on Node.js</strong><span>During development, reads files and prepares browser-ready content.</span></li>
-<li><strong>4. Browser</strong><span>Opens localhost and displays headings, paragraphs and styles.</span></li>
+<figcaption>Architecture: how this blog delivers content</figcaption>
+<ol role="list">
+<li><strong>1. Content in Git</strong><span>Markdown articles, project data and layouts.</span></li>
+<li><strong>2. Astro build</strong><span>Validates content, generates pages and a static search index.</span></li>
+<li><strong>3. GitHub Pages</strong><span>Serves verified HTML, CSS and necessary JavaScript.</span></li>
 </ol>
-<p>Arrows show content flowing through the system. Everything here runs on your computer; nothing has been published.</p>
+<p>Readers receive build output. This design has no database queries or authentication service.</p>
 </figure>
 
-PowerShell is where you **request work**, rather than write page content. pnpm installs tools and starts named tasks; Node.js runs Astro. These are tools working together, not separate websites.
+## Why Astro for this site?
 
-| Your intention | Where to act | What changes |
+Astro keeps content and page structure in a Git project and produces readable HTML ahead of time. A simple article does not need to load a client application before obtaining its body.
+
+Full-stack frameworks can also serve blogs. SSR, static output and client interaction are choices to combine around requirements. This site simply does not currently require an application backend. Accounts, private data or real-time writes would prompt a new architecture decision rather than being forced into the current design.
+
+| Choice | Benefit for this blog | Accepted limit |
 | --- | --- | --- |
-| Write headings, paragraphs or styles | VS Code editor | Saving changes the source file |
-| Install Astro or start the site | PowerShell terminal | Installs tools or starts a local process |
-| View results and follow links | Browser | Displays pages; does not save source files |
+| Static build | A concrete, inspectable website artifact | Content updates require rebuilding |
+| Markdown in Git | Traceable and reviewable changes | Writing requires basic Git familiarity |
+| Local static search | No remote search API dependency | New content enters the index after a build |
+| GitHub Pages | No application server to maintain | Project base paths and hosting settings need care |
 
-The upcoming version commands **check that tools are available**. Seeing a version number does not mean you have built a website. You will create its files in lesson two.
+## How does this differ from a full-stack application?
 
-## What you need before starting
+The key question is **when pages are produced**. A dynamic system can read data after receiving a request. This blog moves content loading, relationship computation and page generation into the build.
 
-- A Windows computer with internet access and permission to install software. The instructions use Windows 11 interface names.
-- The ability to download files, open folders and use a browser. A phone is not suitable for following these exercises.
-- No GitHub account, Git commands, domain purchase or hosting purchase yet.
+That changes troubleshooting: inspect content and build output for missing prose, routes and base configuration for broken links, and the CI artifact and SHA for an unexpected deployed version. Not every problem belongs to an API.
 
-On macOS or Linux, you can read the concepts, but do not copy the Windows `.cmd` commands. This first set of hands-on instructions covers Windows only.
+## Projects and articles serve different purposes
 
-## What makes a website?
+A project page records its goal, maturity, repository and related writing. An article explains an implementation or decision in detail. AI SRE Platform is explicitly a **lab** for learning, demonstration and experimentation; it is not presented as production experience.
 
-A browser gets page files and turns them into a screen you can read. Start with three names:
+A series connects related articles in a clear reading order. Readers can follow the decisions from requirements through delivery, or start with a project or technical question that interests them.
 
-| Name | What it does | Example |
-| --- | --- | --- |
-| HTML | Describes the content of a page | Headings, paragraphs and links |
-| CSS | Controls its appearance | Colors, fonts and spacing |
-| JavaScript | Responds to interaction | Changing the theme when you use a control |
+## What the implementation covers next
 
-**Astro** is a tool for making websites. It turns your pages and content into files a browser can display. You will create your own files step by step, starting with an empty folder.
+The next article builds a minimal Astro blog project to explain files, routes and development mode. The third adds Markdown and layouts, then compares its delivery needs with this repository's workflow.
 
-**GitHub** is a website for storing and sharing code. A **repository** is a project's collection of files. **Git** records the history of file changes; it is not the same thing as GitHub. You will create files locally first, so installing Git can wait.
-
-**GitHub Pages** serves website files to visitors on the internet. These exercises stay on your computer; they do not publish a website yet.
-
-## Step 1: Install Node.js
-
-Astro needs to run JavaScript work on your computer. **Node.js** makes that possible outside the browser. Here we use it to prepare and preview the site.
-
-1. Open the [official Node.js download page](https://nodejs.org/en/download) in your browser.
-2. Choose **24.x LTS**, **Windows**, and **Windows Installer (.msi)**. LTS means long-term support. This example requires Node.js 22.12 or later; this path uses 24.x consistently.
-3. Choose x64 for a typical Intel/AMD computer. If unsure, check Windows **Settings → System → About → System type**. Choose ARM64 for an ARM computer.
-4. Open the downloaded installer and finish its steps. Keep the default npm and PATH options; PATH helps command windows find installed tools. This example does not require the optional native-module compilation tools.
-5. Close and reopen PowerShell or VS Code if either was already running, so they pick up the newly installed tools.
-
-If a school or workplace computer requires permission to install software, ask its administrator for help before continuing.
-
-## Step 2: Where do commands go?
-
-Open the Windows Start menu, search for **PowerShell**, and open **Windows PowerShell**. You do not need “Run as administrator.” It may appear as a tab in Windows Terminal: Terminal is the window; PowerShell is the program receiving your commands.
-
-You may see a prompt like this:
-
-```text
-PS C:\Users\YourName>
-```
-
-It means PowerShell is waiting for input. Do not copy that prompt. Copy only the command inside each command block below, one line at a time, and press Enter.
-
-**Where: the PowerShell window you just opened. Any folder is fine for these checks.**
-
-```powershell
-node --version
-```
-
-`--version` asks for the version number. Success looks like a number beginning with `v24.`, for example `v24.15.0`; the last digits can differ. PowerShell can now find Node.js.
-
-Next, enter:
-
-```powershell
-npm.cmd --version
-```
-
-**npm** is a package manager included with Node.js. A package is a ready-made piece of software that a project can use. We will use npm once to install another package manager, pnpm. A successful npm check also prints a version number.
-
-## Step 3: Install pnpm
-
-**pnpm** downloads the pieces a project needs, including Astro, and runs tasks defined by that project. This website specifies pnpm 10.32.1.
-
-**Where: the same PowerShell window, in any folder.**
-
-```powershell
-npm.cmd install --global pnpm@10.32.1
-```
-
-`install` installs software; `--global` makes the command available for different projects; `@10.32.1` selects the version. This step downloads files. Wait until the `PS ...>` prompt returns, then enter:
-
-```powershell
-pnpm.cmd --version
-```
-
-The result should be `10.32.1`. We use `.cmd` to select the Windows command file explicitly instead of a `.ps1` file that PowerShell might block. When another guide says `pnpm`, it means the same tool.
-
-This method follows the [pnpm 10 installation guide](https://pnpm.io/10.x/installation). You do not need to upgrade to the newest version or use `npm install` to install the website's packages.
-
-## Step 4: Install the VS Code editor
-
-**Visual Studio Code (VS Code)** edits text and code files. It is not a browser and is different from the product named Visual Studio.
-
-Use the [official Windows installation guide](https://code.visualstudio.com/docs/setup/windows) to download the **User Installer**. Run it, complete installation, and open VS Code. You do not need to sign in, buy a service or install AI features. In the next lesson, you will use it to open your own new folder.
-
-## If something does not work
-
-| What you see | What to try |
-| --- | --- |
-| `node` or `npm.cmd` is “not recognized” | Close and reopen PowerShell. If that does not help, check that Node.js installation finished with npm and PATH enabled, then reopen the window. |
-| `pnpm.cmd` is “not recognized” | Check whether the installation command succeeded. Reopen PowerShell and try again. Keep the full error if it still fails rather than repeatedly reinstalling. |
-| PowerShell refuses to run `npm.ps1` or `pnpm.ps1` | Use `npm.cmd` and `pnpm.cmd` as shown. You do not need to change the computer's execution policy. |
-| `EACCES`, `EPERM` or access denied | Installation cannot write to its destination. Stop and ask the administrator for help; do not add `--force` to overwrite existing tools. |
-| A connection error or an `ERR_...` message | Check internet access. On a managed network, ask its administrator about restrictions. Save the error text; it is not another command to run. |
-
-When asking for help, include the command, the full error and your Node.js version. You can obscure your username in personal folder paths.
-
-## Observe the difference between a command and content
-
-After checking the versions, run `node --version` once more. It prints the version again without creating a web page. This command asks for information about a tool.
-
-In the next lesson, you will write a heading in VS Code's file editor. Remember the distinction: **commands request work; source files describe your website.**
-
-## Check before continuing
-
-1. `node --version` prints a version beginning with `v24.`.
-2. `pnpm.cmd --version` prints `10.32.1`.
-3. VS Code opens.
-
-You now know where commands go. Next, you will create an empty project folder, write your first page and open your own website locally. Use **Next lesson** in the learning-path navigation below.
+The small example isolates responsibilities rather than copying every feature of this site. The actual repository uses Content Collections, five content entities and build-time validation; the deeper architecture article covers that model.

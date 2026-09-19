@@ -1,6 +1,14 @@
 # Illustrated Beginner Lessons — Builder Handoff
 
-Status: **IMPLEMENTED_PENDING_INDEPENDENT_REVIEW**
+Status: **SUPERSEDED**
+
+This is a historical report for the original illustrated beginner branch.
+The personal technical blog implementation in main replaces its course content
+and includes the static diagrams and browser coverage. See
+[the current handoff](handoff-personal-blog.md). Do not reapply the old lessons.
+
+The branch synchronization preserves main's application files and retains only
+this historical report. It does not establish independent review approval.
 
 ## Summary
 

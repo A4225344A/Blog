@@ -2,34 +2,38 @@ import { test, expect } from '@playwright/test';
 import { normalizeBase } from '../../src/config/hosting';
 const base = normalizeBase(process.env.SITE_BASE);
 
-test('lesson diagrams remain readable on mobile and desktop without JavaScript', async ({ browser }) => {
+test('the personal blog leads with articles and projects and retains static diagrams', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  for (const locale of ['zh-tw', 'en']) {
-    for (const lesson of ['beginner-tools', 'beginner-local-website', 'beginner-first-change']) {
+  for (const [locale, articleLabel, projectLabel, seriesLabel] of [['en', 'Latest articles', 'Featured project', 'Article series'], ['zh-tw', '最新文章', '精選專案', '文章系列']] as const) {
+    await page.goto(`http://127.0.0.1:4322${base}${locale}/`);
+    const headings = await page.locator('main h2').allTextContents();
+    expect(headings.indexOf(articleLabel)).toBeGreaterThanOrEqual(0);
+    expect(headings.indexOf(articleLabel)).toBeLessThan(headings.indexOf(projectLabel));
+    expect(headings.indexOf(projectLabel)).toBeLessThan(headings.indexOf(seriesLabel));
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
+    if (locale === 'zh-tw') await page.screenshot({ path: 'test-results/personal-blog-home.png', fullPage: true });
+    for (const slug of ['beginner-tools', 'beginner-local-website', 'beginner-first-change']) {
       for (const width of [375, 1280]) {
         await page.setViewportSize({ width, height: 900 });
         await page.emulateMedia({ colorScheme: width === 375 ? 'dark' : 'light' });
-        await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/${lesson}/`);
+        await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/${slug}/`);
         const figure = page.locator('figure.learning-diagram');
         await expect(figure).toBeVisible();
         await expect(figure.locator('figcaption')).not.toBeEmpty();
-        await expect(figure.locator('li')).toHaveCount(lesson === 'beginner-local-website' ? 3 : 4);
+        await expect(figure.locator('li')).toHaveCount(slug === 'beginner-first-change' ? 4 : 3);
         expect(await figure.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-        if (locale === 'zh-tw' && lesson === 'beginner-first-change') {
-          await figure.screenshot({ path: `test-results/lesson-diagram-${width}.png` });
-        }
       }
     }
   }
   await context.close();
 });
 
-test('a beginner can follow all three lessons and switch languages without losing their place', async ({ page }) => {
+test('readers can follow the Astro series and switch languages without losing their place', async ({ page }) => {
   for (const [locale, beginner, experienced, firstTitle, next, previous, switchLanguage] of [
-    ['zh-tw', '我沒有開發經驗', '我已經會寫程式', '第一次做網站：認識工具，找到輸入指令的地方', '下一篇', '上一篇', 'English'],
-    ['en', 'I have no coding experience', 'I already write code', 'Your first website — understand the tools and where to type commands', 'Next lesson', 'Previous lesson', '繁體中文'],
+    ['zh-tw', '這個部落格如何建立', '探索專案與文章', '為什麼我用 Astro 建立技術部落格', '下一篇', '上一篇', 'English'],
+    ['en', 'How this blog is built', 'Explore projects and articles', 'Why I use Astro for a technical blog', 'Next article', 'Previous article', '繁體中文'],
   ] as const) {
     await page.goto(`${locale}/start/`);
     const entry = page.getByRole('region', { name: beginner });
@@ -39,7 +43,7 @@ test('a beginner can follow all three lessons and switch languages without losin
     await expect(page.locator('main ol.cards li')).toHaveCount(3);
     await page.getByRole('link', { name: firstTitle, exact: true }).click();
     await expect(page.locator('h1')).toHaveText(firstTitle);
-    const pathNav = page.locator('nav[aria-label^="Continue this learning path"], nav[aria-label^="繼續這條學習路徑"]');
+    const pathNav = page.locator('nav[aria-label^="Continue this series"], nav[aria-label^="繼續閱讀系列"]');
     const topicsHeading = page.getByRole('heading', { name: locale === 'en' ? 'Topics' : '主題', exact: true });
     const proseEnd = await page.locator('.prose').evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
     const navigationEnd = await pathNav.evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
@@ -115,6 +119,14 @@ test('Article translation preserves context and search indexes Skill text', asyn
     await page.locator('.pagefind-ui__search-input').fill(query ?? '');
     await expect(page.locator('.pagefind-ui__result-link').first()).toBeVisible();
     const articleResult = page.locator(`.pagefind-ui__result-link[href="${base}${locale}/blog/astro-knowledge-platform/"]`).first();
+    // Ranking changes as content grows; verify discovery across actual UI pages.
+    const loadMore = page.locator('.pagefind-ui__button');
+    for (let pageNumber = 0; pageNumber < 10 && await articleResult.count() === 0; pageNumber++) {
+      if (!await loadMore.isVisible()) break;
+      const previousCount = await page.locator('.pagefind-ui__result-link').count();
+      await loadMore.click();
+      await expect.poll(() => page.locator('.pagefind-ui__result-link').count()).toBeGreaterThan(previousCount);
+    }
     await expect(articleResult).toBeVisible();
     for (const href of await page.locator('.pagefind-ui__result-link').evaluateAll(links => links.map(link => link.getAttribute('href'))))
       expect(href).toMatch(new RegExp(`${base}${locale}/(?:blog|cases|topics|learn|projects)/[^/]+/$`));
@@ -123,8 +135,8 @@ test('Article translation preserves context and search indexes Skill text', asyn
 
 test('detail pages localize metadata and omit empty optional relationships', async ({ page }) => {
   for (const [locale, difficulty, recommended, projects, related, paths] of [
-    ['en', 'Intermediate', 'Recommended reading', 'Projects', 'Related articles', 'Related learning paths'],
-    ['zh-tw', '中階', '延伸閱讀', '專案', '相關文章', '相關學習路徑'],
+    ['en', 'Intermediate', 'Recommended reading', 'Projects', 'Related articles', 'Related series'],
+    ['zh-tw', '中階', '延伸閱讀', '專案', '相關文章', '相關系列'],
   ] as const) {
     await page.goto(`${locale}/blog/astro-knowledge-platform/`);
     await expect(page.locator('main')).toContainText(difficulty);

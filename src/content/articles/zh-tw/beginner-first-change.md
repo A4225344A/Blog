@@ -1,161 +1,159 @@
 ---
 id: beginner-first-change-zh-tw
 slug: beginner-first-change
-title: "繼續建設自己的網站：樣式、第二個頁面與導覽"
-description: "替自己建立的首頁加入內容與 CSS，親手建立關於頁、往返連結，再產生靜態網站檔案。"
+title: "加入文章、版型與部署流程"
+description: "將 Markdown 與共用版型分離，處理 GitHub Pages base，並理解本站驗證與人工批准的交付流程。"
 locale: zh-TW
 translationKey: beginner-first-change
 contentType: tutorial
-difficulty: beginner
+difficulty: intermediate
 topics: [web-foundations]
-skills: [editing-web-pages]
+skills: [astro-content-modeling]
 prerequisiteSkills: [local-website-preview]
 recommendedArticles: []
 publishedAt: 2026-09-19
+updatedAt: 2026-09-20
 status: published
 ---
 
-上一篇已從空資料夾建立首頁。現在繼續在自己的 `my-first-website` 專案工作，讓網站有自己的內容、顏色與第二個頁面。
+有首頁還不等於有方便維護的部落格。這一篇把文章內容與版型分開，產生可部署的網站，再說明本站如何驗證與發布它。
 
-在 VS Code 開啟該資料夾，從 PowerShell 執行 `pnpm.cmd run dev`，再開啟終端機列出的 Local 網址。以下程式碼都貼進檔案編輯區。
+下面延續上一篇的小型 `engineering-blog` 專案。它是理解 Astro 的最小範例，並不是本站完整 Content Graph 的替代品。
 
-## 先看架構：原始檔、網址與建置結果
-
-兩個頁面就像一本書的兩頁；連結是你安排的翻頁入口。Astro 用檔案位置決定網址，而不是用大標題決定：
-
-| 你建立的檔案 | 本機網址路徑 | 角色 |
-| --- | --- | --- |
-| `src/pages/index.astro` | `/` | 首頁 |
-| `src/pages/about.astro` | `/about/` | 關於頁 |
-| 指向關於頁的 `a` 連結 | 導向 `/about/` | 連結目的地，不會建立新檔案 |
-
-把 h1 改成「聯絡我」，網址仍是 `/about/`，因為檔名沒有改。如果只寫連結卻沒有建立 about.astro，就像門牌指向不存在的房間，會得到 404。
+## 內容、版型與交付的責任
 
 <figure class="learning-diagram">
-<figcaption>圖 3：建置是把原始檔轉成一份可交付的網站</figcaption>
-<ol>
-<li><strong>1. src/pages/ 與樣式</strong><span>你持續修改的原始檔。</span></li>
-<li><strong>2. pnpm run build</strong><span>Astro 讀取原始檔，產生靜態網站。</span></li>
-<li><strong>3. dist/</strong><span>這次建置產生的 HTML、CSS 等檔案。</span></li>
-<li><strong>4. pnpm run preview</strong><span>在本機提供 dist 的內容，供瀏覽器檢查。</span></li>
+<figcaption>架構圖：從寫文章到讀者收到頁面</figcaption>
+<ol role="list">
+<li><strong>1. Markdown ＋版型</strong><span>文章寫內容，版型統一標題、導覽與樣式。</span></li>
+<li><strong>2. Astro build</strong><span>把內容與版型組合成 dist 靜態檔案。</span></li>
+<li><strong>3. CI 驗證與人工批准</strong><span>本站先驗證，main 通過後等待部署審批。</span></li>
+<li><strong>4. GitHub Pages</strong><span>發布已驗證的產物，不在正式站重新建置。</span></li>
 </ol>
-<p>preview 不會自動重新建置。這條流程沒有上傳步驟；本機看到成果不代表已經公開。</p>
+<p>圖中的 CI 與審批是本站已實作的流程；在自己的新儲存庫仍需建立 workflow 並設定 environment。</p>
 </figure>
 
-**dev 像邊寫邊看的工作桌；build 像輸出一份成品；preview 像檢查剛輸出的成品。** 這個比喻的重點是：原始檔更新後，舊成品不會自己改變。
+## 用 Markdown 寫文章
 
-## 第一步：寫自己的內容
-
-開啟 **`src/pages/index.astro`**。把 `body` 裡的段落改成你的介紹，例如：
-
-```html
-<p>你好，我正在記錄我的網站學習筆記。</p>
-```
-
-按 **Ctrl+S**。回瀏覽器確認新段落出現，沒更新就重新整理。這是你的內容，可以用自己的話重寫。`<p>` 與 `</p>` 要保留。
-
-## 第二步：為首頁加入樣式
-
-在同一個檔案最底部、`</html>` 之後，新增以下完整區塊：
+先建立 `src/layouts/PostLayout.astro`。版型是共用的頁面外框，文章正文放進 slot：
 
 ```astro
-<style>
-  body {
-    max-width: 42rem;
-    margin: 3rem auto;
-    padding: 0 1rem;
-    font-family: system-ui, sans-serif;
-    line-height: 1.7;
-    color: #172b3a;
-    background: #f5f7fa;
-  }
-  h1 {
-    color: #075985;
-  }
-  a {
-    color: #075985;
-  }
-</style>
-```
-
-CSS 用「選擇器」指定要改的元素，例如 `body` 是頁面內容、`h1` 是大標題。`max-width` 限制文字寬度，`margin` 是外側空間，`padding` 是內側留白，`line-height` 是行距；`color` 和 `background` 是文字及背景顏色。`rem` 是相對字體大小的單位。先照做，再一次改一個數值觀察差別。
-
-**成功檢查：** 儲存後，首頁標題變藍、文字有留白、背景變淡。網站變化只在你的電腦，不會自動公開。
-
-## 第三步：建立關於頁面
-
-**操作位置：VS Code 左側 `src/pages` 資料夾。**
-
-按右鍵 → New File，命名 `about.astro`。貼入以下完整內容並儲存：
-
-```astro
+---
+interface Props {
+  frontmatter: { title: string; description: string };
+}
+const { frontmatter } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
 <!doctype html>
-<html lang="zh-TW">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>關於我</title>
+    <title>{frontmatter.title}</title>
+    <meta name="description" content={frontmatter.description} />
   </head>
   <body>
-    <h1>關於我</h1>
-    <p>這是我從零建立的網站，我會在這裡分享學習過程。</p>
-    <a href="/">回首頁</a>
+    <main>
+      <a href={base}>Home</a>
+      <h1>{frontmatter.title}</h1>
+      <p>{frontmatter.description}</p>
+      <slot />
+    </main>
   </body>
 </html>
+<style>
+  main { max-width: 70ch; margin: 3rem auto; padding: 0 1rem; line-height: 1.8; }
+</style>
 ```
 
-Astro 依檔名決定網址：`index.astro` 是 `/`，`about.astro` 是 `/about/`。在本機網址後加上 `about/`，例如 `http://localhost:4321/about/`。
+`Props` 宣告此版型預期收到的標題與描述。`slot` 是 Markdown 正文插入的位置；CSS 放在版型內，使用該版型的文章會共享這份版面。
 
-**成功檢查：** 看到「關於我」及「回首頁」連結。這個頁面還沒有首頁的 CSS，所以外觀不同是正常的；Astro 頁面裡的樣式不會自動套用到別頁。之後學習共用版型時，再把重複結構集中管理。
+接著建立 `src/pages/posts/build-notes.md`：
 
-## 第四步：把兩頁接起來
+```markdown
+---
+layout: ../../layouts/PostLayout.astro
+title: "Why this blog is static"
+description: "A note on content delivery and maintenance."
+---
 
-回到 **`src/pages/index.astro`**，在段落後、`</body>` 前新增：
+## Context
 
-```html
-<a href="/about/">關於我</a>
+This blog publishes articles and project notes.
+
+## Decision
+
+Generate pages before publishing and serve the static output.
+
+## Tradeoff
+
+Content changes need a new build.
 ```
 
-`a` 是連結；`href` 指定目的地；標籤中間是讀者看到的文字。這裡的 `/` 從本機網站根目錄開始。未來放到 GitHub Pages 的專案子路徑時，需要再處理部署 base；目前先在本機根目錄練習。
+frontmatter 是兩條 `---` 中間的資料；layout 指向剛建立的共用版型。正文從二級標題開始，因為版型已經輸出 h1。這種用法對應 [Astro 的 Markdown 頁面與 layout 機制](https://v5.docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property)。
 
-**成功檢查：** 儲存後，從首頁點「關於我」到第二頁，再點「回首頁」回來。這就是你親手建立的導覽。
+在首頁 `src/pages/index.astro` 的段落下加入：
 
-## 如果沒有成功
+```astro
+<a href={`${base}posts/build-notes/`}>Read the build notes</a>
+```
 
-- 看不到變化：按 Ctrl+S，確認改的是正在執行的那份專案，瀏覽器用 Local 網址，必要時重新整理。
-- 第二頁 404：檢查 `about.astro` 是否直接在 `src/pages` 裡，以及連結拼字。
-- 樣式沒生效：檢查 `<style>`、`</style>`、大括號與分號是否完整，確認正在看首頁。
-- 不小心改壞：可以 Ctrl+Z 撤銷後儲存；也可用上一篇的完整首頁重建，再一次加一個區塊。
-- 終端機已停止：在相同資料夾重新執行 `pnpm.cmd run dev`。
+儲存並啟動 dev，確認首頁連得到文章、文章顯示標題與正文，也能回首頁。Windows 可用 Ctrl+S 儲存；終端機的 pnpm 可寫成 pnpm.cmd。
 
-## 第五步：產生可發布的檔案
+## 小範例與本站實作的差別
 
-回 PowerShell，先按 **Ctrl+C** 停止 dev；若詢問是否終止批次工作，輸入 `Y`。然後執行：
+上面的 Markdown 位於 pages，檔案直接對應網址，適合看清內容與版型關係。**本站正式文章放在 src/content/articles**，透過 Content Collections 與 schema 驗證，再由路由統一渲染。
+
+正式內容的 ID 是身分、slug 是網址，兩者分開。文章系列由 LearningPath 擁有排序，專案相關文章由 Project 擁有；反向關聯由建置計算。不要為了在兩個地方顯示同一篇文章，就複製兩份正文。
+
+這裡採用簡單範例來說明 Astro，不會改動本站既有的內容 ownership。文章增加、需要雙語與關聯時，再使用已實作的完整模型。
+
+## GitHub Pages 的 base 不能省略
+
+建立 `astro.config.mjs`：
+
+```js
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  output: 'static',
+  trailingSlash: 'always',
+  site: process.env.SITE_URL ?? 'http://localhost:4321',
+  base: process.env.SITE_BASE ?? '/',
+});
+```
+
+個人首頁型儲存庫使用根路徑 `/`；例如名為 `Blog` 的專案型網站則使用 `/Blog/`。site 放網域來源，base 放路徑。上面的環境變數設定預期包含前後斜線；這個最小範例沒有本站完整的 base 正規化驗證。
+
+例如在 Windows PowerShell 為自己的帳號設定：
 
 ```powershell
+$env:SITE_URL = 'https://YOUR_USERNAME.github.io'
+$env:SITE_BASE = '/Blog/'
 pnpm.cmd run build
-```
-
-結束後輸入 `$LASTEXITCODE`，應顯示 `0`。VS Code 左側會多出 `dist` 資料夾，裡面是 Astro 產生的網站檔案；不要直接改它，下次 build 會重新產生。
-
-再執行：
-
-```powershell
 pnpm.cmd run preview
 ```
 
-保持終端機開啟，用它列出的網址檢查首頁、關於頁及往返連結。preview 顯示建置結果；若修改原始檔，先停止 preview、重新 build，再 preview 才會看到新結果。結束同樣按 Ctrl+C。
+把 YOUR_USERNAME 與 Blog 換成自己的帳號和儲存庫。先用 Ctrl+C 停止原本 dev，再執行這些指令。用 preview 顯示的網址檢查首頁和文章往返；連結使用 BASE_URL，所以不會固定指向網域根目錄。新增圖片時也要同樣考慮 base。
 
-## 用小變更驗證你理解了流程
+build 成功後會有 `dist`。preview 只提供這次的產物；修改原始檔後，要重新 build 才會更新。以上仍是本機檢查，沒有上傳動作。
 
-先只把首頁 CSS 的 `max-width: 42rem` 改成 `max-width: 30rem`。在較寬的瀏覽器視窗，你會看到文字區域變窄；窄手機上可能沒差別，因為畫面本來就小於這個上限。改回原值後，再試改文字顏色。一次只變更一個值，才能知道是哪個設定造成變化。
+## 本站如何發布：先驗證，再批准
 
-完成本篇的 build 與 preview 後，可以再觀察一次：改首頁段落並儲存，重新整理 preview，畫面仍是上次建置的內容。停止 preview、重新 build、再 preview，才會看到新段落。這正是上圖「原始檔 → 建置 → dist」的因果關係。
+這個儲存庫的單一 CI workflow 把驗證和部署分成兩個 job：
 
-看到錯誤時，也可以沿圖找位置：404 先看檔名與連結；樣式不符先看選擇器與所在頁面；preview 內容過時先看是否重新建置。先找出問題在哪一段，再決定要執行哪個指令。
+1. PR 與 main 都執行 frozen install、內容驗證、測試、型別檢查及建置；PR 不部署。
+2. main 通過後，上傳該次驗證過的產物。
+3. deploy 等待 github-pages environment 的人工批准。
+4. 批准後再次確認 main SHA，部署同一次 CI 的產物，不另做一份建置。
 
-## 你完成了什麼？
+在自己的新儲存庫，需先提交原始檔與 lockfile、建立 GitHub Actions workflow，將 Pages 來源選為 GitHub Actions，並為 github-pages environment 設定 Required reviewers。YAML 只引用 environment，不能自己建立審批人。
 
-你已從空資料夾建立自己的 Astro 網站：工具清單、首頁、CSS、關於頁、頁面連結，以及靜態建置。每個檔案都是自己建立的。
+這個最小範例目前只有 dev、build、preview；**不能直接照搬本站的測試命令而不建立對應腳本**。部署設定可對照 [本站 workflow](https://github.com/A4225344A/Blog/blob/main/.github/workflows/ci.yml)，並參考 [Astro GitHub Pages 部署說明](https://docs.astro.build/en/guides/deploy/github/)。本文說明的是交付設計，不代表已替讀者的帳號完成部署。
 
-這一階段完成本機網站。Markdown 寫文章、Git 修改紀錄與 GitHub Pages 公開發布將是後續教學；本篇沒有讓網站自動上線。現有中階架構文章可留到熟悉這些基礎後再讀。
+## 寫作比增加功能更重要
+
+到這裡，最小部落格有了首頁、文章、共用版型與可檢查的靜態產物。接著可以把自己的專案拆成「背景、決策、實作、驗證與限制」來寫。架構圖說明系統關係，程式碼說明如何落地，兩者互相補充。
+
+正式站的搜尋、雙語、SEO 與內容關聯另由現有架構文章深入說明。這個系列的重點，是把全端工程師的實作經驗整理成可閱讀、可維護的部落格。

@@ -19,8 +19,8 @@ Content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6)
 and the complete bilingual implementation article (Phase 7) are implemented.
 Status: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
 The preceding V1 version received Claude's READY_WITH_MINOR_NOTES and was deployed.
-This branch integrates main's unified CI/deployment workflow with the beginner
-content and navigation. This integration does not establish independent approval.
+This branch adopts the maintainer-approved personal technical blog positioning.
+The implementation still awaits independent review.
 
 Implementation details:
 
@@ -130,42 +130,31 @@ Implementation details:
 - The first complete bilingual Article describes this repository, including its
   validation boundary, routes, theme, Pagefind, SEO and artifact deployment. The
   `knowledge-platform` LearningPath owns its ordered Article membership. It is not
-  falsely attached to AI SRE Platform. The new beginner Articles are also independent
+  falsely attached to AI SRE Platform. The Astro series Articles are also independent
   of that lab, so eight `W_ARTICLE_NO_PROJECT` warnings remain. The six initial Skills
   are supplemented by terminal basics, local preview and editing web pages.
   Cases remain an honest empty state until actual case content is authored.
 
-## Beginner Entry Within V1
+## Personal Blog Positioning Within V1
 
-- `/start/` offers two localized entries: no coding experience, or existing coding
-  experience. `siteConfig.startLearningPathIds` points to LearningPath IDs, not an
-  additional Article membership list. The homepage directs new readers to Start.
-- `first-website` contains three bilingual beginner lessons: tools, a site created
-  from an empty folder, and styles/second page/navigation/build. It targets Windows/PowerShell with Node.js 24.x and the
-  repository's pnpm 10.32.1. Each lesson explains where to act, what success looks
-  like, common failures and recovery. Reading estimates are not practice durations.
-- Readers write package.json (Astro 5.18.2), src/pages/index.astro and about.astro
-  themselves. First install creates a lockfile; it does not use frozen-lockfile
-  before that file exists. No repository download or starter project is used.
-- Article pages present TOC and body first, followed by path navigation, then
-  Topic/Skill discovery and prerequisite metadata. Topic ownership and canonical
-  classification links are preserved without placing them ahead of the lesson.
-- Beginner lessons include localized HTML/CSS architecture figures with captions,
-  ordered steps and adjacent text explanations. They render without JavaScript,
-  stack on narrow screens and use the existing theme colors. Guided observations
-  explain commands and cause/effect; no quiz engine or progress state is added.
-- `web-foundations` is a human-facing Topic beneath `platform-engineering`. Three
-  new Skills describe taught capabilities and prerequisite dependencies; they do
-  not replace Topics or become additional core entity types.
-- LearningPath sections and articleIds own the sequence. Static previous/next links
-  are derived from that order after locale/publication filtering, across sections.
-  No ordering or path-membership fields are added to Article metadata.
-- Article cards show their localized difficulty before opening. The original
-  `knowledge-platform` path and Article retain intermediate depth; the path now
-  states the expected ability to run a Node.js project and edit web files.
-- Markdown writing, Git history, public deployment, macOS/Linux steps and advanced
-  learning tracks remain future content, not placeholder links or completed lessons.
-  This is content and static navigation using V1, not V1.1/V2/V3 functionality.
+The maintainer approved replacing the zero-experience course positioning with a
+full-stack engineer's personal technical blog. Home prioritizes recent articles
+and the featured project. Start introduces the blog and links to projects,
+articles and the author's confirmed full-stack role. No employment history,
+production experience or measured results are inferred.
+
+LearningPath is presented as an Article Series. Existing entity IDs, slugs and
+translation keys remain stable, including legacy beginner-* and first-website
+identifiers, to preserve existing URLs and graph references. The three rewritten
+bilingual articles discuss Astro selection, a minimal blog project, then Markdown,
+layouts and the actual repository's CI/Pages delivery boundary. The longer
+architecture Article retains its depth.
+
+Diagrams use static HTML/CSS, readable without JavaScript and stacked on mobile.
+Tool setup is a short prerequisite appendix, not the main narrative. The minimal
+example is explicitly separate from this repository's five-entity Content Graph.
+Article bodies and series navigation precede classification metadata. No schema,
+relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
 
@@ -201,22 +190,23 @@ and [configuration](https://docs.astro.build/en/reference/configuration-referenc
 
 ## Product Definition
 
-The system is a **bilingual engineering knowledge platform** combining:
+The system is a **bilingual personal technical blog by a full-stack engineer** combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
 - Project showcases
 - long-form engineering Articles
 
-The product is **Knowledge-first, Portfolio-second**.
+The product shares personal projects, technical articles and architecture decisions.
+Explain unfamiliar tools clearly without framing the author as a first-time developer.
 
 Public direction:
 
-> Engineering knowledge, built from real systems.
+> Personal projects, full-stack implementation and architecture decisions.
 
 Traditional Chinese:
 
-> 從實作、排障到架構，建立可循序學習的工程知識。
+> 記錄個人專案、全端實作與架構取捨。
 
 Primary domains:
 - Cloud Native
@@ -606,13 +596,13 @@ Main sections:
 
 Homepage order:
 1. Hero
-2. Start Here
-3. Learning Paths
-4. Featured Topics
-5. Featured Project
-6. Latest Cases
-7. Latest Articles
-8. About / Experience
+2. About This Blog
+3. Latest Articles
+4. Featured Project
+5. Article Series (LearningPath entities)
+6. Featured Topics
+7. Latest Cases
+8. About the Author
 
 ## Content Graph Validation V1
 
