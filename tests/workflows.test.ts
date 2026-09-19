@@ -1,12 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
 const stepSchema = z.object({ run: z.string().optional(), uses: z.string().optional(), if: z.string().optional(), with: z.record(z.unknown()).optional() }).passthrough();
 const workflowSchema = z.object({
   name: z.string(), on: z.record(z.unknown()), permissions: z.record(z.string()),
-  jobs: z.record(z.object({ if: z.string().optional(), permissions: z.record(z.string()).optional(), steps: z.array(stepSchema) }).passthrough()),
+  concurrency: z.object({ group: z.string(), 'cancel-in-progress': z.union([z.boolean(), z.string()]) }),
+  jobs: z.record(z.object({ if: z.string().optional(), needs: z.string().optional(), environment: z.object({ name: z.string(), url: z.string() }).optional(), permissions: z.record(z.string()).optional(), concurrency: z.object({ group: z.string(), 'cancel-in-progress': z.boolean() }).optional(), steps: z.array(stepSchema) }).passthrough()),
 }).passthrough();
 function workflow(file: string) {
   const parsed = parseDocument(readFileSync(file, 'utf8'), { uniqueKeys: true });
@@ -26,21 +28,49 @@ test('CI has read-only permissions and ordered quality gates; artifacts only fro
   assert.match(upload?.if ?? '', /event_name == 'push'/);
   assert.match(upload?.if ?? '', /refs\/heads\/main/);
 });
-test('deployment accepts only successful same-repository main pushes and downloads that run', () => {
-  const deploy = workflow('.github/workflows/deploy.yml');
-  assert.deepEqual(Object.keys(deploy.on), ['workflow_run']);
-  const job = deploy.jobs.deploy!;
-  for (const expression of ["conclusion == 'success'", "event == 'push'", "head_branch == 'main'", 'head_repository.full_name == github.repository']) assert.ok(job.if?.includes(expression));
-  assert.equal(job.permissions?.pages, 'write');
-  assert.equal(job.permissions?.['id-token'], 'write');
-  assert.ok(!job.steps.some(s => s.uses?.startsWith('actions/checkout')));
+test('one workflow gates deployment on successful main CI and the protected environment', () => {
+  assert.deepEqual(readdirSync('.github/workflows').filter(file => /\.ya?ml$/.test(file)), ['ci.yml']);
+  const ci = workflow('.github/workflows/ci.yml');
+  assert.deepEqual(Object.keys(ci.on).sort(), ['pull_request', 'push']);
+  assert.deepEqual(ci.on.push, { branches: ['main'] });
+  const job = ci.jobs.deploy!;
+  assert.equal(job.needs, 'validate');
+  assert.equal(job.if, "github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.validate.result == 'success'");
+  assert.equal(job.environment?.name, 'github-pages');
+  assert.equal(job.environment.url, '${{ steps.deployment.outputs.page_url }}');
+  assert.deepEqual(job.permissions, { contents: 'read', actions: 'read', pages: 'write', 'id-token': 'write' });
+  assert.equal(ci.jobs.validate?.permissions, undefined);
+  assert.equal(ci.jobs.validate?.environment, undefined);
+  assert.equal(ci.concurrency['cancel-in-progress'], "${{ github.event_name == 'pull_request' }}");
+  assert.equal(ci.concurrency.group, "ci-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}");
+  assert.deepEqual(job.concurrency, { group: 'github-pages', 'cancel-in-progress': false });
+  assert.ok(!job.steps.some(s => s.run || s.uses?.startsWith('actions/checkout')));
   const download = job.steps.find(s => s.uses?.startsWith('actions/download-artifact@'));
-  assert.equal(download?.with?.['run-id'], '${{ github.event.workflow_run.id }}');
-  assert.ok(job.steps.some(s => typeof s.with?.script === 'string' && s.with.script.includes('workflow_run.head_sha')));
+  assert.deepEqual(download?.with, { name: 'verified-site', path: 'site' });
+  assert.equal(job.steps[0]?.uses?.split('@')[0], 'actions/github-script');
+  assert.equal(job.steps.at(-1)?.uses?.split('@')[0], 'actions/deploy-pages');
+});
+test('the actual deployment guard rejects a stale SHA and accepts the validated current SHA', () => {
+  const script = workflow('.github/workflows/ci.yml').jobs.deploy?.steps[0]?.with?.script;
+  assert.equal(typeof script, 'string');
+  for (const currentSha of ['validated-sha', 'newer-sha']) {
+    const output = execFileSync(process.execPath, ['--input-type=module', '--eval', `
+      const context = { repo: { owner: 'fixture', repo: 'fixture' }, sha: 'validated-sha' };
+      const github = { rest: { repos: { getBranch: async ({ branch }) => {
+        if (branch !== 'main') throw new Error('Wrong branch');
+        return { data: { commit: { sha: ${JSON.stringify(currentSha)} } } };
+      } } } };
+      let failed = false;
+      const core = { setFailed: () => { failed = true; } };
+      ${script}
+      process.stdout.write(JSON.stringify({ failed }));
+    `], { encoding: 'utf8' });
+    assert.deepEqual(JSON.parse(output), { failed: currentSha !== 'validated-sha' });
+  }
 });
 test('workflow action hashes match the reviewed commit allowlist', () => {
   const pins = z.record(z.object({ commit: z.string().regex(/^[a-f0-9]{40}$/), version: z.string().regex(/^v\d+$/) }).strict()).parse(JSON.parse(readFileSync('.github/action-pins.json', 'utf8')));
-  for (const file of ['.github/workflows/ci.yml', '.github/workflows/deploy.yml'])
+  for (const file of ['.github/workflows/ci.yml'])
     for (const job of Object.values(workflow(file).jobs)) for (const step of job.steps)
       if (step.uses) {
         const [action, sha] = step.uses.split('@');

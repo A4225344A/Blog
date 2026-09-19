@@ -130,11 +130,11 @@ corepack.cmd pnpm run test:build
 
 ## Deliver the exact validated artifact
 
-The CI workflow runs on pull requests and main pushes with read-only repository permissions. It installs from the lockfile, validates content, runs deterministic tests, checks Astro/TypeScript, and builds the root and production-base variants. Generated-output checks and Chromium tests run against those variants.
+The CI workflow runs on pull requests and main pushes. Its validation job uses read-only repository permissions, installs from the lockfile, validates content, runs deterministic tests, checks Astro/TypeScript, and builds the root and production-base variants. Generated-output checks and Chromium tests run against those variants.
 
-Only a main push uploads the `verified-site` artifact. The separate deployment workflow listens for successful CI completion, checks that the run was a main push from this repository, and rejects a SHA that is no longer main. It downloads the artifact from that exact run, packages it for Pages, and deploys without checking out or rebuilding the source. Only the deployment job receives Pages write and OIDC permissions. External Actions are pinned to commit hashes.
+Only a main push uploads the `verified-site` artifact. The same workflow contains a deployment job with `needs: validate`, restricted to successful main pushes. It references the `github-pages` environment, whose required reviewers enforce human approval before the job starts. After approval, it rejects a SHA that is no longer main, downloads the artifact from the same run, packages it for Pages, and deploys without checking out or rebuilding the source. Only the deployment job receives Pages write and OIDC permissions. External Actions are pinned to commit hashes.
 
-The maintainer still needs to enable GitHub Actions as the Pages source and configure branch/environment protection for the human approval gate. Local success does not demonstrate that a hosted workflow or public deployment has run. Independent review is still pending; the implementation status is `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
+The maintainer must keep GitHub Actions as the Pages source and preserve branch/environment protection for the human approval gate. Required reviewers are configured in GitHub, not created by YAML. In the CI run, use Review deployments to approve the waiting job. Local success does not demonstrate hosted execution or approval enforcement. The unified workflow change awaits independent review: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
 
 ## Keep V1 small and verifiable
 
