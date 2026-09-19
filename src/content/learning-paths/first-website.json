@@ -1,0 +1,12 @@
+{
+  "id": "first-website",
+  "title": "Your first website, from zero",
+  "description": "Three guided steps on Windows: prepare your tools, open this website on your computer, then change a heading and see the result. No coding experience required. Publishing is not part of this first path.",
+  "targetAudience": ["People with no coding experience", "Windows users who can download files and use a browser"],
+  "sections": [{
+    "id": "first-local-change",
+    "title": "Prepare, open, change",
+    "description": "Read in order. Each lesson gives you a task, a success check and a way to recover. Reading time does not include installation or practice.",
+    "articleIds": ["beginner-tools-zh-tw", "beginner-tools-en", "beginner-local-website-zh-tw", "beginner-local-website-en", "beginner-first-change-zh-tw", "beginner-first-change-en"]
+  }]
+}

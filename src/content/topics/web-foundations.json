@@ -1,0 +1,6 @@
+{
+  "id": "web-foundations",
+  "name": "Website basics",
+  "description": "Understand the tools, open a website on your computer and make your first change.",
+  "parentId": "platform-engineering"
+}
