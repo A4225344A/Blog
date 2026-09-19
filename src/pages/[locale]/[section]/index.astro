@@ -7,6 +7,7 @@ import { ui, sections, sectionDescriptions, type Section } from '../../../i18n/u
 import { getContentGraph } from '../../../utils/build-graph';
 import { publishedArticles, isCase } from '../../../utils/catalog';
 import { localePath } from '../../../utils/routes';
+import { siteConfig } from '../../../config/site';
 export function getStaticPaths() {
   return locales.flatMap(locale => sections.map(section => ({ params: { locale: localePrefix[locale], section }, props: { locale, section } })));
 }
@@ -19,7 +20,12 @@ const languageLinks = Object.fromEntries(locales.map(target => [target, localePa
 ---
 <BaseLayout locale={locale} title={t[section]} description={sectionDescriptions[locale][section]} languageLinks={languageLinks}>
   <h1>{t[section]}</h1>
-  {section === 'start' && <><p>{t.startIntro}</p><h2>{t.learn}</h2><EntityList entries={graph['learning-paths']} section="learn" locale={locale} /><h2>{t.topics}</h2><EntityList entries={graph.topics} section="topics" locale={locale} /></>}
+  {section === 'start' && <>
+    <p class="lead">{t.startIntro}</p>
+    <section aria-labelledby="beginner-entry"><h2 id="beginner-entry">{t.beginnerEntry}</h2><p>{t.beginnerIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.beginner)} section="learn" locale={locale} /></section>
+    <section aria-labelledby="experienced-entry"><h2 id="experienced-entry">{t.experiencedEntry}</h2><p>{t.experiencedIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.experienced)} section="learn" locale={locale} /></section>
+    <h2>{t.topics}</h2><EntityList entries={graph.topics} section="topics" locale={locale} />
+  </>}
   {section === 'learn' && <EntityList entries={graph['learning-paths']} section="learn" locale={locale} />}
   {section === 'topics' && <EntityList entries={graph.topics} section="topics" locale={locale} />}
   {section === 'projects' && <EntityList entries={graph.projects} section="projects" locale={locale} />}

@@ -6,8 +6,9 @@
 
 **Status: IMPLEMENTED_PENDING_INDEPENDENT_REVIEW**
 
-V1 Phase 1–7 received Claude's READY_WITH_MINOR_NOTES and was deployed. The new
-unified CI/deployment change awaits independent review. Local validation is Builder
+The preceding V1 release received Claude's READY_WITH_MINOR_NOTES and was deployed.
+This branch integrates main's unified CI/deployment workflow with the new beginner
+content and navigation. Independent review remains pending. Local validation is Builder
 evidence; the human remains the final merge authority.
 
 ## What is implemented
@@ -22,6 +23,8 @@ evidence; the human remains the final merge authority.
 - One CI workflow with read-only validation and a deployment job using the same
   run's main CI artifact after human approval, with deployment-only Pages/OIDC permissions.
 - The complete bilingual Astro implementation article and its LearningPath.
+- A separate Windows beginner path: tool setup → local preview → edit and restore
+  a heading, with three lessons in each language and explicit readiness checks.
 - AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
   for learning, demonstration and experimentation, not production deployment.
 
@@ -29,6 +32,13 @@ No backend, database, authentication, accounts, AI functionality, progress track
 quiz or interactive Skill Graph is implemented. The AI SRE lab is content about
 an external project, not an AI feature in this website. Cases currently have no
 published entries; About does not invent employment history or operational metrics.
+
+New readers can choose their experience level on Start. The beginner path uses a
+pinned ZIP of the released example and does not require Git or a GitHub account.
+Each lesson explains the correct window/folder, commands, expected output and
+recovery. Previous/next links come from LearningPath order, and cards expose the
+difficulty. The original architecture Article remains intermediate. Markdown,
+publishing and non-Windows tutorials are not yet part of the beginner path.
 
 ## Local development
 
@@ -110,8 +120,8 @@ Content validation fails for duplicate entity IDs, required missing references,
 forbidden fields, published Article route collisions (`E_ROUTE_COLLISION`), stale
 translation keys and schema/read errors. The six V1 graph warning categories and
 the editorial translation warning remain nonblocking.
-The two initial Article-to-Project membership warnings are intentional: the Astro
-implementation article is not part of the AI SRE lab. Advanced graph checks remain
+The eight Article-to-Project membership warnings are intentional: the architecture
+and beginner lessons are not part of the AI SRE lab. Advanced graph checks remain
 deferred. See [architecture](docs/architecture.md) for exact diagnostic IDs.
 
 ## GitHub Pages
@@ -177,7 +187,8 @@ verification, including observing the deployment wait for approval.
 ## Review and known limits
 
 Read `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md` and the latest V1 handoff.
-The current change report is [Unified CI and Human-Gated Deployment](docs/handoff-unified-ci.md).
+The current report is [Beginner Learning Path](docs/handoff-beginner-path.md).
+The workflow report is [Unified CI and Human-Gated Deployment](docs/handoff-unified-ci.md).
 The earlier [V1 Claude Review Fixes](docs/handoff-review-fixes.md) records the previous findings.
 The earlier Phase 1–3 handoff is historical. Review should focus on ownership,
 publication filtering, base URLs, search/translation, theme accessibility and the

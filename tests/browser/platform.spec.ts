@@ -1,6 +1,36 @@
 import { test, expect } from '@playwright/test';
 import { normalizeBase } from '../../src/config/hosting';
 const base = normalizeBase(process.env.SITE_BASE);
+
+test('a beginner can follow all three lessons and switch languages without losing their place', async ({ page }) => {
+  for (const [locale, beginner, experienced, firstTitle, next, previous, switchLanguage] of [
+    ['zh-tw', '我沒有開發經驗', '我已經會寫程式', '第一次做網站：認識工具，找到輸入指令的地方', '下一篇', '上一篇', 'English'],
+    ['en', 'I have no coding experience', 'I already write code', 'Your first website — understand the tools and where to type commands', 'Next lesson', 'Previous lesson', '繁體中文'],
+  ] as const) {
+    await page.goto(`${locale}/start/`);
+    const entry = page.getByRole('region', { name: beginner });
+    await expect(page.getByRole('region', { name: experienced })).toBeVisible();
+    await entry.getByRole('link').click();
+    await expect(page).toHaveURL(`${new URL(page.url()).origin}${base}${locale}/learn/first-website/`);
+    await expect(page.locator('main ol.cards li')).toHaveCount(3);
+    await page.getByRole('link', { name: firstTitle, exact: true }).click();
+    await expect(page.locator('h1')).toHaveText(firstTitle);
+    const pathNav = page.locator('nav[aria-label^="Continue this learning path"], nav[aria-label^="繼續這條學習路徑"]');
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toHaveCount(0);
+    await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
+    await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/beginner-local-website/$`));
+    await page.getByRole('link', { name: switchLanguage, exact: true }).click();
+    const other = locale === 'en' ? 'zh-tw' : 'en';
+    await expect(page).toHaveURL(new RegExp(`${base}${other}/blog/beginner-local-website/$`));
+    await page.getByRole('link', { name: locale === 'en' ? 'English' : '繁體中文', exact: true }).click();
+    await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
+    await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/beginner-first-change/$`));
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${next}:`) })).toHaveCount(0);
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toBeVisible();
+    await expect(page.locator('.prose')).toContainText('src/pages/index.astro');
+    await expect(page.locator('.prose')).toContainText('Ctrl+S');
+  }
+});
 test('theme follows OS, persists explicit choices, and restores system', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('en/');

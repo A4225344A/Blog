@@ -7,7 +7,7 @@ import { locales, localePrefix, type Locale } from '../../../i18n';
 import { ui, difficultyLabels, maturityLabels } from '../../../i18n/ui';
 import { entityText, sectionText, pathAudience } from '../../../i18n/content';
 import { getContentGraph } from '../../../utils/build-graph';
-import { isCase, orderedPathArticles, publishedArticles } from '../../../utils/catalog';
+import { isCase, orderedPathArticles, publishedArticles, pathArticleNavigation } from '../../../utils/catalog';
 import { localePath, translatedArticlePath } from '../../../utils/routes';
 import { articlePath } from '../../../utils/routes';
 import { articleJsonLd } from '../../../utils/seo';
@@ -50,6 +50,17 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
       {article.prerequisiteSkills.length > 0 && <><h2>{t.prerequisites}</h2><ul>{graph.skills.filter(skill => article.prerequisiteSkills.includes(skill.id)).map(skill => <li>{entityText('skills', skill, locale).title}</li>)}</ul></>}
       {rendered && rendered.headings.length > 0 && <nav class="toc" aria-label={t.contents}><h2>{t.contents}</h2><ul>{rendered.headings.filter(h => h.depth === 2).map(h => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul></nav>}
       {Content && <div class="prose"><Content /></div>}
+      {graph['learning-paths'].filter(path => articleReverse?.learningPathIds.includes(path.id)).map(path => {
+        const adjacent = pathArticleNavigation(path, graph.articles, locale, id);
+        return adjacent && (adjacent.previous || adjacent.next) && <nav class="toc" aria-label={`${t.pathNavigation}: ${entityText('learning-paths', path, locale).title}`}>
+          <h2>{t.pathNavigation}</h2>
+          <p><a href={localePath(locale, `learn/${encodeURIComponent(path.id)}`, base)}>{t.pathOverview}: {entityText('learning-paths', path, locale).title}</a></p>
+          <ul>
+            {adjacent.previous && <li><a href={articlePath(adjacent.previous, base)}>{t.previousLesson}: {adjacent.previous.title}</a></li>}
+            {adjacent.next && <li><a href={articlePath(adjacent.next, base)}>{t.nextLesson}: {adjacent.next.title}</a></li>}
+          </ul>
+        </nav>;
+      })}
       {articles.some(a => article.recommendedArticles.includes(a.id)) && <section><h2>{t.recommended}</h2><ArticleList articles={articles.filter(a => article.recommendedArticles.includes(a.id))} locale={locale} /></section>}
       {articleReverse?.learningPathIds.length ? <section><h2>{t.learn}</h2><EntityList entries={graph['learning-paths'].filter(p => articleReverse?.learningPathIds.includes(p.id))} section="learn" locale={locale} /></section> : null}
       {articleReverse?.projectIds.length ? <section><h2>{t.projects}</h2><EntityList entries={graph.projects.filter(p => articleReverse?.projectIds.includes(p.id))} section="projects" locale={locale} /></section> : null}

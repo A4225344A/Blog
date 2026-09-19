@@ -1,7 +1,7 @@
 {
   "id": "knowledge-platform",
   "title": "Build an engineering knowledge platform",
-  "description": "From a content model and Astro foundation to GitHub Pages delivery.",
+  "description": "An intermediate architecture walkthrough for readers who can already run a Node.js project and edit web files. Explore the content model, Astro and GitHub Pages delivery.",
   "targetAudience": [
     "Engineers",
     "Technical writers"

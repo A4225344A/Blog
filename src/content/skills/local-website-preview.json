@@ -1,0 +1,9 @@
+{
+  "id": "local-website-preview",
+  "name": "Preview a website on your computer",
+  "description": "Find the project folder, install its packages and start or stop the local development server.",
+  "category": "Web foundations",
+  "aliases": [],
+  "prerequisites": ["terminal-basics"],
+  "status": "active"
+}
