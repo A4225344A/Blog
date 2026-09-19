@@ -16,11 +16,11 @@ updatedAt: 2026-09-20
 status: published
 ---
 
-This article creates the skeleton of an Astro blog from an empty project. The purpose is to understand file responsibilities and the build workflow before adding articles and layouts.
+Set aside article lists, search and language switching for a moment. Which files does an Astro project with just a home page need?
 
-The example uses Node.js 24.x, pnpm 10.32.1 and Astro 5.18.2. Astro is pinned to make the example explicit, not to claim it is the latest release. If your tools are ready, begin with the project; setup details are in the appendix.
+Start with an empty `engineering-blog` folder and add the configuration and page one at a time. The example uses Node.js 24.x, pnpm 10.32.1 and Astro 5.18.2. Windows setup notes are at the end.
 
-## File responsibilities first
+## Where Astro sits during development
 
 <figure class="learning-diagram">
 <figcaption>Architecture: files and the browser during development</figcaption>
@@ -29,12 +29,12 @@ The example uses Node.js 24.x, pnpm 10.32.1 and Astro 5.18.2. Astro is pinned to
 <li><strong>2. Astro dev</strong><span>pnpm run dev starts a local server that reads the sources.</span></li>
 <li><strong>3. Browser</strong><span>Requests localhost and displays the processed result.</span></li>
 </ol>
-<p>The editor saves files and the terminal starts tasks. The browser does not execute .astro files directly.</p>
+<p>The browser receives the page Astro has processed. The development server updates it when the source changes.</p>
 </figure>
 
 ## Create an empty project
 
-Create an empty `engineering-blog` folder and open it in your editor. Add `package.json`:
+Create the folder, open it in your editor and add `package.json`. This configuration installs only Astro and provides three commands for development, building and previewing:
 
 ```json
 {
@@ -54,7 +54,7 @@ Create an empty `engineering-blog` folder and open it in your editor. Add `packa
 }
 ```
 
-The three scripts have different purposes: dev provides development feedback, build generates website files, and preview serves the built output. Dependencies declare which Astro version the project uses.
+Use `dev` while editing pages. To inspect what will be published, run `build` to generate files, then serve that output with `preview`. Keeping the commands separate helps distinguish a working development page from the output that will go live.
 
 Run this in **the project folder's terminal**:
 
@@ -72,7 +72,7 @@ Create `tsconfig.json`:
 }
 ```
 
-Strict configuration constrains later layout code. It does not replace runtime data validation or mean that a build performs all type checks.
+I use strict TypeScript here and keep that setting for the layout props added later. Type checking requires a separate command; `astro build` generates the site without running a full type check.
 
 ## Create the home page
 
@@ -96,7 +96,7 @@ const base = import.meta.env.BASE_URL;
 </html>
 ```
 
-The code between the opening `---` lines runs in Astro. It obtains the deployment base, which the next article will use for links. The HTML below defines the visible content. The file location determines the home route, not the h1 text.
+Most of this file is HTML. Astro adds the opening `---` block for code that runs while producing the page. Here it reads the deployment `base` for the article link added next. Placing the file at `src/pages/index.astro` gives it the home route.
 
 In the same project terminal, run:
 
@@ -104,20 +104,16 @@ In the same project terminal, run:
 pnpm run dev
 ```
 
-Open the Local URL printed in the terminal. Expect **Engineering notes**. Edit the paragraph, save and observe the result without reinstalling dependencies.
+Open the Local URL printed in the terminal; it should show **Engineering notes**. Edit the paragraph and save to see the page update. Astro dev, shown in the diagram, is running and reading the source files.
 
-## Verify the model
+Press Ctrl+C to stop dev and localhost stops responding. The files remain in the project; run `pnpm run dev` again to continue editing.
 
-Changing only `title` changes the browser tab. Changing `h1` changes the visible heading. The filename remains index.astro, so the route remains the home page.
+For now, the home page keeps all its HTML in one file. Adding an article would start duplicating headings, navigation and styles. Those shared parts are what the next layout will hold.
 
-Stopping dev leaves the files intact but removes the service answering localhost. Restart it to continue. That local process lifecycle is independent of whether the files have been uploaded to GitHub.
-
-You now have package.json, pnpm-lock.yaml, tsconfig.json and src/pages/index.astro. Next, separate article content from its shared layout.
-
-## Setup appendix and troubleshooting
+## Windows setup notes
 
 On Windows, install Node.js 24.x from its [official download page](https://nodejs.org/en/download), then install the chosen pnpm version with `npm.cmd install --global pnpm@10.32.1`. [VS Code](https://code.visualstudio.com/docs/setup/windows) is one editor option. Existing development environments do not need to be reinstalled.
 
 Use File → Open Folder, then Terminal → New Terminal. In Windows PowerShell, use `pnpm.cmd` in place of `pnpm` to select its command wrapper without relaxing execution policy.
 
-If package.json is missing, inspect the terminal's current folder. For a 404, check the actual filename src/pages/index.astro. pnpm 10 may warn about ignored installation scripts; do not approve every script automatically for this text-only example. Keep the actual error if a later build fails.
+Run installation and dev from `engineering-blog`, the directory containing `package.json`.

@@ -16,24 +16,11 @@ updatedAt: 2026-09-20
 status: published
 ---
 
-有首頁還不等於有方便維護的部落格。這一篇把文章內容與版型分開，產生可部署的網站，再說明本站如何驗證與發布它。
+寫第二篇文章時，我不想再複製一份 HTML，然後逐個修改 title、標題和正文。頁面外框應該共用，文章檔案裡留下要寫的內容就好。
 
-下面延續上一篇的小型 `engineering-blog` 專案。它是理解 Astro 的最小範例，並不是本站完整 Content Graph 的替代品。
+延續前面的 `engineering-blog`，先用一份 Markdown 和一個 Astro 版型試這件事。文末再把本機產物接到本站的發布流程；範例專案和本站的差異，也會在用到的地方交代。
 
-## 內容、版型與交付的責任
-
-<figure class="learning-diagram">
-<figcaption>架構圖：從寫文章到讀者收到頁面</figcaption>
-<ol role="list">
-<li><strong>1. Markdown ＋版型</strong><span>文章寫內容，版型統一標題、導覽與樣式。</span></li>
-<li><strong>2. Astro build</strong><span>把內容與版型組合成 dist 靜態檔案。</span></li>
-<li><strong>3. CI 驗證與人工批准</strong><span>本站先驗證，main 通過後等待部署審批。</span></li>
-<li><strong>4. GitHub Pages</strong><span>發布已驗證的產物，不在正式站重新建置。</span></li>
-</ol>
-<p>圖中的 CI 與審批是本站已實作的流程；在自己的新儲存庫仍需建立 workflow 並設定 environment。</p>
-</figure>
-
-## 用 Markdown 寫文章
+## 把重複的 HTML 留給版型
 
 先建立 `src/layouts/PostLayout.astro`。版型是共用的頁面外框，文章正文放進 slot：
 
@@ -99,19 +86,21 @@ frontmatter 是兩條 `---` 中間的資料；layout 指向剛建立的共用版
 <a href={`${base}posts/build-notes/`}>Read the build notes</a>
 ```
 
-儲存並啟動 dev，確認首頁連得到文章、文章顯示標題與正文，也能回首頁。Windows 可用 Ctrl+S 儲存；終端機的 pnpm 可寫成 pnpm.cmd。
+用 Ctrl+S 儲存，啟動 dev 後從首頁點進文章。標題、描述和正文會一起出現，但它們來自兩個檔案：Markdown 提供文字，版型負責把它們放進頁面。回首頁的連結也放在版型裡，以後新增文章可以共用。
 
-## 小範例與本站實作的差別
+## 文章多了以後，檔案位置也要考慮
 
 上面的 Markdown 位於 pages，檔案直接對應網址，適合看清內容與版型關係。**本站正式文章放在 src/content/articles**，透過 Content Collections 與 schema 驗證，再由路由統一渲染。
 
-正式內容的 ID 是身分、slug 是網址，兩者分開。文章系列由 LearningPath 擁有排序，專案相關文章由 Project 擁有；反向關聯由建置計算。不要為了在兩個地方顯示同一篇文章，就複製兩份正文。
+本站還要把同一篇文章放進主題、文章系列和專案頁。這些頁面都連回同一份正文。系列的順序記在 LearningPath，專案收錄哪些文章則記在 Project，建置時再算出文章被哪些地方引用。
 
-這裡採用簡單範例來說明 Astro，不會改動本站既有的內容 ownership。文章增加、需要雙語與關聯時，再使用已實作的完整模型。
+因此，內容的固定 ID 和網址用的 slug 也分開存放。修改網址時，系列與專案仍用原本的 ID 找文章。眼前只有一篇 Markdown 的範例，先不加這套關聯模型。
 
-## GitHub Pages 的 base 不能省略
+## 本機能連到文章，放到 /Blog/ 呢？
 
-建立 `astro.config.mjs`：
+剛才的連結用了 `base`。原因在這裡：本站部署在 `/Blog/`，文章網址也要從這個子路徑開始。如果把連結寫死成 `/posts/build-notes/`，瀏覽器會直接去網域根目錄找，跳過 `/Blog/`。
+
+在範例新增 `astro.config.mjs`，讓建置時可以指定這個路徑：
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -139,7 +128,20 @@ pnpm.cmd run preview
 
 build 成功後會有 `dist`。preview 只提供這次的產物；修改原始檔後，要重新 build 才會更新。以上仍是本機檢查，沒有上傳動作。
 
-## 本站如何發布：先驗證，再批准
+## 發布的是哪一份檔案
+
+本機看過結果之後，部署還有一個要確認的地方：最後上線的檔案，是否就是通過檢查的那一份？本站把流程安排成下面這樣。
+
+<figure class="learning-diagram">
+<figcaption>架構圖：從寫文章到讀者收到頁面</figcaption>
+<ol role="list">
+<li><strong>1. Markdown ＋版型</strong><span>文章寫內容，版型統一標題、導覽與樣式。</span></li>
+<li><strong>2. Astro build</strong><span>把內容與版型組合成 dist 靜態檔案。</span></li>
+<li><strong>3. CI 驗證與人工批准</strong><span>本站先驗證，main 通過後等待部署審批。</span></li>
+<li><strong>4. GitHub Pages</strong><span>發布已驗證的產物，不在正式站重新建置。</span></li>
+</ol>
+<p>CI 與審批需要儲存庫的 workflow 和 environment 設定；前面的本機範例還沒有加入這些設定。</p>
+</figure>
 
 這個儲存庫的單一 CI workflow 把驗證和部署分成兩個 job：
 
@@ -150,10 +152,6 @@ build 成功後會有 `dist`。preview 只提供這次的產物；修改原始�
 
 在自己的新儲存庫，需先提交原始檔與 lockfile、建立 GitHub Actions workflow，將 Pages 來源選為 GitHub Actions，並為 github-pages environment 設定 Required reviewers。YAML 只引用 environment，不能自己建立審批人。
 
-這個最小範例目前只有 dev、build、preview；**不能直接照搬本站的測試命令而不建立對應腳本**。部署設定可對照 [本站 workflow](https://github.com/A4225344A/Blog/blob/main/.github/workflows/ci.yml)，並參考 [Astro GitHub Pages 部署說明](https://docs.astro.build/en/guides/deploy/github/)。本文說明的是交付設計，不代表已替讀者的帳號完成部署。
+完整設定可以對照 [本站 workflow](https://github.com/A4225344A/Blog/blob/main/.github/workflows/ci.yml) 和 [Astro GitHub Pages 部署說明](https://docs.astro.build/en/guides/deploy/github/)。範例目前只有 dev、build、preview 三個腳本；要搬用本站的驗證流程，還需要補上對應的內容驗證與測試腳本。
 
-## 寫作比增加功能更重要
-
-到這裡，最小部落格有了首頁、文章、共用版型與可檢查的靜態產物。接著可以把自己的專案拆成「背景、決策、實作、驗證與限制」來寫。架構圖說明系統關係，程式碼說明如何落地，兩者互相補充。
-
-正式站的搜尋、雙語、SEO 與內容關聯另由現有架構文章深入說明。這個系列的重點，是把全端工程師的實作經驗整理成可閱讀、可維護的部落格。
+我在意的是批准與產物之間的對應：看過一份結果、批准它，最後就部署那一份。如果批准後又重新建置，前面確認過的結果就不足以說明這次到底發布了什麼。這也是本站讓部署 job 直接取用同一次 CI 產物的原因。
