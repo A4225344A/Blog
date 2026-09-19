@@ -1,8 +1,8 @@
 ---
 id: beginner-first-change-zh-tw
 slug: beginner-first-change
-title: 第一次修改網站：改一行標題，儲存，再看見結果
-description: 在 VS Code 找到語言入口頁，只修改標題文字，用瀏覽器確認結果，並練習還原。清楚區分本機修改與公開發布。
+title: "繼續建設自己的網站：樣式、第二個頁面與導覽"
+description: "替自己建立的首頁加入內容與 CSS，親手建立關於頁、往返連結，再產生靜態網站檔案。"
 locale: zh-TW
 translationKey: beginner-first-change
 contentType: tutorial
@@ -15,80 +15,114 @@ publishedAt: 2026-09-19
 status: published
 ---
 
-這篇只改一行文字。完成後，你會知道「檔案 → 儲存 → 瀏覽器畫面」之間的關係，並能把它改回來。
+上一篇已從空資料夾建立首頁。現在繼續在自己的 `my-first-website` 專案工作，讓網站有自己的內容、顏色與第二個頁面。
 
-請使用上一篇下載的 `website-practice` 範例資料夾，不是在這個線上網站直接編輯。VS Code 應已開啟該資料夾，`pnpm.cmd run dev` 應正在它的 PowerShell 終端機執行。如果已停止，重新啟動，再用瀏覽器開啟終端機列出的 Local 網址。
+在 VS Code 開啟該資料夾，從 PowerShell 執行 `pnpm.cmd run dev`，再開啟終端機列出的 Local 網址。以下程式碼都貼進檔案編輯區。
 
-## 第一步：找到控制這一頁的檔案
+## 第一步：寫自己的內容
 
-**操作位置：VS Code 左側的檔案總管，不是終端機。**
-
-依序展開 `src`、`pages`，點選直接放在 `pages` 裡的 **`index.astro`**。
-
-完整位置是：
-
-```text
-website-practice/src/pages/index.astro
-```
-
-不要選 `[locale]` 資料夾裡的另一個 `index.astro`。那是其他語言頁面的檔案；這次要改的是最外層的語言入口。
-
-`.astro` 是 Astro 的頁面檔案格式。這個範例的 `src/pages/index.astro` 對應網站最外層的 `/`，也就是你剛看到的語言入口。現在不需要理解檔案裡每一個符號。
-
-## 第二步：只改標題中間的文字
-
-**操作位置：VS Code 中間的 `index.astro` 編輯區。**
-
-找到這一行：
+開啟 **`src/pages/index.astro`**。把 `body` 裡的段落改成你的介紹，例如：
 
 ```html
-<h1>Engineering Knowledge Platform</h1>
+<p>你好，我正在記錄我的網站學習筆記。</p>
 ```
 
-`<h1>` 與 `</h1>` 是 HTML 標籤，告訴瀏覽器「這裡是頁面的主要標題」。這次保留兩端標籤，只把中間文字改成：
+按 **Ctrl+S**。回瀏覽器確認新段落出現，沒更新就重新整理。這是你的內容，可以用自己的話重寫。`<p>` 與 `</p>` 要保留。
+
+## 第二步：為首頁加入樣式
+
+在同一個檔案最底部、`</html>` 之後，新增以下完整區塊：
+
+```astro
+<style>
+  body {
+    max-width: 42rem;
+    margin: 3rem auto;
+    padding: 0 1rem;
+    font-family: system-ui, sans-serif;
+    line-height: 1.7;
+    color: #172b3a;
+    background: #f5f7fa;
+  }
+  h1 {
+    color: #075985;
+  }
+  a {
+    color: #075985;
+  }
+</style>
+```
+
+CSS 用「選擇器」指定要改的元素，例如 `body` 是頁面內容、`h1` 是大標題。`max-width` 限制文字寬度，`margin` 是外側空間，`padding` 是內側留白，`line-height` 是行距；`color` 和 `background` 是文字及背景顏色。`rem` 是相對字體大小的單位。先照做，再一次改一個數值觀察差別。
+
+**成功檢查：** 儲存後，首頁標題變藍、文字有留白、背景變淡。網站變化只在你的電腦，不會自動公開。
+
+## 第三步：建立關於頁面
+
+**操作位置：VS Code 左側 `src/pages` 資料夾。**
+
+按右鍵 → New File，命名 `about.astro`。貼入以下完整內容並儲存：
+
+```astro
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>關於我</title>
+  </head>
+  <body>
+    <h1>關於我</h1>
+    <p>這是我從零建立的網站，我會在這裡分享學習過程。</p>
+    <a href="/">回首頁</a>
+  </body>
+</html>
+```
+
+Astro 依檔名決定網址：`index.astro` 是 `/`，`about.astro` 是 `/about/`。在本機網址後加上 `about/`，例如 `http://localhost:4321/about/`。
+
+**成功檢查：** 看到「關於我」及「回首頁」連結。這個頁面還沒有首頁的 CSS，所以外觀不同是正常的；Astro 頁面裡的樣式不會自動套用到別頁。之後學習共用版型時，再把重複結構集中管理。
+
+## 第四步：把兩頁接起來
+
+回到 **`src/pages/index.astro`**，在段落後、`</body>` 前新增：
 
 ```html
-<h1>這是我的第一個網站</h1>
+<a href="/about/">關於我</a>
 ```
 
-其他行先不要動，尤其是最上方的 `---` 與 `import`。這一步是在編輯檔案，不是在執行指令；不要把上面的 HTML 貼進 PowerShell。
+`a` 是連結；`href` 指定目的地；標籤中間是讀者看到的文字。這裡的 `/` 從本機網站根目錄開始。未來放到 GitHub Pages 的專案子路徑時，需要再處理部署 base；目前先在本機根目錄練習。
 
-按 **Ctrl+S** 儲存。目前還沒儲存的檔案通常會在分頁旁顯示一個小圓點；儲存後它會消失。
+**成功檢查：** 儲存後，從首頁點「關於我」到第二頁，再點「回首頁」回來。這就是你親手建立的導覽。
 
-## 第三步：到瀏覽器確認
+## 如果沒有成功
 
-回到瀏覽器，確認網址是這次開發伺服器的根網址，例如 `http://localhost:4321/`，而不是 `/zh-tw/`、`/en/`，也不是公開站的 GitHub 網址。
+- 看不到變化：按 Ctrl+S，確認改的是正在執行的那份專案，瀏覽器用 Local 網址，必要時重新整理。
+- 第二頁 404：檢查 `about.astro` 是否直接在 `src/pages` 裡，以及連結拼字。
+- 樣式沒生效：檢查 `<style>`、`</style>`、大括號與分號是否完整，確認正在看首頁。
+- 不小心改壞：可以 Ctrl+Z 撤銷後儲存；也可用上一篇的完整首頁重建，再一次加一個區塊。
+- 終端機已停止：在相同資料夾重新執行 `pnpm.cmd run dev`。
 
-在開發模式下，Astro 通常會在你儲存後自動更新畫面。如果沒有更新，手動重新整理一次。這個行為可參考 [Astro 5 的開發說明](https://v5.docs.astro.build/en/develop-and-build/)。
+## 第五步：產生可發布的檔案
 
-**成功時，大標題應變成「這是我的第一個網站」。** 其他語言連結仍然存在。瀏覽器分頁的標題可能仍是「工程知識平台」；我們改的是頁面裡的 `h1`，不是分頁標題，這是正常的。
+回 PowerShell，先按 **Ctrl+C** 停止 dev；若詢問是否終止批次工作，輸入 `Y`。然後執行：
 
-你剛完成了一次真正的修改：編輯原始檔、儲存，再由 Astro 把結果交給瀏覽器。修改不會自動傳到作者的 GitHub，也不會改變其他人正在看的公開站。
+```powershell
+pnpm.cmd run build
+```
 
-## 沒看到變化時，照順序檢查
+結束後輸入 `$LASTEXITCODE`，應顯示 `0`。VS Code 左側會多出 `dist` 資料夾，裡面是 Astro 產生的網站檔案；不要直接改它，下次 build 會重新產生。
 
-1. **是否已儲存？** 回 VS Code 按 Ctrl+S。
-2. **檔案是否正確？** 確認正在編輯 `src/pages/index.astro`，不是 `[locale]` 裡的同名檔案，也不是 ZIP 中另一份副本。
-3. **網址是否正確？** 用終端機的 Local 網址，回到根路徑 `/`；如果改用其他埠號，跟著終端機的數字。
-4. **開發伺服器是否還在？** 如果終端機已停止，在該專案資料夾重新執行 `pnpm.cmd run dev`。
-5. **畫面是否出現錯誤？** 先把整行恢復成原本的 `<h1>Engineering Knowledge Platform</h1>`，儲存再看一次。確認沒有漏掉 `<`、`>` 或結尾的 `/`。
+再執行：
 
-如果仍然失敗，記下「編輯的完整檔案位置、瀏覽器網址、終端機的第一段錯誤」，這些資訊比只說「網站壞了」更容易讓人協助。
+```powershell
+pnpm.cmd run preview
+```
 
-## 第四步：練習還原與重新開始
+保持終端機開啟，用它列出的網址檢查首頁、關於頁及往返連結。preview 顯示建置結果；若修改原始檔，先停止 preview、重新 build，再 preview 才會看到新結果。結束同樣按 Ctrl+C。
 
-在同一個檔案，把文字改回原本的 `Engineering Knowledge Platform`，保留兩端的 `h1` 標籤，再按 Ctrl+S。
+## 你完成了什麼？
 
-確認瀏覽器大標題也變回原文。你也可以在尚未關閉編輯器時使用 Ctrl+Z 撤銷剛才的修改，再儲存；直接改回原文則不依賴撤銷歷史。
+你已從空資料夾建立自己的 Astro 網站：工具清單、首頁、CSS、關於頁、頁面連結，以及靜態建置。每個檔案都是自己建立的。
 
-最後回終端機按 Ctrl+C 停止網站；若詢問是否終止批次工作，輸入 `Y`。檔案仍會留在你的電腦，下次重新開啟這個資料夾並執行 `pnpm.cmd run dev` 就能繼續。
-
-## 你現在完成了什麼？
-
-- 準備了工具，知道在哪裡輸入指令。
-- 找到專案資料夾，在自己的電腦啟動網站。
-- 修改、儲存、觀察並還原一行網頁內容。
-
-這是第一個完整練習，不表示你已經需要理解內容模型、CI 或 SEO。可以先再改一次標題，直到你不看步驟也知道要開哪個檔案、在哪個視窗操作。
-
-這一批教學到此為止。Markdown 寫作、Git 的修改紀錄與 GitHub Pages 公開發布是後續學習目標，目前不列為本路徑已完成的教學。現有「建立工程知識平台」文章保留中階深度；先熟悉基本 HTML、JavaScript 與專案指令，再閱讀它會比較容易。
+這一階段完成本機網站。Markdown 寫文章、Git 修改紀錄與 GitHub Pages 公開發布將是後續教學；本篇沒有讓網站自動上線。現有中階架構文章可留到熟悉這些基礎後再讀。

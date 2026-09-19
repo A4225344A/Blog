@@ -1,7 +1,7 @@
 {
   "id": "editing-web-pages",
   "name": "Edit and save a web page",
-  "description": "Change a heading in a source file, save it, check the browser and undo the change.",
+  "description": "Write page content, styles and links, save the files and check the browser result.",
   "category": "Web foundations",
   "aliases": [],
   "prerequisites": ["local-website-preview"],

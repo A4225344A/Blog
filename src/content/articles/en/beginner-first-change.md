@@ -1,8 +1,8 @@
 ---
 id: beginner-first-change-en
 slug: beginner-first-change
-title: Your first website change — edit a heading, save and see the result
-description: Find the language-selector page in VS Code, change only its heading, check the browser and undo the change. Learn why local editing does not publish anything.
+title: "Build out your website: styles, a second page and navigation"
+description: "Add content and CSS to your home page, create an About page and return links, then build static website files."
 locale: en
 translationKey: beginner-first-change
 contentType: tutorial
@@ -15,82 +15,114 @@ publishedAt: 2026-09-19
 status: published
 ---
 
-This lesson changes one line of text. You will see the connection between a file, saving it, and the browser page, then learn to put the original text back.
+Continue in your own `my-first-website` project, created from an empty folder in the previous lesson. Add personal content, colors and a second page.
 
-Use the `website-practice` example folder from the previous lesson, not this public website. VS Code should have that folder open, with `pnpm.cmd run dev` running in its PowerShell terminal. If you stopped it, start it again and open the Local URL shown in the terminal.
+Open the folder in VS Code, run `pnpm.cmd run dev` in PowerShell, then open the Local URL shown. Paste the following code into file editors.
 
-## Step 1: Find the file for this page
+## Step 1: Write your own content
 
-**Where: VS Code's file Explorer on the left, not the terminal.**
-
-Expand `src`, then `pages`, and open **`index.astro` directly inside `pages`**.
-
-Its location is:
-
-```text
-website-practice/src/pages/index.astro
-```
-
-Do not select the other `index.astro` inside `[locale]`. That file handles localized pages; we are editing the outer language-selector page.
-
-`.astro` is Astro's page-file format. In this example, `src/pages/index.astro` corresponds to the site's root `/`, the language selector you just opened. You do not need to understand every symbol in the file yet.
-
-## Step 2: Change only the text inside the heading
-
-**Where: the `index.astro` editor in the middle of VS Code.**
-
-Find this line:
+Open **`src/pages/index.astro`**. Replace the paragraph inside `body` with your introduction, for example:
 
 ```html
-<h1>Engineering Knowledge Platform</h1>
+<p>Hello, I am keeping notes about learning to build websites.</p>
 ```
 
-`<h1>` and `</h1>` are HTML tags marking the page's main heading. Keep both tags and replace only the text between them:
+Press **Ctrl+S** and check the new paragraph in your browser. Refresh if needed. Write it in your own words, keeping the `<p>` and `</p>` tags.
+
+## Step 2: Style the home page
+
+At the bottom of the same file, after `</html>`, add this complete block:
+
+```astro
+<style>
+  body {
+    max-width: 42rem;
+    margin: 3rem auto;
+    padding: 0 1rem;
+    font-family: system-ui, sans-serif;
+    line-height: 1.7;
+    color: #172b3a;
+    background: #f5f7fa;
+  }
+  h1 {
+    color: #075985;
+  }
+  a {
+    color: #075985;
+  }
+</style>
+```
+
+CSS selectors name the elements to style: `body` is the page body and `h1` is the main heading. `max-width` limits text width, `margin` sets outer space, `padding` adds inner space and `line-height` sets line spacing. `color` and `background` set text and background colors. `rem` is a unit relative to the root font size. Start with this example, then change one value at a time.
+
+**Success check:** save and see a blue heading, spaced text and a pale background. These changes exist on your computer; they are not automatically published.
+
+## Step 3: Create an About page
+
+**Where: VS Code's `src/pages` folder.**
+
+Right-click → New File and name it `about.astro`. Paste this complete content and save:
+
+```astro
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>About me</title>
+  </head>
+  <body>
+    <h1>About me</h1>
+    <p>I built this website from scratch to share what I learn.</p>
+    <a href="/">Home</a>
+  </body>
+</html>
+```
+
+Astro uses filenames for URLs: `index.astro` is `/` and `about.astro` is `/about/`. Add `about/` to your local URL, such as `http://localhost:4321/about/`.
+
+**Success check:** see “About me” and a “Home” link. This page has no home-page CSS yet, so it looks different. Styles inside an Astro page do not automatically apply to other pages. Later, shared layouts can collect the repeated structure.
+
+## Step 4: Connect the pages
+
+Return to **`src/pages/index.astro`**. After the paragraph and before `</body>`, add:
 
 ```html
-<h1>This is my first website</h1>
+<a href="/about/">About me</a>
 ```
 
-Leave the other lines alone for now, particularly the `---` and `import` lines at the top. This is a file edit, not a command: do not paste that HTML into PowerShell.
+`a` creates a link; `href` gives its destination; the text between the tags is the label readers see. Here `/` begins at the local site's root. A future GitHub Pages project deployment will need base-path handling; this exercise runs locally at the root.
 
-Press **Ctrl+S** to save. An unsaved editor tab usually has a small dot beside its name; that dot disappears after saving.
+**Success check:** save, click “About me” on the home page, then “Home” on the second page. You built your own navigation.
 
-## Step 3: Check the browser
+## Recover when something does not work
 
-Return to your browser. Use this development server's root address, for example `http://localhost:4321/`, not `/zh-tw/`, `/en/`, or the public GitHub website address.
+- No visible change: press Ctrl+S, check that you edited the project running in the terminal and opened its Local URL, then refresh.
+- Second page returns 404: check that `about.astro` is directly inside `src/pages` and that the link spelling matches.
+- Styles are missing: check both style tags, braces and semicolons, and make sure you are viewing the home page.
+- Accidental damage: use Ctrl+Z and save, or restore the complete home page from the previous lesson, then add one block at a time.
+- Server stopped: run `pnpm.cmd run dev` again from the same folder.
 
-In development mode, Astro normally updates the page after a save. If it does not, refresh once. See the [Astro 5 development guide](https://v5.docs.astro.build/en/develop-and-build/) for this behavior.
+## Step 5: Generate publishable files
 
-**Success means the large heading now reads “This is my first website.”** The language links should still be there. The browser tab title may still say “工程知識平台”; we changed the page's `h1`, not its tab title. That is expected.
+In PowerShell, stop dev with **Ctrl+C**, entering `Y` if asked to terminate the batch job. Then run:
 
-You just edited a source file, saved it, and let Astro serve the result to the browser. This does not upload a change to the author's GitHub repository or change the public website other people see.
+```powershell
+pnpm.cmd run build
+```
 
-## If the page did not change
+When it finishes, enter `$LASTEXITCODE`; expect `0`. Explorer should show a new `dist` folder containing generated website files. Do not edit those files directly: the next build recreates them.
 
-Check these in order:
+Then run:
 
-1. **Did you save?** Return to VS Code and press Ctrl+S.
-2. **Is it the right file?** Check `src/pages/index.astro`, not the file inside `[locale]` or another extracted copy.
-3. **Is it the right URL?** Use the terminal's Local URL and root path `/`. If Astro chose another port number, follow that number.
-4. **Is the server still running?** If it stopped, run `pnpm.cmd run dev` again in that project folder.
-5. **Is there an error page?** Restore the complete original line, `<h1>Engineering Knowledge Platform</h1>`, and save. Check for missing `<`, `>` or the closing `/`.
+```powershell
+pnpm.cmd run preview
+```
 
-If you still need help, record the full file location, browser URL and first error in the terminal. Those details make it easier to diagnose than “the website broke.”
+Keep the terminal open and use its displayed URL to check both pages and their return links. Preview shows the build output. After editing source files, stop preview, rebuild and start preview again to see the changes. Stop with Ctrl+C when finished.
 
-## Step 4: Undo and restart
+## What have you built?
 
-In the same file, replace the heading text with `Engineering Knowledge Platform` again. Keep both `h1` tags and press Ctrl+S.
+From an empty folder, you created your own Astro website: a tools list, home page, CSS, About page, links and static build. You created every source file yourself.
 
-Check that the browser heading also returns to the original. While the editor is still open, Ctrl+Z can also undo your edit, followed by saving. Typing the original line back does not depend on undo history.
-
-Finally, focus the terminal and press Ctrl+C to stop the site. If asked to terminate the batch job, enter `Y`. Your files stay on your computer. Next time, reopen this folder and run `pnpm.cmd run dev` to continue.
-
-## What you have completed
-
-- Prepared the tools and found where commands go.
-- Located a project folder and started a website on your computer.
-- Edited, saved, checked and restored one line of page content.
-
-This is your first complete exercise. You do not need content models, CI or SEO yet. Try changing the heading again until you can find the file and use the correct window without following each step.
-
-This first set of lessons ends here. Markdown writing, Git history and publishing with GitHub Pages are future learning goals, not lessons already provided by this path. The existing engineering knowledge platform Article retains its intermediate depth. Build familiarity with basic HTML, JavaScript and project commands before moving on to it.
+This stage completes a local website. Markdown articles, Git history and GitHub Pages publication are future lessons; this exercise does not publish automatically. Keep the existing intermediate architecture article for after these foundations.
