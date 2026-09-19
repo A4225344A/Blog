@@ -23,8 +23,8 @@ evidence; the human remains the final merge authority.
 - One CI workflow with read-only validation and a deployment job using the same
   run's main CI artifact after human approval, with deployment-only Pages/OIDC permissions.
 - The complete bilingual Astro implementation article and its LearningPath.
-- A separate Windows beginner path: tool setup → local preview → edit and restore
-  a heading, with three lessons in each language and explicit readiness checks.
+- A separate Windows beginner path: tool setup → create a site from an empty folder → add styles,
+  a second page and navigation, with three lessons in each language and explicit readiness checks.
 - AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
   for learning, demonstration and experimentation, not production deployment.
 
@@ -33,10 +33,11 @@ quiz or interactive Skill Graph is implemented. The AI SRE lab is content about
 an external project, not an AI feature in this website. Cases currently have no
 published entries; About does not invent employment history or operational metrics.
 
-New readers can choose their experience level on Start. The beginner path uses a
-pinned ZIP of the released example and does not require Git or a GitHub account.
+New readers can choose their experience level on Start. The beginner path starts with an
+empty folder and files written by the reader; no repository download is required.
 Each lesson explains the correct window/folder, commands, expected output and
-recovery. Previous/next links come from LearningPath order, and cards expose the
+recovery. Article text and previous/next links precede Topic/Skill discovery. Previous/next
+links come from LearningPath order, and cards expose the
 difficulty. The original architecture Article remains intermediate. Markdown,
 publishing and non-Windows tutorials are not yet part of the beginner path.
 
