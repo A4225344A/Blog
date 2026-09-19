@@ -19,6 +19,31 @@ status: published
 
 在 VS Code 開啟該資料夾，從 PowerShell 執行 `pnpm.cmd run dev`，再開啟終端機列出的 Local 網址。以下程式碼都貼進檔案編輯區。
 
+## 先看架構：原始檔、網址與建置結果
+
+兩個頁面就像一本書的兩頁；連結是你安排的翻頁入口。Astro 用檔案位置決定網址，而不是用大標題決定：
+
+| 你建立的檔案 | 本機網址路徑 | 角色 |
+| --- | --- | --- |
+| `src/pages/index.astro` | `/` | 首頁 |
+| `src/pages/about.astro` | `/about/` | 關於頁 |
+| 指向關於頁的 `a` 連結 | 導向 `/about/` | 連結目的地，不會建立新檔案 |
+
+把 h1 改成「聯絡我」，網址仍是 `/about/`，因為檔名沒有改。如果只寫連結卻沒有建立 about.astro，就像門牌指向不存在的房間，會得到 404。
+
+<figure class="learning-diagram">
+<figcaption>圖 3：建置是把原始檔轉成一份可交付的網站</figcaption>
+<ol>
+<li><strong>1. src/pages/ 與樣式</strong><span>你持續修改的原始檔。</span></li>
+<li><strong>2. pnpm run build</strong><span>Astro 讀取原始檔，產生靜態網站。</span></li>
+<li><strong>3. dist/</strong><span>這次建置產生的 HTML、CSS 等檔案。</span></li>
+<li><strong>4. pnpm run preview</strong><span>在本機提供 dist 的內容，供瀏覽器檢查。</span></li>
+</ol>
+<p>preview 不會自動重新建置。這條流程沒有上傳步驟；本機看到成果不代表已經公開。</p>
+</figure>
+
+**dev 像邊寫邊看的工作桌；build 像輸出一份成品；preview 像檢查剛輸出的成品。** 這個比喻的重點是：原始檔更新後，舊成品不會自己改變。
+
 ## 第一步：寫自己的內容
 
 開啟 **`src/pages/index.astro`**。把 `body` 裡的段落改成你的介紹，例如：
@@ -120,6 +145,14 @@ pnpm.cmd run preview
 ```
 
 保持終端機開啟，用它列出的網址檢查首頁、關於頁及往返連結。preview 顯示建置結果；若修改原始檔，先停止 preview、重新 build，再 preview 才會看到新結果。結束同樣按 Ctrl+C。
+
+## 用小變更驗證你理解了流程
+
+先只把首頁 CSS 的 `max-width: 42rem` 改成 `max-width: 30rem`。在較寬的瀏覽器視窗，你會看到文字區域變窄；窄手機上可能沒差別，因為畫面本來就小於這個上限。改回原值後，再試改文字顏色。一次只變更一個值，才能知道是哪個設定造成變化。
+
+完成本篇的 build 與 preview 後，可以再觀察一次：改首頁段落並儲存，重新整理 preview，畫面仍是上次建置的內容。停止 preview、重新 build、再 preview，才會看到新段落。這正是上圖「原始檔 → 建置 → dist」的因果關係。
+
+看到錯誤時，也可以沿圖找位置：404 先看檔名與連結；樣式不符先看選擇器與所在頁面；preview 內容過時先看是否重新建置。先找出問題在哪一段，再決定要執行哪個指令。
 
 ## 你完成了什麼？
 

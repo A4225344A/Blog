@@ -17,6 +17,31 @@ status: published
 
 Start with an empty folder and create each file yourself. Complete the previous lesson's Node.js 24.x, pnpm 10.32.1 and VS Code setup on Windows first.
 
+## Understand what you are building
+
+You will create two key files. `package.json` tells pnpm which tools and tasks the project uses. `src/pages/index.astro` tells Astro what the home page contains. The tools list is not itself a web page.
+
+<figure class="learning-diagram">
+<figcaption>Figure 2: how development mode serves your home page</figcaption>
+<ol>
+<li><strong>1. src/pages/index.astro</strong><span>Your home-page source. Saving updates this file.</span></li>
+<li><strong>2. Astro dev server</strong><span>pnpm run dev starts it; it reads pages and answers local requests.</span></li>
+<li><strong>3. Browser at localhost</strong><span>Requests / and displays the response.</span></li>
+</ol>
+<p>Read left to right, or top to bottom on a phone. The browser requests a page and Astro returns processed content; the browser does not open .astro directly.</p>
+</figure>
+
+The completed folder separates your work from generated files:
+
+| File or folder | Created by | Your responsibility |
+| --- | --- | --- |
+| `package.json` | You | Define tools and dev, build, preview tasks |
+| `src/pages/index.astro` | You | Write and edit the home page |
+| `pnpm-lock.yaml` | pnpm during installation | Keep the actual dependency versions recorded |
+| `node_modules/` | pnpm during installation | Installed tools; do not edit them manually |
+
+Installation is needed initially or when dependencies change. **Editing a paragraph does not require reinstalling Astro.** The dev server must stay running while you view the site. Stopping it keeps your files but leaves localhost without a server to answer.
+
 ## Step 1: Create an empty folder
 
 In Windows File Explorer, open Documents and right-click → New → Folder. Name it `my-first-website`. If it already exists, choose a new name without overwriting files. In VS Code, choose **File → Open Folder** and select your new folder. If asked about trust, verify that it is the folder you created before trusting it.
@@ -137,6 +162,16 @@ This runs the `dev` task you defined in `scripts`. When the terminal shows somet
 | Page syntax error | Restore the complete index.astro from step 4 and save. |
 
 To stop, focus the terminal and press **Ctrl+C**; enter `Y` if asked to terminate the batch job. Run `pnpm.cmd run dev` from the same folder to restart, without reinstalling.
+
+## Observe: the browser tab and page heading are different
+
+First predict the result: if you change only `<title>`, will the large page heading change too?
+
+In `src/pages/index.astro`, change `<title>My first website</title>` to `<title>My learning notes</title>`. Leave `h1` untouched, save and refresh. **The browser tab changes; the page heading does not.** The title belongs to head, while h1 belongs to body, with a different purpose.
+
+Then change only the text inside h1 to “Today I start building”. Save and observe the page heading change. Restore both original texts afterward if you want to follow the next lesson exactly.
+
+This is also a debugging method: identify the part of the result that is wrong and inspect the file or tag responsible, instead of reinstalling every tool.
 
 ## Completion check
 

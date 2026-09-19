@@ -17,6 +17,31 @@ status: published
 
 這次從空資料夾開始，親手建立每個檔案，完成能在瀏覽器看到的首頁。先完成上一篇的 Node.js 24.x、pnpm 10.32.1 與 VS Code 安裝。
 
+## 先理解這一篇要建出什麼
+
+你會建立兩個核心檔案：`package.json` 告訴 pnpm「使用哪些工具、有哪些工作」；`src/pages/index.astro` 告訴 Astro「首頁要顯示什麼」。工具清單本身不是網頁。
+
+<figure class="learning-diagram">
+<figcaption>圖 2：開發模式如何把首頁交給瀏覽器</figcaption>
+<ol>
+<li><strong>1. src/pages/index.astro</strong><span>你寫的首頁。儲存後，檔案內容才會更新。</span></li>
+<li><strong>2. Astro 開發伺服器</strong><span>pnpm run dev 啟動它；讀取頁面並回應本機請求。</span></li>
+<li><strong>3. localhost 的瀏覽器</strong><span>請求首頁 /，收到內容後顯示畫面。</span></li>
+</ol>
+<p>由左到右讀取；手機上由上到下。瀏覽器請求頁面，Astro 回傳處理後的內容；它不是直接打開 .astro 檔。</p>
+</figure>
+
+這一篇完成後，資料夾會有以下分工：
+
+| 檔案或資料夾 | 由誰產生 | 你需要做什麼 |
+| --- | --- | --- |
+| `package.json` | 你 | 定義工具與 dev、build、preview 工作 |
+| `src/pages/index.astro` | 你 | 寫首頁內容，持續編輯這裡 |
+| `pnpm-lock.yaml` | pnpm 安裝時產生 | 保留，記錄實際安裝的版本 |
+| `node_modules/` | pnpm 安裝時產生 | 工具本體，不用手動編輯 |
+
+安裝只需要在第一次或工具清單變更時做。**修改一個段落不需要重新安裝 Astro。** 開發伺服器則要在你看網站時保持執行；關掉它，檔案仍然存在，但 localhost 不再有人回應。
+
 ## 第一步：建立空資料夾
 
 在 Windows 檔案總管的「文件」中，按右鍵 → 新增 → 資料夾，命名為 `my-first-website`。如果已存在，另取新名稱，不要覆蓋。開啟 VS Code，選 **File → Open Folder（檔案 → 開啟資料夾）**，選取這個新資料夾。若出現信任提示，確認是自己剛建立的資料夾後再選擇信任。
@@ -137,6 +162,16 @@ pnpm.cmd run dev
 | 頁面語法錯誤 | 把 index.astro 還原為第四步完整內容，再儲存。 |
 
 要停止：回終端機按 **Ctrl+C**；若詢問是否終止批次工作，輸入 `Y`。之後在同一資料夾執行 `pnpm.cmd run dev` 即可再啟動，不必重裝套件。
+
+## 動手觀察：分頁名稱與畫面標題是兩件事
+
+先預想結果，再動手：如果只改 `<title>`，頁面中的大標題會不會跟著改？
+
+在 `src/pages/index.astro` 把 `<title>我的第一個網站</title>` 改成 `<title>我的學習筆記</title>`，保留 `h1` 原文，儲存並重新整理。你應看到**瀏覽器分頁名稱改了，大標題沒變**。因為 `title` 在 head，`h1` 在 body，兩者各有用途。
+
+接著只把 `h1` 中間的文字改成「今天開始做網站」，儲存再看。這次改的是頁面大標題。完成觀察後，可把兩處文字改回原文，接續下一篇。
+
+這個方法也能排障：畫面哪個部分不對，就回到負責那個部分的檔案與標籤，不必重新安裝所有工具。
 
 ## 完成檢查
 

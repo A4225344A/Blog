@@ -19,6 +19,31 @@ You do not need to know how to code. This path has one concrete goal: build your
 
 This first lesson prepares the tools. By the end, you will have a window for commands, an editor for files, and two working version checks. The reading estimate above does not include installation or practice.
 
+## The big picture: you, the tools and the website
+
+Before installing anything, separate three actions: **write files, run tools, view results**. You will use several windows on one computer because they do different jobs.
+
+<figure class="learning-diagram">
+<figcaption>Figure 1: from the files you write to the page you see</figcaption>
+<ol>
+<li><strong>1. You and VS Code</strong><span>Write content in the editor; Ctrl+S saves it.</span></li>
+<li><strong>2. Project folder</strong><span>Stores your .astro pages and tools list.</span></li>
+<li><strong>3. Astro running on Node.js</strong><span>During development, reads files and prepares browser-ready content.</span></li>
+<li><strong>4. Browser</strong><span>Opens localhost and displays headings, paragraphs and styles.</span></li>
+</ol>
+<p>Arrows show content flowing through the system. Everything here runs on your computer; nothing has been published.</p>
+</figure>
+
+PowerShell is where you **request work**, rather than write page content. pnpm installs tools and starts named tasks; Node.js runs Astro. These are tools working together, not separate websites.
+
+| Your intention | Where to act | What changes |
+| --- | --- | --- |
+| Write headings, paragraphs or styles | VS Code editor | Saving changes the source file |
+| Install Astro or start the site | PowerShell terminal | Installs tools or starts a local process |
+| View results and follow links | Browser | Displays pages; does not save source files |
+
+The upcoming version commands **check that tools are available**. Seeing a version number does not mean you have built a website. You will create its files in lesson two.
+
 ## What you need before starting
 
 - A Windows computer with internet access and permission to install software. The instructions use Windows 11 interface names.
@@ -120,6 +145,12 @@ Use the [official Windows installation guide](https://code.visualstudio.com/docs
 | A connection error or an `ERR_...` message | Check internet access. On a managed network, ask its administrator about restrictions. Save the error text; it is not another command to run. |
 
 When asking for help, include the command, the full error and your Node.js version. You can obscure your username in personal folder paths.
+
+## Observe the difference between a command and content
+
+After checking the versions, run `node --version` once more. It prints the version again without creating a web page. This command asks for information about a tool.
+
+In the next lesson, you will write a heading in VS Code's file editor. Remember the distinction: **commands request work; source files describe your website.**
 
 ## Check before continuing
 
