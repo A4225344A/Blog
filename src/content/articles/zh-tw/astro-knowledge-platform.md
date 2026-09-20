@@ -94,7 +94,7 @@ Astro 會靜態產生 `/zh-tw/` 與 `/en/`，以及 Start、Learn、Topics、Blo
 
 `tutorial`、`concept`、`reference`、`opinion` 對應 `/blog/:slug/`；`troubleshooting`、`case-study` 對應 `/cases/:slug/`。路徑工具還會加入語言與部署 base。只有 `status: published` 的文章產生公開頁面；draft 與 archived 仍接受內容驗證，但不進入公開列表、feeds 或搜尋。
 
-文章的語言切換依 translation key 尋找已發布對應版本，並使用目標自己的 slug 與內容類型路由。找不到時返回目標語言首頁；SEO 的 hreflang 只列出真正存在的已發布翻譯。語言入口與兩個首頁構成互相對應的群組，以語言入口作為 `x-default`。共用的非文章實體維持單一 ID，繁體中文顯示文字放在 `src/i18n/content.ts`，依 collection 與所屬學習路徑區分命名空間。缺少翻譯時會警告並使用來源文字，找不到對應實體的翻譯鍵則會報錯。適合對象、難度與成熟度的顯示文字也依語言切換，不改變關聯擁有權。
+文章的語言切換依 translation key 尋找已發布對應版本，並使用目標自己的 slug 與內容類型路由。找不到時返回目標語言首頁；SEO 的 hreflang 只列出真正存在的已發布翻譯。語言入口與兩個首頁構成互相對應的群組，以語言入口作為 `x-default`。共用的非文章實體維持單一 ID，繁體中文顯示文字放在 `src/i18n/content.ts`，依 collection 與所屬學習路徑區分命名空間。缺少翻譯時會警告並使用來源文字，找不到對應實體的翻譯鍵則會報錯。適合對象與成熟度的顯示文字也依語言切換，不改變關聯擁有權。文章頁與卡片不顯示難度。
 
 首頁以個人技術部落格為定位，依序呈現 Hero、認識部落格、最新文章、精選專案、文章系列、精選主題、最新案例與關於作者。文章系列沿用 LearningPath 模型。空清單會明確顯示尚無已發布內容，不會為了填版面而虛構事件或工作經歷。
 
@@ -104,9 +104,9 @@ Astro 會靜態產生 `/zh-tw/` 與 `/en/`，以及 Start、Learn、Topics、Blo
 
 導覽使用語意化連結，在窄螢幕自動換行，不依賴 JavaScript 才能開啟。Layout 提供 skip link、可見的鍵盤焦點、語言標籤與原生 theme select。Article 標題產生靜態目錄，不需要 React hydration。
 
-閱讀時間在建置時計算：漢字以每分鐘 400 字、其他詞語以每分鐘 200 詞估算，加總後向上取整且至少一分鐘。Fenced code、HTML tags、Markdown 連結／圖片目的網址不列入估算。這是可預期的近似值，不代表個別讀者的速度。
+閱讀時間在建置時計算：漢字以每分鐘 400 字、其他詞語以每分鐘 200 詞估算，加總後向上取整且至少一分鐘。Fenced code、HTML tags、Markdown 連結／圖片目的網址不列入估算。這是可預期的近似值，目前保留在建置資料中，不顯示在文章頁。
 
-Pagefind 索引 canonical Article 與 Topic、LearningPath、Project 詳情頁的主要內容，包含標題、描述、內文及已顯示的 Topic／Skill 名稱。首頁、分類索引頁、語言入口、全站導覽與搜尋介面都排除。搜尋頁只載入本地 Pagefind 檔案，bundle 與結果網址都帶有部署 base。不同語言使用分開的索引。目前 Pagefind 對 `zh-tw` 不提供 stemming，因此不會跨詞根形式擴展匹配；瀏覽器測試會實際查詢兩種語言並開啟結果。
+Pagefind 索引 canonical Article 與 Topic、LearningPath、Project 詳情頁的主要內容，包含標題、描述、內文及透過 data-pagefind-index-attrs 索引的 Topic／Skill 名稱；文章頁不再顯示這些分類面板。首頁、分類索引頁、語言入口、全站導覽與搜尋介面都排除。搜尋頁只載入本地 Pagefind 檔案，bundle 與結果網址都帶有部署 base。不同語言使用分開的索引。目前 Pagefind 對 `zh-tw` 不提供 stemming，因此不會跨詞根形式擴展匹配；瀏覽器測試會實際查詢兩種語言並開啟結果。
 
 ## 在建置階段產生 SEO 與 feeds
 
