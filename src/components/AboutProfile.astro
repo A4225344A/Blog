@@ -1,0 +1,99 @@
+---
+import Author from './Author.astro';
+import type { Locale } from '../i18n';
+import { localePath } from '../utils/routes';
+interface Props { locale: Locale; articleCount: number }
+const { locale, articleCount } = Astro.props;
+const copy = {
+  'zh-TW': {
+    greeting: '嗨，我是一名軟體工程師',
+    title: '從全端開發，走向雲原生與平台工程',
+    intro: '從應用程式的實作出發，持續探索系統如何部署、如何觀察，以及如何穩定運作。這裡記錄我一路實作、排障與思考的過程。',
+    count: '篇已發布文章', countNote: '繁體中文內容',
+    background: '我的背景',
+    backgroundText: '我的開發背景涵蓋醫療系統、半導體 CIM（電腦整合製造）與製造業 MES（製造執行系統），使用的技術包括 C#、Angular 與 React。',
+    motivation: '為什麼開始學 Cloud Native',
+    motivationText: '除了把功能做出來，我也想更深入理解：程式如何部署？出了問題如何定位？系統如何保持穩定？哪些重複工作可以自動化？這些問題讓我的學習方向，從全端開發延伸到雲原生與平台工程。',
+    motivations: ['部署', '監控', '排障', '穩定性', '自動化'],
+    exploring: '現在在探索什麼',
+    explorations: [
+      ['Kubernetes', '理解容器化應用的部署、管理與運作方式。'],
+      ['GitOps', '以 Git 管理部署設定，讓變更可以追蹤與重現。'],
+      ['Observability', '透過指標、日誌與追蹤，理解系統內部發生的事。'],
+      ['AWS', '探索雲端基礎設施與應用部署的選擇。'],
+      ['SRE', '學習如何思考服務可靠性、故障處理與自動化。'],
+      ['AI Engineering', '探索 AI 功能如何整合進實際的軟體系統。'],
+    ],
+    purpose: '這個網站在做什麼',
+    purposeText: '把學習與實作留下來，也把選擇背後的理由說清楚。內容會圍繞實作筆記、Troubleshooting 排障紀錄、Learning Path 學習路徑、Project Case Study 專案案例，以及 Architecture Notes 架構筆記逐步整理。',
+    start: '從哪裡開始',
+    entries: [
+      ['learn', '學習路徑', '沿著文章系列，循序理解一個主題。'],
+      ['projects', '專案', '從個人專案看實作方式與架構取捨。'],
+      ['cases', '排障案例', '查看已整理的問題分析與處理紀錄。'],
+      ['blog', '技術文章', '直接從感興趣的實作與觀念開始。'],
+    ],
+  },
+  en: {
+    greeting: 'Hi, I’m a software engineer',
+    title: 'From full-stack development to cloud native and platform engineering',
+    intro: 'Starting with application development, I’m exploring how systems are deployed, understood and kept reliable. This is where I document implementation, troubleshooting and the reasoning behind my choices.',
+    count: 'published articles', countNote: 'English content',
+    background: 'My background',
+    backgroundText: 'My development background spans healthcare systems, semiconductor CIM (Computer Integrated Manufacturing) and manufacturing MES (Manufacturing Execution Systems). My tools include C#, Angular and React.',
+    motivation: 'Why I started learning cloud native',
+    motivationText: 'Beyond implementing features, I want to understand how applications reach deployment, how failures are diagnosed, how systems stay reliable and which repetitive tasks can be automated. These questions are taking me from full-stack development toward cloud native and platform engineering.',
+    motivations: ['Deployment', 'Monitoring', 'Troubleshooting', 'Reliability', 'Automation'],
+    exploring: 'What I’m exploring now',
+    explorations: [
+      ['Kubernetes', 'Deploying, managing and operating containerized applications.'],
+      ['GitOps', 'Managing deployment configuration in Git for traceable, reproducible changes.'],
+      ['Observability', 'Understanding system behavior through metrics, logs and traces.'],
+      ['AWS', 'Exploring cloud infrastructure and application deployment choices.'],
+      ['SRE', 'Learning about service reliability, incident handling and automation.'],
+      ['AI Engineering', 'Exploring how AI capabilities fit into practical software systems.'],
+    ],
+    purpose: 'What this site is for',
+    purposeText: 'A place to document what I learn and build, including the reasoning behind each choice. I’m gradually organizing implementation notes, troubleshooting records, learning paths, project case studies and architecture notes.',
+    start: 'Where to start',
+    entries: [
+      ['learn', 'Learning paths', 'Follow an article series through a topic step by step.'],
+      ['projects', 'Projects', 'Explore personal projects and their architecture decisions.'],
+      ['cases', 'Case studies', 'Browse available troubleshooting and problem analysis records.'],
+      ['blog', 'Articles', 'Start with an implementation or concept that interests you.'],
+    ],
+  },
+} as const;
+const t = copy[locale];
+---
+<div class="about-profile">
+  <div class="profile-intro">
+    <div><p class="eyebrow">{t.greeting}</p><h1>{t.title}</h1><p class="lead">{t.intro}</p></div>
+    <aside class="profile-author"><Author locale={locale} /></aside>
+  </div>
+  <div class="publication-count"><strong>{articleCount}</strong><div><span>{t.count}</span><small>{t.countNote}</small></div></div>
+  <section><h2>{t.background}</h2><p>{t.backgroundText}</p><ul class="labels" aria-label={locale === 'zh-TW' ? '開發技術' : 'Development tools'}>{['C#', 'Angular', 'React'].map(tool => <li>{tool}</li>)}</ul></section>
+  <section><h2>{t.motivation}</h2><p>{t.motivationText}</p><ul class="labels">{t.motivations.map(item => <li>{item}</li>)}</ul></section>
+  <section><h2>{t.exploring}</h2><dl class="explorations">{t.explorations.map(([name, description]) => <div><dt>{name}</dt><dd>{description}</dd></div>)}</dl></section>
+  <section><h2>{t.purpose}</h2><p>{t.purposeText}</p></section>
+  <section><h2>{t.start}</h2><ul class="entry-links">{t.entries.map(([path, label, description]) => <li><a href={localePath(locale, path, import.meta.env.BASE_URL)}>{label}<span aria-hidden="true"> ↗</span></a><p>{description}</p></li>)}</ul></section>
+</div>
+<style>
+  .about-profile { max-width: 64rem; margin-inline: auto; }
+  .profile-intro { display: grid; grid-template-columns: minmax(0, 1fr) 13rem; gap: 3rem; align-items: center; }
+  h1 { font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.35; max-width: 24ch; }
+  p { line-height: 1.9; max-width: 70ch; }
+  .profile-author { padding: 1.5rem; background: var(--soft); border-radius: .75rem; }
+  .publication-count { display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem 0; margin-top: 2rem; border-block: 1px solid var(--border); }
+  .publication-count strong { font-size: 2.5rem; line-height: 1.2; }
+  .publication-count small { display: block; color: var(--muted); }
+  .labels { display: flex; flex-wrap: wrap; gap: .6rem; padding: 0; list-style: none; }
+  .labels li { background: var(--soft); padding: .3rem .8rem; border-radius: .35rem; font-size: .9rem; }
+  .explorations, .entry-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 2rem; }
+  .explorations > div, .entry-links li { border-top: 1px solid var(--border); padding-top: 1rem; }
+  dt, .entry-links a { font-size: 1.1rem; font-weight: 650; }
+  dd { margin: .5rem 0 0; color: var(--muted); line-height: 1.8; }
+  .entry-links { list-style: none; padding: 0; }
+  .entry-links p { margin-bottom: 0; color: var(--muted); font-size: .95rem; }
+  @media (max-width: 48rem) { .profile-intro { grid-template-columns: 1fr; gap: 1rem; } .explorations, .entry-links { grid-template-columns: 1fr; } }
+</style>
