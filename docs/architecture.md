@@ -197,6 +197,14 @@ relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
 
+The bilingual About page presents the maintainer-confirmed healthcare, semiconductor
+CIM and manufacturing MES background, C#/Angular/React stack, and current exploration
+of cloud native and platform engineering. Exploration is not represented as production
+experience. Its article count uses published Articles in the current locale at build
+time, avoiding double-counting translations. No founding year or public view count is
+shown without supplied evidence; no GA4 reporting API, credentials or scheduled job
+is introduced. Reading entry links use the existing localized canonical sections.
+
 The blog presentation uses a shared Author component on the homepage and Article
 pages. Identity and GitHub URL come from siteConfig; the public GitHub avatar is
 stored locally in public/images/avatar.png and served with the configured base.

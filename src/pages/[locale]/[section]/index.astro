@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ArticleList from '../../../components/ArticleList.astro';
 import EntityList from '../../../components/EntityList.astro';
+import AboutProfile from '../../../components/AboutProfile.astro';
 import { locales, localePrefix, type Locale } from '../../../i18n';
 import { ui, sections, sectionDescriptions, type Section } from '../../../i18n/ui';
 import { getContentGraph } from '../../../utils/build-graph';
@@ -19,7 +20,7 @@ const articles = publishedArticles(graph.articles, locale);
 const languageLinks = Object.fromEntries(locales.map(target => [target, localePath(target, section, import.meta.env.BASE_URL)]));
 ---
 <BaseLayout locale={locale} title={t[section]} description={sectionDescriptions[locale][section]} languageLinks={languageLinks}>
-  <h1>{t[section]}</h1>
+  {section !== 'about' && <h1>{t[section]}</h1>}
   {section === 'start' && <>
     <p class="lead">{t.startIntro}</p>
     <section aria-labelledby="blog-entry"><h2 id="blog-entry">{t.blogEntry}</h2><p>{t.blogIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.blog)} section="learn" locale={locale} /></section>
@@ -30,5 +31,5 @@ const languageLinks = Object.fromEntries(locales.map(target => [target, localePa
   {section === 'topics' && <EntityList entries={graph.topics} section="topics" locale={locale} />}
   {section === 'projects' && <EntityList entries={graph.projects} section="projects" locale={locale} />}
   {(section === 'blog' || section === 'cases') && <ArticleList articles={articles.filter(a => isCase(a) === (section === 'cases'))} locale={locale} />}
-  {section === 'about' && <><p>{t.aboutIntro}</p><p>{t.aboutEvidence}</p></>}
+  {section === 'about' && <AboutProfile locale={locale} articleCount={articles.length} />}
 </BaseLayout>
