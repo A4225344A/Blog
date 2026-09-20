@@ -1,4 +1,38 @@
-# Architecture — Knowledge Platform V1
+# Architecture — Knowledge Platform V1.1
+
+## V1.1 Optional Analytics and Static Security
+
+`BaseLayout` guards its single `Analytics` head component with the validated ID.
+Production builds with a
+valid `PUBLIC_GA_MEASUREMENT_ID` emit its public configuration. A small local
+TypeScript bootstrap asynchronously inserts gtag.js only when the browser origin
+matches the HTTPS canonical origin; localhost preview of production artifacts
+does not load Google. Development and missing IDs emit no configuration. A non-empty
+invalid ID fails the production build; disabled builds remove the Google bootstrap.
+Normal MPA document loads each call GA4 config once for automatic page views.
+No client router, backend, new dependencies or content graph changes are added.
+
+The centralized typed adapter accepts only five named, parameter-free events;
+no UI currently emits custom events. It drops extra payload properties and safely
+no-ops when disabled, unavailable or throwing. Analytics page location uses the
+canonical path plus only six approved campaign parameters with bounded token values;
+all other query parameters and fragments are dropped. Browser referrer behavior is
+preserved by leaving page_referrer unset. Google/ad personalization signals are
+disabled. Stream Enhanced Measurement must be disabled by the maintainer to
+avoid automatic search/form/outbound data outside this adapter. No consent banner
+or Consent Mode is implemented; configure a consent strategy before enabling the
+ID where required. See `docs/v1.1-operations.md` for operational setup and
+`docs/analytics-ga4.md` for the specification and approved acquisition policy.
+
+Environment variants are ignored except the placeholder-only `.env.example`.
+Project repository URLs permit only HTTP(S) without embedded credentials. Trusted
+Git-managed Markdown remains executable build input and requires human review;
+the only raw injection API is escaped JSON-LD, covered by existing tests.
+CSP is not introduced: existing inline theme code, Astro output and Pagefind need
+a separately browser-verified policy. No custom GitHub Pages response-header
+protections are claimed. Existing minimal Actions permissions, main-only artifact
+deployment and human environment gate remain intact. The main production build
+reads the public Measurement ID from repository Actions variables, not secrets.
 
 ## Purpose
 
@@ -807,7 +841,6 @@ Not V1 requirements:
 - AI recommendation
 - AI chat
 - custom domain
-- analytics
 - comments
 
 ## Updating This Document

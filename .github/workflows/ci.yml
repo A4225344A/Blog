@@ -33,15 +33,25 @@ jobs:
       - name: Build and verify user-site paths
         env:
           SITE_BASE: /
+          # Synthetic public ID; browser tests intercept Google requests.
+          PUBLIC_GA_MEASUREMENT_ID: G-123456ABCD
         run: |
           pnpm run build
           pnpm run test:build
           pnpm run test:browser
-      - name: Build and verify production paths
+      - name: Browser verification of production paths
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: G-123456ABCD
         run: |
           pnpm run build
           pnpm run test:build
           pnpm run test:browser
+      - name: Build and verify production artifact without browser execution
+        env:
+          PUBLIC_GA_MEASUREMENT_ID: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PUBLIC_GA_MEASUREMENT_ID || '' }}
+        run: |
+          pnpm run build
+          pnpm run test:build
       - name: Preserve the exact validated site
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

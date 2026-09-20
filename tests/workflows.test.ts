@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
-const stepSchema = z.object({ run: z.string().optional(), uses: z.string().optional(), if: z.string().optional(), with: z.record(z.unknown()).optional() }).passthrough();
+const stepSchema = z.object({ run: z.string().optional(), uses: z.string().optional(), if: z.string().optional(), env: z.record(z.string()).optional(), with: z.record(z.unknown()).optional() }).passthrough();
 const workflowSchema = z.object({
   name: z.string(), on: z.record(z.unknown()), permissions: z.record(z.string()),
   concurrency: z.object({ group: z.string(), 'cancel-in-progress': z.union([z.boolean(), z.string()]) }),
@@ -28,6 +28,20 @@ test('CI has read-only permissions and ordered quality gates; artifacts only fro
   assert.match(upload?.if ?? '', /event_name == 'push'/);
   assert.match(upload?.if ?? '', /refs\/heads\/main/);
 });
+test('browser builds use only synthetic analytics before the final production artifact', () => {
+  const steps = workflow('.github/workflows/ci.yml').jobs.validate!.steps;
+  const browserSteps = steps.filter(step => step.run?.includes('pnpm run test:browser'));
+  assert.equal(browserSteps.length, 2);
+  for (const step of browserSteps) {
+    assert.equal(step.env?.PUBLIC_GA_MEASUREMENT_ID, 'G-123456ABCD');
+    assert.deepEqual(step.run?.trim().split('\n'), ['pnpm run build', 'pnpm run test:build', 'pnpm run test:browser']);
+  }
+  const production = steps.findIndex(step => step.env?.PUBLIC_GA_MEASUREMENT_ID?.includes('vars.PUBLIC_GA_MEASUREMENT_ID'));
+  assert.ok(production > steps.findLastIndex(step => step.run?.includes('pnpm run test:browser')));
+  assert.deepEqual(steps[production]?.run?.trim().split('\n'), ['pnpm run build', 'pnpm run test:build']);
+  assert.ok(steps.findIndex(step => step.uses?.startsWith('actions/upload-artifact@')) > production);
+});
+
 test('one workflow gates deployment on successful main CI and the protected environment', () => {
   assert.deepEqual(readdirSync('.github/workflows').filter(file => /\.ya?ml$/.test(file)), ['ci.yml']);
   const ci = workflow('.github/workflows/ci.yml');

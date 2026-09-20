@@ -1,0 +1,13 @@
+---
+interface Props { id: string; canonical: string }
+const { id, canonical } = Astro.props;
+---
+<meta name="platform-analytics" content={id} data-canonical={canonical} />
+<script>
+  import { initializeAnalytics } from '../lib/analytics/bootstrap';
+  // Build-time constants let Vite remove the bootstrap entirely when disabled.
+  if (import.meta.env.PROD && import.meta.env.PUBLIC_GA_MEASUREMENT_ID) {
+    const config = document.querySelector<HTMLMetaElement>('meta[name="platform-analytics"]');
+    if (config?.dataset.canonical) initializeAnalytics(config.content, config.dataset.canonical);
+  }
+</script>

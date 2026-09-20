@@ -1,5 +1,7 @@
 ---
 import ThemeInit from '../components/ThemeInit.astro';
+import Analytics from '../components/Analytics.astro';
+import { buildMeasurementId } from '../lib/analytics/config';
 import ThemeSelect from '../components/ThemeSelect.astro';
 import { locales, messages, type Locale } from '../i18n';
 import { localePath } from '../utils/routes';
@@ -14,6 +16,7 @@ const { locale, title, description, languageLinks = {}, alternates = languageLin
 const t = messages[locale];
 const site = Astro.site?.href ?? 'http://localhost:4321';
 const canonical = absoluteUrl(Astro.url.pathname, site);
+const analyticsId = buildMeasurementId(import.meta.env.PROD, import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
 const equivalentLinks = Object.keys(alternates).length ? alternates : Object.fromEntries(locales.map(target => [target, localePath(target, '', import.meta.env.BASE_URL)]));
 const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => localePath(target, '', import.meta.env.BASE_URL))].includes(Astro.url.pathname);
 ---
@@ -21,6 +24,7 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
 <html lang={locale}>
   <head>
     <meta charset="utf-8" />
+    {analyticsId && <Analytics id={analyticsId} canonical={canonical} />}
     <meta name="viewport" content="width=device-width" />
     <ThemeInit />
     <title>{title ?? t.title}</title>
