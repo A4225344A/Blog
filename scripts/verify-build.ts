@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { hosting } from '../src/config/hosting';
 import { readContent, validateContent } from '../src/utils/content-source';
@@ -9,8 +9,18 @@ import { xmlEscape } from '../src/utils/seo';
 import { locales, localePrefix, messages } from '../src/i18n';
 import { sections, sectionDescriptions, ui } from '../src/i18n/ui';
 import { siteConfig } from '../src/config/site';
+import { buildMeasurementId } from '../src/lib/analytics/config';
 
 const { base, site } = hosting(process.env.SITE_URL, process.env.SITE_BASE);
+const gaId = buildMeasurementId(true, process.env.PUBLIC_GA_MEASUREMENT_ID);
+async function verifyDisabledOutput(directory: string): Promise<void> {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) await verifyDisabledOutput(path);
+    else if (entry.isFile()) assert.ok(!(await readFile(path)).includes('googletagmanager'), `No Google tag references when disabled: ${path}`);
+  }
+}
+if (!gaId) await verifyDisabledOutput(resolve('dist'));
 const { graph } = validateContent(await readContent(resolve('src/content')));
 const routes = publicRoutes(graph, base);
 const sitemap = await readFile('dist/sitemap.xml', 'utf8');
@@ -40,6 +50,14 @@ for (const route of routes) {
   const html = await readFile(resolve('dist', decodeURIComponent(route.slice(base.length)), 'index.html'), 'utf8');
   htmlByRoute.set(route, html);
   const canonical = new URL(route, site).href;
+  const analytics = [...html.matchAll(/<meta name="platform-analytics"[^>]*>/g)];
+  assert.equal(analytics.length, gaId ? 1 : 0, `Analytics configuration count: ${route}`);
+  if (gaId) {
+    assert.ok(analytics[0]?.[0].includes(`content="${gaId}"`));
+    assert.ok(analytics[0]?.[0].includes(`data-canonical="${canonical}"`));
+  }
+  assert.equal((html.match(/www\.googletagmanager\.com\/gtag\/js/g) ?? []).length, gaId ? 1 : 0, `Conditional guarded loader: ${route}`);
+  if (!gaId) assert.ok(!html.includes('googletagmanager'), `No Google tag references when disabled: ${route}`);
   assert.ok(html.includes(`rel="canonical" href="${canonical}"`), `Canonical: ${route}`);
   assert.ok(sitemap.includes(`<loc>${xmlEscape(canonical)}</loc>`), `Sitemap: ${route}`);
   assert.ok(html.includes('name="description"'));

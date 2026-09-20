@@ -35,7 +35,12 @@ export const projectSchema = z.object({
   id: text, title: text, description: text,
   maturity: z.enum(['lab', 'prototype', 'production', 'experiment']),
   featuredSkills: ids, relatedArticles: ids, relatedLearningPaths: ids,
-  repositoryUrl: z.string().url().optional(),
+  repositoryUrl: z.string().url().refine(value => {
+    try {
+      const url = new URL(value);
+      return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password;
+    } catch { return false; }
+  }, 'Repository URL must use HTTP(S) without credentials').optional(),
 }).strict();
 export const schemas = { articles: articleSchema, skills: skillSchema, topics: topicSchema,
   'learning-paths': learningPathSchema, projects: projectSchema };
