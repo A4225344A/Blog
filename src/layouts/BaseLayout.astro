@@ -7,6 +7,8 @@ import '../styles/global.css';
 import { sections, ui } from '../i18n/ui';
 import { absoluteUrl, withBase } from '../utils/routes';
 import { safeJson } from '../utils/seo';
+import Author from '../components/Author.astro';
+import { siteConfig } from '../config/site';
 interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean; indexContent?: boolean }
 const { locale, title, description, languageLinks = {}, alternates = languageLinks, jsonLd, article = false, indexContent = false } = Astro.props;
 const t = messages[locale];
@@ -38,17 +40,17 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
   <body>
     <a class="skip" href="#main">{t.skip}</a>
     <header>
-      <a href={localePath(locale, '', import.meta.env.BASE_URL)}>{t.title}</a>
+      <a class="site-brand" href={localePath(locale, '', import.meta.env.BASE_URL)}><span class="brand-mark" aria-hidden="true">A/</span>{t.title}</a>
       <nav aria-label={t.language}>
         {locales.map(target => <a href={languageLinks[target] ?? localePath(target, '', import.meta.env.BASE_URL)} lang={target} hreflang={target} aria-current={target === locale ? 'page' : undefined}>{target === 'zh-TW' ? '繁體中文' : 'English'}</a>)}
       </nav>
       <div><ThemeSelect locale={locale} /></div>
     </header>
     <nav class="site-nav" aria-label={ui[locale].explore}>
-      {sections.map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)}>{ui[locale][section]}</a>)}
+      {sections.map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)} aria-current={Astro.url.pathname.startsWith(localePath(locale, section, import.meta.env.BASE_URL)) ? 'page' : undefined}>{ui[locale][section]}</a>)}
       <a href={localePath(locale, 'search', import.meta.env.BASE_URL)}>{ui[locale].search}</a>
     </nav>
-    <main id="main" tabindex="-1" data-pagefind-body={indexContent || undefined} data-pagefind-ignore={!indexContent || undefined}><slot /></main>
-    <footer><p>{t.tagline}</p></footer>
+    <main id="main" class:list={{ 'article-page': article }} tabindex="-1" data-pagefind-body={indexContent || undefined} data-pagefind-ignore={!indexContent || undefined}>{article && <div data-pagefind-ignore><Author locale={locale} compact /></div>}<slot /></main>
+    <footer><p>{t.tagline}</p><a href={siteConfig.author.githubUrl}>GitHub ↗</a><a href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)}>RSS</a></footer>
   </body>
 </html>

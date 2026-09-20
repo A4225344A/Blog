@@ -163,6 +163,15 @@ relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
 
+The blog presentation uses a shared Author component on the homepage and Article
+pages. Identity and GitHub URL come from siteConfig; the public GitHub avatar is
+stored locally in public/images/avatar.png and served with the configured base.
+Updating the GitHub avatar does not automatically update this snapshot. Avatar
+links are ordinary keyboard-accessible links with localized accessible names.
+The homepage retains its section order, with an author panel, dated article rows,
+a highlighted project and a compact topic directory. Mobile layouts stack through
+CSS; there is no new client state, remote widget, font service or dependency.
+
 - `pnpm run test` runs deterministic Node tests; `pnpm run check` checks Astro and
   all TypeScript. `pnpm run build` validates content, builds static output and runs
   Pagefind. `pnpm run test:build` verifies every public HTML path and local resource,

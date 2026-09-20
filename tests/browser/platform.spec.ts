@@ -2,6 +2,27 @@ import { test, expect } from '@playwright/test';
 import { normalizeBase } from '../../src/config/hosting';
 const base = normalizeBase(process.env.SITE_BASE);
 
+test('author avatars link to GitHub and the blog layout fits both screen sizes', async ({ page }) => {
+  for (const locale of ['zh-tw', 'en']) {
+    for (const width of [375, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: width === 375 ? 'dark' : 'light' });
+      for (const route of ['', 'blog/beginner-tools/']) {
+        await page.goto(`${locale}/${route}`);
+        const avatar = page.locator('.avatar-link');
+        await expect(avatar).toHaveAttribute('href', 'https://github.com/A4225344A');
+        await expect(avatar).toHaveAccessibleName(/A4225344A.*GitHub/);
+        await expect(avatar.locator('img')).toHaveAttribute('src', `${base}images/avatar.png`);
+        expect(await avatar.locator('img').evaluate(img => img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0)).toBe(true);
+        await avatar.focus();
+        await expect(avatar).toBeFocused();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (locale === 'zh-tw') await page.screenshot({ path: `test-results/blog-${route ? 'article' : 'home'}-${width}.png`, fullPage: true });
+      }
+    }
+  }
+});
+
 test('the personal blog leads with articles and projects and retains static diagrams', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();

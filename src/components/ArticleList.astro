@@ -7,6 +7,6 @@ interface Props { articles: Article[]; locale: Locale; ordered?: boolean }
 const { articles, locale, ordered = false } = Astro.props;
 const List = ordered ? 'ol' : 'ul';
 ---
-{articles.length ? <List class="cards">
-  {articles.map(article => <li><a href={articlePath(article, import.meta.env.BASE_URL)}>{article.title}</a><p>{article.description}</p></li>)}
+{articles.length ? <List class="cards article-list">
+  {articles.map(article => <li>{article.publishedAt && <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time>}<div><a href={articlePath(article, import.meta.env.BASE_URL)}>{article.title}</a><p>{article.description}</p></div><span class="article-arrow" aria-hidden="true">↗</span></li>)}
 </List> : <p class="muted">{ui[locale].empty}</p>}
