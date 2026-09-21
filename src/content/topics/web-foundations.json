@@ -1,6 +1,6 @@
 {
   "id": "web-foundations",
-  "name": "Website engineering",
+  "name": "Website Engineering",
   "description": "Static-site tool selection, development workflows and content delivery.",
   "parentId": "platform-engineering"
 }

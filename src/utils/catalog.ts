@@ -3,6 +3,7 @@ import { locales, type Locale } from '../i18n';
 import { articlePath, localePath } from './routes';
 import { sections } from '../i18n/ui';
 import { legacyContentRoutes } from '../config/legacy-routes';
+import { siteConfig } from '../config/site';
 export function resolveOrderedIds<T extends { id: string }>(ids: readonly string[], entries: readonly T[]): T[] {
   const byId = new Map(entries.map(entry => [entry.id, entry]));
   return ids.flatMap(id => { const entry = byId.get(id); return entry ? [entry] : []; });
@@ -16,7 +17,9 @@ export function publishedArticles(articles: Article[], locale?: Locale): Article
 }
 export function topicsWithArticles(graph: ContentGraph, locale: Locale) {
   const used = new Set(publishedArticles(graph.articles, locale).flatMap(article => article.topics));
-  return graph.topics.filter(topic => used.has(topic.id));
+  const order = new Map<string, number>(siteConfig.featuredTopicIds.map((id, index) => [id, index]));
+  return graph.topics.filter(topic => used.has(topic.id)).sort((a, b) =>
+    (order.get(a.id) ?? Infinity) - (order.get(b.id) ?? Infinity) || a.id.localeCompare(b.id, 'en'));
 }
 export function orderedPathArticles(path: LearningPath, articles: Article[], locale: Locale) {
   const byId = new Map(publishedArticles(articles, locale).map(a => [a.id, a]));

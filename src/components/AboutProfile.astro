@@ -2,17 +2,18 @@
 import Author from './Author.astro';
 import type { Locale } from '../i18n';
 import { localePath } from '../utils/routes';
+import { siteConfig } from '../config/site';
 interface Props { locale: Locale; articleCount: number; hasCases: boolean }
 const { locale, articleCount, hasCases } = Astro.props;
 const copy = {
   'zh-TW': {
-    greeting: '嗨，我是一名全端工程師',
+    greeting: `嗨，我是 ${siteConfig.author.name}，一名全端工程師`,
     title: '從全端開發，走向雲原生與平台工程',
-    intro: '從應用程式的實作出發，持續探索系統如何部署、如何觀察，以及如何穩定運作。這裡記錄我一路實作、排障與思考的過程。',
+    intro: '從應用程式的實作出發，持續探索系統如何部署、如何觀察，以及如何穩定運作。目前先記錄這個 Astro 部落格的建置過程。',
     count: '篇已發布文章', countNote: '繁體中文內容',
-    background: '我的背景',
-    backgroundText: '我的開發背景涵蓋醫療系統、半導體 CIM（電腦整合製造）與製造業 MES（製造執行系統），使用的技術包括 C#、Angular 與 React。',
-    motivation: '為什麼開始學 Cloud Native',
+    background: '關於我',
+    backgroundText: '我是一名全端工程師，使用 C#、Angular 與 React。從寫應用程式開始，現在也想理解程式部署之後，系統如何運作。',
+    motivation: '接下來的學習方向：雲原生',
     motivationText: '除了把功能做出來，我也想更深入理解：程式如何部署？出了問題如何定位？系統如何保持穩定？哪些重複工作可以自動化？這些問題讓我的學習方向，從全端開發延伸到雲原生與平台工程。',
     exploring: '現在在探索什麼',
     explorations: [
@@ -23,8 +24,8 @@ const copy = {
       ['SRE', '學習如何思考服務可靠性、故障處理與自動化。'],
       ['AI Engineering', '探索 AI 功能如何整合進實際的軟體系統。'],
     ],
-    purpose: '這個網站在做什麼',
-    purposeText: '目前已發布的文章是一組 Astro 部落格系列，從空專案走到 GitHub Pages，再說明本站的內容模型。AI SRE Platform 目前提供實驗室介紹。',
+    purpose: '為什麼寫這個部落格',
+    purposeText: '想把實作時的問題與選擇整理成文章，留給自己回頭查，也讓遇到相同問題的人有個參考。目前先從建立這個 Astro 部落格寫起，記錄如何發布到 GitHub Pages，以及本站的內容模型。',
     start: '從哪裡開始',
     entries: [
       ['learn', '文章系列', '沿著文章系列，循序理解一個主題。'],
@@ -34,13 +35,13 @@ const copy = {
     ],
   },
   en: {
-    greeting: 'Hi, I’m a full-stack engineer',
+    greeting: `Hi, I’m ${siteConfig.author.name}, a full-stack engineer`,
     title: 'From full-stack development to cloud native and platform engineering',
-    intro: 'Starting with application development, I’m exploring how systems are deployed, understood and kept reliable. This is where I document implementation, troubleshooting and the reasoning behind my choices.',
+    intro: 'Starting with application development, I’m exploring how systems are deployed, understood and kept reliable. The published series currently documents how I built this Astro blog.',
     count: 'published articles', countNote: 'English content',
-    background: 'My background',
-    backgroundText: 'My development background spans healthcare systems, semiconductor CIM (Computer Integrated Manufacturing) and manufacturing MES (Manufacturing Execution Systems). My tools include C#, Angular and React.',
-    motivation: 'Why I started learning cloud native',
+    background: 'About me',
+    backgroundText: 'I’m a full-stack engineer working with C#, Angular and React. Building applications has made me curious about what happens after deployment and how those systems run.',
+    motivation: 'Learning direction: cloud native',
     motivationText: 'Beyond implementing features, I want to understand how applications reach deployment, how failures are diagnosed, how systems stay reliable and which repetitive tasks can be automated. These questions are taking me from full-stack development toward cloud native and platform engineering.',
     exploring: 'What I’m exploring now',
     explorations: [
@@ -51,8 +52,8 @@ const copy = {
       ['SRE', 'Learning about service reliability, incident handling and automation.'],
       ['AI Engineering', 'Exploring how AI capabilities fit into practical software systems.'],
     ],
-    purpose: 'What this site is for',
-    purposeText: 'The published articles form an Astro blog series, from an empty project to GitHub Pages and this site’s content model. AI SRE Platform currently has a lab overview.',
+    purpose: 'Why I write this blog',
+    purposeText: 'I want to turn the questions and decisions from implementation into articles I can return to, and that others facing similar problems can use. The first series covers building this Astro blog, publishing it to GitHub Pages and organizing its content.',
     start: 'Where to start',
     entries: [
       ['learn', 'Article series', 'Follow an article series through a topic step by step.'],
@@ -70,10 +71,10 @@ const t = copy[locale];
     <aside class="profile-author"><Author locale={locale} /></aside>
   </div>
   <div class="publication-count"><strong>{articleCount}</strong><div><span>{t.count}</span><small>{t.countNote}</small></div></div>
+  <section><h2>{t.purpose}</h2><p>{t.purposeText}</p></section>
   <section><h2>{t.background}</h2><p>{t.backgroundText}</p><ul class="labels" aria-label={locale === 'zh-TW' ? '開發技術' : 'Development tools'}>{['C#', 'Angular', 'React'].map(tool => <li>{tool}</li>)}</ul></section>
   <section><h2>{t.motivation}</h2><p>{t.motivationText}</p></section>
   <section><h2>{t.exploring}</h2><dl class="explorations">{t.explorations.map(([name, description]) => <div><dt>{name}</dt><dd>{description}</dd></div>)}</dl></section>
-  <section><h2>{t.purpose}</h2><p>{t.purposeText}</p></section>
   <section><h2>{t.start}</h2><ul class="entry-links">{t.entries.filter(([path]) => path !== 'cases' || hasCases).map(([path, label, description]) => <li><a href={localePath(locale, path, import.meta.env.BASE_URL)}>{label}<span aria-hidden="true"> ↗</span></a><p>{description}</p></li>)}</ul></section>
 </div>
 <style>

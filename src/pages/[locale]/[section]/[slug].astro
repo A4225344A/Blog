@@ -27,6 +27,7 @@ interface Props { locale: Locale; kind: string; id: string }
 const { locale, kind, id } = Astro.props;
 const { graph, reverse } = await getContentGraph();
 const t = ui[locale];
+const separator = locale === 'zh-TW' ? '：' : ': ';
 const article = kind === 'article' ? graph.articles.find(a => a.id === id) : undefined;
 const topic = kind === 'topics' ? graph.topics.find(a => a.id === id) : undefined;
 const path = kind === 'learn' ? graph['learning-paths'].find(a => a.id === id) : undefined;
@@ -54,18 +55,18 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
     <h1 data-pagefind-meta="title">{text.title}</h1><p class="lead" data-pagefind-meta="description">{text.description}</p>
     {legacy && <p><a href={localePath(locale, legacy.to, base)}>{locale === 'zh-TW' ? '閱讀新版內容' : 'Read the revised content'}</a></p>}
     {article && <>
-      {article.publishedAt && <p>{t.published}: <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></p>}
-      {article.updatedAt && <p>{t.updated}: <time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></p>}
+      {article.publishedAt && <p>{t.published}{separator}<time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></p>}
+      {article.updatedAt && <p>{t.updated}{separator}<time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></p>}
       {rendered && rendered.headings.length > 0 && <nav class="toc" aria-label={t.contents}><h2>{t.contents}</h2><ul>{rendered.headings.filter(h => h.depth === 2).map(h => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul></nav>}
       {Content && <div class="prose"><Content /></div>}
       {graph['learning-paths'].filter(path => articleReverse?.learningPathIds.includes(path.id)).map(path => {
         const adjacent = pathArticleNavigation(path, graph.articles, locale, id);
-        return adjacent && (adjacent.previous || adjacent.next) && <nav class="toc" aria-label={`${t.pathNavigation}: ${entityText('learning-paths', path, locale).title}`}>
+        return adjacent && (adjacent.previous || adjacent.next) && <nav class="toc" aria-label={`${t.pathNavigation}${separator}${entityText('learning-paths', path, locale).title}`}>
           <h2>{t.pathNavigation}</h2>
-          <p><a href={localePath(locale, `learn/${encodeURIComponent(path.id)}`, base)}>{t.pathOverview}: {entityText('learning-paths', path, locale).title}</a></p>
+          <p><a href={localePath(locale, `learn/${encodeURIComponent(path.id)}`, base)}>{t.pathOverview}{separator}{entityText('learning-paths', path, locale).title}</a></p>
           <ul>
-            {adjacent.previous && <li><a href={articlePath(adjacent.previous, base)}>{t.previousLesson}: {adjacent.previous.title}</a></li>}
-            {adjacent.next && <li><a href={articlePath(adjacent.next, base)}>{t.nextLesson}: {adjacent.next.title}</a></li>}
+            {adjacent.previous && <li><a href={articlePath(adjacent.previous, base)}>{t.previousLesson}{separator}{adjacent.previous.title}</a></li>}
+            {adjacent.next && <li><a href={articlePath(adjacent.next, base)}>{t.nextLesson}{separator}{adjacent.next.title}</a></li>}
           </ul>
         </nav>;
       })}
@@ -73,7 +74,7 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
       {articleReverse?.projectIds.length ? <section><h2>{t.projects}</h2><EntityList entries={graph.projects.filter(p => articleReverse?.projectIds.includes(p.id))} section="projects" locale={locale} /></section> : null}
     </>}
     {topic && <ArticleList articles={articles.filter(a => a.topics.includes(topic.id))} locale={locale} />}
-    {path && <>{path.targetAudience.length > 0 && <p>{t.audience}: {pathAudience(path, locale).join(' · ')}</p>}{orderedPathArticles(path, graph.articles, locale).map(section => <section><h2>{sectionText(path.id, section, locale).title}</h2><p>{sectionText(path.id, section, locale).description}</p><ArticleList articles={section.articles} locale={locale} ordered /></section>)}</>}
-    {project && <><p>{t.maturity}: {maturityLabels[locale][project.maturity]}</p>{project.repositoryUrl && <a href={project.repositoryUrl}>{t.repository}</a>}<h2>{t.skills}</h2><ul>{graph.skills.filter(s => project.featuredSkills.includes(s.id)).map(s => <li>{entityText('skills', s, locale).title}</li>)}</ul>{articles.some(a => project.relatedArticles.includes(a.id)) && <><h2>{t.related}</h2><ArticleList articles={articles.filter(a => project.relatedArticles.includes(a.id))} locale={locale} /></>}{project.relatedLearningPaths.length > 0 && <><h2>{t.paths}</h2><EntityList entries={graph['learning-paths'].filter(p => project.relatedLearningPaths.includes(p.id))} section="learn" locale={locale} /></>}</>}
+    {path && <>{path.targetAudience.length > 0 && <p>{t.audience}{separator}{pathAudience(path, locale).join(' · ')}</p>}{orderedPathArticles(path, graph.articles, locale).map(section => <section><h2>{sectionText(path.id, section, locale).title}</h2><p>{sectionText(path.id, section, locale).description}</p><ArticleList articles={section.articles} locale={locale} ordered /></section>)}</>}
+    {project && <><p>{t.maturity}{separator}{maturityLabels[locale][project.maturity]}</p>{project.repositoryUrl && <a href={project.repositoryUrl}>{t.repository}</a>}<h2>{t.skills}</h2><ul>{graph.skills.filter(s => project.featuredSkills.includes(s.id)).map(s => <li>{entityText('skills', s, locale).title}</li>)}</ul>{articles.some(a => project.relatedArticles.includes(a.id)) && <><h2>{t.related}</h2><ArticleList articles={articles.filter(a => project.relatedArticles.includes(a.id))} locale={locale} /></>}{project.relatedLearningPaths.length > 0 && <><h2>{t.paths}</h2><EntityList entries={graph['learning-paths'].filter(p => project.relatedLearningPaths.includes(p.id))} section="learn" locale={locale} /></>}</>}
   </article>
 </BaseLayout>

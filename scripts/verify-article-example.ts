@@ -40,6 +40,9 @@ try {
     await write('src/layouts/PostLayout.astro', layout);
     await write('src/pages/posts/build-notes.md', article);
     await write('astro.config.mjs', config);
+    execFileSync(process.execPath, [join(workspace, 'node_modules/astro/astro.js'), 'check', '--root', fixture], {
+      cwd: fixture, stdio: 'pipe', env: { ...process.env, CI: 'true' },
+    });
     for (const base of ['/', '/Blog/']) {
       execFileSync(process.execPath, [join(workspace, 'node_modules/astro/astro.js'), 'build', '--root', fixture], {
         cwd: fixture, stdio: 'pipe', env: { ...process.env, SITE_URL: 'https://example.github.io', SITE_BASE: base, PUBLIC_GA_MEASUREMENT_ID: '' },
