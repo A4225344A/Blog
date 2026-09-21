@@ -1,9 +1,11 @@
 {
   "id": "local-website-preview",
   "name": "Preview a website on your computer",
-  "description": "Find the project folder, install its packages and start or stop the local development server.",
+  "description": "Distinguish development serving from built-output preview and verify deployment paths.",
   "category": "Web foundations",
   "aliases": [],
-  "prerequisites": ["terminal-basics"],
+  "prerequisites": [
+    "terminal-basics"
+  ],
   "status": "active"
 }

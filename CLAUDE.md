@@ -285,7 +285,7 @@ Expected order:
 4. Featured Project
 5. Article Series (LearningPath entities)
 6. Featured Topics
-7. Latest Cases
+7. Latest Cases (only when the current locale has published cases)
 8. About the Author
 
 ## Start / Learn / Topics / Blog / Cases / Projects
@@ -303,10 +303,10 @@ Verify:
 Verify the first complete Article is:
 
 Traditional Chinese:
-> 使用 Astro 建立零成本技術知識平台：從內容模型到 GitHub Pages
+> 本站 Astro 部落格的內容模型與交付設計
 
 English:
-> Building a Zero-Cost Engineering Knowledge Platform with Astro and GitHub Pages
+> The content model and delivery design of this Astro blog
 
 It must match the actual implementation. AI SRE Platform remains a Project.
 
@@ -571,3 +571,10 @@ After Codex fixes findings:
 5. avoid new stylistic objections unrelated to behavior
 
 The human remains the final merge authority.
+
+## Content-driven discovery
+
+Cases navigation and About links appear only when the current locale has published cases.
+Empty topic routes remain available but are noindex and excluded from sitemap and search.
+LearningPath is presented as Article Series. Stable Article IDs survive slug changes;
+legacy beginner URLs show migration notices rather than duplicate article bodies.

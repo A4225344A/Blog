@@ -1,7 +1,7 @@
 {
   "id": "knowledge-platform",
-  "title": "Build an engineering knowledge platform",
-  "description": "An intermediate architecture walkthrough for readers who can already run a Node.js project and edit web files. Explore the content model, Astro and GitHub Pages delivery.",
+  "title": "Building a technical blog with Astro",
+  "description": "Four articles: choose Astro, create a project, publish to GitHub Pages, then examine this blog’s content model.",
   "targetAudience": [
     "Engineers",
     "Technical writers"
@@ -9,9 +9,15 @@
   "sections": [
     {
       "id": "foundation",
-      "title": "Start with a complete example",
-      "description": "Understand the repository implementation before adapting it.",
+      "title": "From selection to the working blog",
+      "description": "Basic HTML and programming experience assumed. Tool installation is covered before the first command.",
       "articleIds": [
+        "beginner-tools-zh-tw",
+        "beginner-tools-en",
+        "beginner-local-website-zh-tw",
+        "beginner-local-website-en",
+        "beginner-first-change-zh-tw",
+        "beginner-first-change-en",
         "astro-knowledge-platform-zh-tw",
         "astro-knowledge-platform-en"
       ]

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { entityText, sectionText, pathAudience, validateEntityTranslations, type EntityTranslations } from '../src/i18n/content';
 import { difficultyLabels, maturityLabels, sectionDescriptions } from '../src/i18n/ui';
-import { resolveOrderedIds } from '../src/utils/catalog';
+import { resolveOrderedIds, topicsWithArticles } from '../src/utils/catalog';
 import { validateContent, type RawEntry } from '../src/utils/content-source';
 import { article, graph } from './fixtures';
 
@@ -12,7 +12,7 @@ test('entity and section translation namespaces cannot leak across collections',
   assert.equal(entityText('skills', source, 'zh-TW').title, 'Source skill');
   assert.equal(entityText('topics', source, 'en').title, 'Source skill');
   const section = { id: 'foundation', title: 'Source section', articleIds: [] };
-  assert.equal(sectionText('knowledge-platform', section, 'zh-TW').title, '從完整範例開始');
+  assert.equal(sectionText('knowledge-platform', section, 'zh-TW').title, '從選型到本站實作');
   assert.equal(sectionText('another-path', section, 'zh-TW').title, 'Source section');
 });
 test('missing translations warn; stale collection and path-section keys fail', () => {
@@ -37,6 +37,19 @@ test('audience, difficulty and maturity use localized display text', () => {
 });
 test('featured order follows configured IDs despite shuffled collection input', () => {
   assert.deepEqual(resolveOrderedIds(['b', 'missing', 'a'], [{ id: 'c' }, { id: 'a' }, { id: 'b' }]), [{ id: 'b' }, { id: 'a' }]);
+});
+
+test('topic discovery requires published content in the reader locale', () => {
+  const content = graph();
+  content.topics = ['live', 'draft', 'archived', 'translated', 'empty'].map(id => ({ id, name: id, description: id }));
+  content.articles = [
+    article({ topics: ['live'] }),
+    article({ id: 'draft', status: 'draft', topics: ['draft'] }),
+    article({ id: 'archived', status: 'archived', topics: ['archived'] }),
+    article({ id: 'translated', locale: 'zh-TW', topics: ['translated'] }),
+  ];
+  assert.deepEqual(topicsWithArticles(content, 'en').map(topic => topic.id), ['live']);
+  assert.deepEqual(topicsWithArticles(content, 'zh-TW').map(topic => topic.id), ['translated']);
 });
 test('public route collision reports both source files; locale, section and drafts remain distinct', () => {
   const entry = (source: string, overrides: Parameters<typeof article>[0]): RawEntry => ({ collection: 'articles', source, data: article(overrides), body: '' });

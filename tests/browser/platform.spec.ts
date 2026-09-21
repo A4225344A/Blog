@@ -2,12 +2,37 @@ import { test, expect } from '@playwright/test';
 import { normalizeBase } from '../../src/config/hosting';
 const base = normalizeBase(process.env.SITE_BASE);
 
+test('old links explain the rewrite and empty cases are not recommended', async ({ page }) => {
+  for (const locale of ['en', 'zh-tw']) {
+    await page.goto(`${locale}/blog/beginner-tools/`);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+    expect(new URL((await page.locator('meta[property="og:url"]').getAttribute('content'))!).pathname).toBe(`${base}${locale}/blog/beginner-tools/`);
+    const replacement = page.locator(`main a[href="${base}${locale}/blog/why-astro/"]`);
+    await expect(replacement).toBeVisible();
+    await replacement.click();
+    await expect(page).toHaveURL(new RegExp(`${locale}/blog/why-astro/$`));
+    await page.goto(`${locale}/about/`);
+    await expect(page.locator(`a[href="${base}${locale}/cases/"]`)).toHaveCount(0);
+    await expect(page.locator('.profile-intro .eyebrow')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
+    await page.setViewportSize({ width: 375, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: `test-results/about-${locale}.png`, fullPage: true });
+    await page.goto(`${locale}/topics/sre/`);
+    await expect(page.locator('[data-pagefind-body]')).toHaveCount(0);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
+  }
+  await page.goto('./');
+  await expect(page.getByText('Choose your language', { exact: true })).toHaveAttribute('lang', 'en');
+  await expect(page.locator('main').getByRole('link', { name: 'English', exact: true })).toHaveAttribute('lang', 'en');
+});
+
 test('author avatars link to GitHub and the blog layout fits both screen sizes', async ({ page }) => {
   for (const locale of ['zh-tw', 'en']) {
     for (const width of [375, 1280]) {
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ colorScheme: width === 375 ? 'dark' : 'light' });
-      for (const route of ['', 'blog/beginner-tools/']) {
+      for (const route of ['', 'blog/why-astro/']) {
         await page.goto(`${locale}/${route}`);
         const avatar = page.locator('.avatar-link');
         await expect(avatar).toHaveAttribute('href', 'https://github.com/A4225344A');
@@ -34,16 +59,18 @@ test('the personal blog leads with articles and projects and retains static diag
     expect(headings.indexOf(projectLabel)).toBeLessThan(headings.indexOf(seriesLabel));
     await expect(page.locator('main')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
     if (locale === 'zh-tw') await page.screenshot({ path: 'test-results/personal-blog-home.png', fullPage: true });
-    for (const slug of ['beginner-tools', 'beginner-local-website', 'beginner-first-change']) {
+    for (const slug of ['why-astro', 'astro-project-setup', 'astro-content-and-deployment']) {
       for (const width of [375, 1280]) {
         await page.setViewportSize({ width, height: 900 });
         await page.emulateMedia({ colorScheme: width === 375 ? 'dark' : 'light' });
         await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/${slug}/`);
         const figure = page.locator('figure.learning-diagram');
-        await expect(figure).toBeVisible();
-        await expect(figure.locator('figcaption')).not.toBeEmpty();
-        await expect(figure.locator('li')).toHaveCount(slug === 'beginner-first-change' ? 4 : 3);
-        expect(await figure.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+        if (slug === 'why-astro') {
+          await expect(figure).toBeVisible();
+          await expect(figure.locator('li')).toHaveCount(3);
+          expect(await figure.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+        }
+        await expect(page.locator('.prose')).toBeVisible();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       }
     }
@@ -60,8 +87,8 @@ test('readers can follow the Astro series and switch languages without losing th
     const entry = page.getByRole('region', { name: beginner });
     await expect(page.getByRole('region', { name: experienced })).toBeVisible();
     await entry.getByRole('link').click();
-    await expect(page).toHaveURL(`${new URL(page.url()).origin}${base}${locale}/learn/first-website/`);
-    await expect(page.locator('main ol.cards li')).toHaveCount(3);
+    await expect(page).toHaveURL(`${new URL(page.url()).origin}${base}${locale}/learn/knowledge-platform/`);
+    await expect(page.locator('main ol.cards li')).toHaveCount(4);
     await page.getByRole('link', { name: firstTitle, exact: true }).click();
     await expect(page.locator('h1')).toHaveText(firstTitle);
     const pathNav = page.locator('nav[aria-label^="Continue this series"], nav[aria-label^="繼續閱讀系列"]');
@@ -73,14 +100,14 @@ test('readers can follow the Astro series and switch languages without losing th
     await expect(page.locator('main')).not.toContainText(locale === 'en' ? 'min read' : '分鐘閱讀');
     await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toHaveCount(0);
     await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
-    await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/beginner-local-website/$`));
+    await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/astro-project-setup/$`));
     await page.getByRole('link', { name: switchLanguage, exact: true }).click();
     const other = locale === 'en' ? 'zh-tw' : 'en';
-    await expect(page).toHaveURL(new RegExp(`${base}${other}/blog/beginner-local-website/$`));
+    await expect(page).toHaveURL(new RegExp(`${base}${other}/blog/astro-project-setup/$`));
     await page.getByRole('link', { name: locale === 'en' ? 'English' : '繁體中文', exact: true }).click();
     await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
-    await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/beginner-first-change/$`));
-    await expect(pathNav.getByRole('link', { name: new RegExp(`^${next}:`) })).toHaveCount(0);
+    await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/astro-content-and-deployment/$`));
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${next}:`) })).toHaveAttribute('href', `${base}${locale}/blog/astro-knowledge-platform/`);
     await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toBeVisible();
     await expect(page.locator('.prose')).toContainText('src/pages/index.astro');
     await expect(page.locator('.prose')).toContainText('Ctrl+S');
@@ -130,10 +157,10 @@ test('local search returns working canonical URLs in both locales', async ({ pag
 });
 test('Article translation preserves context and search indexes Skill text', async ({ page }) => {
   await page.goto('en/blog/astro-knowledge-platform/');
-  await expect(page.locator('h1')).toContainText('Building a Zero-Cost');
+  await expect(page.locator('h1')).toHaveText('The content model and delivery design of this Astro blog');
   await page.getByRole('link', { name: '繁體中文', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`${base}zh-tw/blog/astro-knowledge-platform/$`));
-  await expect(page.locator('h1')).toContainText('使用 Astro');
+  await expect(page.locator('h1')).toHaveText('本站 Astro 部落格的內容模型與交付設計');
   await expect(page.locator('.toc a').first()).toBeVisible();
   for (const [locale, query] of [['en', 'Astro content modeling'], ['zh-tw', '內容建模']]) {
     await page.goto(`${locale}/search/`);

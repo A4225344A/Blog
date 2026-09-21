@@ -31,7 +31,12 @@ the only raw injection API is escaped JSON-LD, covered by existing tests.
 CSP is not introduced: existing inline theme code, Astro output and Pagefind need
 a separately browser-verified policy. No custom GitHub Pages response-header
 protections are claimed. Existing minimal Actions permissions, main-only artifact
-deployment and human environment gate remain intact. The main production build
+deployment and the named environment remain intact. Human approval depends on
+GitHub Required reviewers configuration, not YAML alone. Claude's second re-review
+independently confirmed that rule through GitHub's API. No main deployment after
+the configuration change was available to verify the Waiting/approval cycle;
+see `docs/handoff-content-review-fixes.md` for the evidence and review outcome.
+The main production build
 reads the public Measurement ID from repository Actions variables, not secrets.
 
 ## Purpose
@@ -118,7 +123,7 @@ Implementation details:
   handles blocked storage. CSS follows OS preference when JavaScript is disabled.
   No React, hydration framework, remote service or browser graph computation is used.
 
-- Pagefind indexes canonical Articles and Topic/LearningPath/Project detail pages
+- Pagefind indexes canonical Articles and populated Topic/LearningPath/Project detail pages
   after every production build. Homes, section indexes and the language chooser
   are not indexed. Main content
   includes title, description, body and localized Topic/Skill labels supplied by
@@ -126,7 +131,9 @@ Implementation details:
   search UI are excluded. Language detection uses document lang. The localized
   search page loads its local UI bundle with explicit base/bundle paths. Use build
   plus preview for search; the dev server does not generate an index.
-- All public pages have canonical, description and Open Graph metadata. Article
+- Indexable public pages have canonical, description and Open Graph metadata.
+  Noindex migration notices and empty topics omit canonical; their Open Graph URL
+  identifies the page itself. Article
   hreflang lists only published equivalents (language navigation still falls back
   to home). Articles emit escaped JSON-LD (`TechArticle`, or `Article` for opinion).
   The language chooser and both homes share one reciprocal three-entry hreflang
@@ -150,7 +157,10 @@ Implementation details:
 - One workflow, `.github/workflows/ci.yml` (name `CI`), contains `validate` and
   `deploy`. Only successful main push CI uploads `verified-site`. Deployment uses
   `needs: validate`, requires a successful main push, and waits for required human
-  reviewers on the `github-pages` environment. After approval it checks the current
+  reviewers on the `github-pages` environment only when configured in GitHub.
+  Claude's second re-review independently confirmed this rule after the initial
+  audit identified the missing configuration; a post-configuration run is pending.
+  Once the job starts it checks the current
   main SHA against `context.sha`, downloads the same run's artifact, and repackages
   and deploys it without rebuilding or checking out code. The old `workflow_run`
   workflow is removed. Main runs have distinct concurrency groups, so new validation
@@ -176,18 +186,36 @@ The maintainer approved replacing the zero-experience course positioning with a
 full-stack engineer's personal technical blog. Home prioritizes recent articles
 and the featured project. Start introduces the blog and links to projects,
 articles and the author's confirmed full-stack role. No employment history,
-production experience or measured results are inferred.
+production experience or measured results are inferred. The About page uses
+only the healthcare, CIM and MES background explicitly supplied by the maintainer.
 
-LearningPath is presented as an Article Series. Existing entity IDs, slugs and
-translation keys remain stable, including legacy beginner-* and first-website
-identifiers, to preserve existing URLs and graph references. The three rewritten
-bilingual articles discuss Astro selection, a minimal blog project, then Markdown,
-layouts and the actual repository's CI/Pages delivery boundary. The longer
-architecture Article retains its depth.
+LearningPath is presented as an Article Series. The `knowledge-platform` entity
+owns all four bilingual Astro articles, from selection and setup to publishing
+and this blog's content model. The duplicate `first-website` entity is retired.
+Article IDs and translation keys remain stable; public slugs now describe the
+intermediate content: `why-astro`, `astro-project-setup`, and
+`astro-content-and-deployment`. The old `beginner-*` and `learn/first-website`
+URLs render localized migration notices with manual links to the replacement,
+not the revised article body. They are noindex, omit canonical and hreflang,
+use their own URL for Open Graph, and are excluded from sitemap, RSS and Pagefind. This preserves shared links
+without implying the former zero-experience course still exists.
 
-Diagrams use static HTML/CSS, readable without JavaScript and stacked on mobile.
-Tool setup is a short prerequisite appendix, not the main narrative. The minimal
-example is explicitly separate from this repository's five-entity Content Graph.
+The series assumes basic HTML and programming knowledge. Tool installation and
+Git initialization precede their first use; Windows examples use Node.js 24.x,
+pnpm 10.32.1 and `pnpm.cmd`. Article three includes a self-contained Pages workflow
+for the minimal example. The final article describes the actual blog's five-entity
+Content Graph, without internal handoff or review-status prose.
+The selection article uses a static publishing-flow illustration; the other
+articles use code examples where a diagram would only repeat a short list.
+Start is a reading guide, distinct from the author's About page. Discovery lists
+only topics with published articles in the current locale. Empty topic detail
+routes remain accessible but are noindex, without canonical/hreflang, and excluded
+from sitemap and Pagefind. Populated topic hreflang includes only populated locales.
+Navigation, About
+entry links and the homepage omit cases until that locale has published cases;
+the canonical Cases section remains available with an honest empty state.
+About distinguishes the published Astro series, the AI SRE lab introduction and
+future cloud-native case writing. The lab has no related articles yet.
 Article pages show dates, TOC, body and previous/next series navigation. Reading
 time and difficulty are not displayed; Article cards omit difficulty too. Topic,
 Skill, prerequisite and duplicate series panels are omitted from Article pages.
@@ -226,6 +254,11 @@ CSS; there is no new client state, remote widget, font service or dependency.
   actual Astro rendering for all entities and case/draft/archive visibility, and
   removes exactly those files. Run the regular build afterward. CI does this before
   building the production artifact. Do not run content editors concurrently.
+- `pnpm run test:article-example` extracts the bilingual setup and deployment
+  article snippets, runs in CI after `check`, builds at `/` and `/Blog/` with the installed Astro version,
+  and checks the resulting navigation. It also parses the example workflow and
+  checks its action pins and equality across locales. It does not execute GitHub
+  Actions or perform a separate dependency installation for the example.
 - `pnpm run test:browser` uses locally installed Chromium against Astro preview to
   check theme, denied storage, narrow-screen navigation, search and Article language
   equivalence. Tests run at root and production base in CI. `PLAYWRIGHT_BROWSERS_PATH`
@@ -692,15 +725,15 @@ Do not make these V1 blockers:
 - complex translation graph validation
 - full orphan graph validation
 
-## First Article
+## Repository Walkthrough Article
 
 Traditional Chinese:
 
-> 使用 Astro 建立零成本技術知識平台：從內容模型到 GitHub Pages
+> 本站 Astro 部落格的內容模型與交付設計
 
 English:
 
-> Building a Zero-Cost Engineering Knowledge Platform with Astro and GitHub Pages
+> The content model and delivery design of this Astro blog
 
 It must describe the actual implementation.
 

@@ -1,6 +1,6 @@
 export const siteConfig = {
   author: { name: 'A4225344A', githubUrl: 'https://github.com/A4225344A', avatar: 'images/avatar.png' },
-  startLearningPathIds: { blog: 'first-website', architecture: 'knowledge-platform' },
+  startLearningPathIds: { blog: 'knowledge-platform' },
   featuredProjectId: 'ai-sre-platform',
-  featuredTopicIds: ['platform-engineering', 'cloud-native', 'sre', 'ai-engineering', 'backend-engineering'],
+  featuredTopicIds: ['web-foundations', 'platform-engineering', 'backend-engineering', 'cloud-native', 'sre', 'ai-engineering'],
 } as const;

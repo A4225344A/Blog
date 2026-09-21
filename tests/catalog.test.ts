@@ -1,11 +1,30 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { article, graph } from './fixtures';
-import { isCase, orderedPathArticles, publicRoutes, publishedArticles } from '../src/utils/catalog';
+import { isCase, orderedPathArticles, publicRoutes, publishedArticles, sitemapRoutes } from '../src/utils/catalog';
 test('published catalog filters locale, drafts and archived; sorts deterministically', () => {
   const records = [article({ id: 'z' }), article({ id: 'a' }), article({ id: 'draft', status: 'draft' }), article({ id: 'archived', status: 'archived' }), article({ id: 'zh', locale: 'zh-TW' }), article({ id: 'recent', publishedAt: new Date('2026-01-01') })];
   assert.deepEqual(publishedArticles(records, 'en').map(a => a.id), ['recent', 'a', 'z']);
   assert.equal(records.length, 6);
+});
+
+test('legacy Article and LearningPath routes are reserved at both bases', () => {
+  for (const base of ['/', '/Blog/']) {
+    const g = graph();
+    g.articles[0]!.slug = 'beginner-tools';
+    assert.throws(() => publicRoutes(g, base), /reserved migration routes/);
+    g.articles[0]!.slug = 'intro';
+    g['learning-paths'][0]!.id = 'first-website';
+    assert.throws(() => publicRoutes(g, base), /reserved migration routes/);
+  }
+});
+
+test('empty topics keep routes but enter the sitemap only for published locales', () => {
+  const g = graph();
+  g.articles[1]!.status = 'draft';
+  assert.ok(publicRoutes(g, '/Blog/').includes('/Blog/zh-tw/topics/topic/'));
+  assert.ok(!sitemapRoutes(g, '/Blog/').includes('/Blog/zh-tw/topics/topic/'));
+  assert.ok(sitemapRoutes(g, '/Blog/').includes('/Blog/en/topics/topic/'));
 });
 test('LearningPath order survives locale and publication filtering', () => {
   const g = graph();

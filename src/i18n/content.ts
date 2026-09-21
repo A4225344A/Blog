@@ -19,9 +19,9 @@ topics: {
   'backend-engineering': { title: '後端工程', description: '服務、介面與資料處理的工程基礎。' },
 },
 skills: {
-  'terminal-basics': { title: '在終端機執行指令', description: '開啟 PowerShell，逐行執行指令並確認工具版本。' },
-  'local-website-preview': { title: '在電腦上預覽網站', description: '找到專案資料夾、安裝所需套件，啟動與停止本機網站。' },
-  'editing-web-pages': { title: '編輯與儲存網頁', description: '編寫頁面內容、樣式與連結，儲存並確認瀏覽器結果。' },
+  'terminal-basics': { title: '在終端機執行指令', description: '管理終端機工作目錄、工具版本與目前工作階段的環境變數。' },
+  'local-website-preview': { title: '在電腦上預覽網站', description: '區分開發伺服器與建置產物預覽，檢查不同部署路徑。' },
+  'editing-web-pages': { title: '編輯與儲存網頁', description: '編輯 HTML 與 CSS，檢查語意結構、連結與響應式版面。' },
   'astro-content-modeling': { title: 'Astro 內容建模', description: '使用型別與 schema 管理靜態內容。' },
   'static-site-delivery': { title: '靜態網站交付', description: '驗證並交付可部署的靜態產物。' },
   'aws-infrastructure': { title: 'AWS 基礎設施', description: '在架構實驗室中探索 AWS 基礎設施概念。' },
@@ -30,11 +30,8 @@ skills: {
   'ai-assisted-incident-handling': { title: 'AI 輔助事件處理', description: '在實驗室中探索 AI 輔助事件分析。' },
 },
 'learning-paths': {
-  'first-website': { title: '用 Astro 建立技術部落格', description: '從選型理由、空專案到文章、版型與部署，記錄另一種建立技術部落格的方式。', targetAudience: ['想了解 Astro 的開發者', '規劃個人技術部落格的工程師'], sections: {
-    'first-local-change': { title: '選型 → 專案結構 → 內容與交付', description: '依序理解需求、實作與取捨；指令搭配架構圖與驗證方式。' },
-  } },
-  'knowledge-platform': { title: '建立工程知識平台', description: '給已能執行 Node.js 專案、修改網頁檔案的讀者：以中階架構角度理解內容模型、Astro 與 GitHub Pages 交付。', targetAudience: ['工程師', '技術寫作者'], sections: {
-    foundation: { title: '從完整範例開始', description: '先理解實際儲存庫，再調整自己的內容。' },
+  'knowledge-platform': { title: '用 Astro 建立技術部落格', description: '四篇文章：選擇 Astro、建立專案、發布到 GitHub Pages，最後拆解本站的內容模型。', targetAudience: ['工程師', '技術寫作者'], sections: {
+    foundation: { title: '從選型到本站實作', description: '適合具備基本 HTML 與程式經驗的讀者；工具安裝放在第一個操作步驟之前。' },
   } },
 },
 projects: {

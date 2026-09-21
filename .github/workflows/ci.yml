@@ -27,6 +27,7 @@ jobs:
       - run: pnpm run content:validate
       - run: pnpm run test
       - run: pnpm run check
+      - run: pnpm run test:article-example
       - run: pnpm run test:collections
       - run: pnpm exec tsx scripts/configure-pages.ts
       - run: pnpm exec playwright install --with-deps chromium
@@ -72,7 +73,7 @@ jobs:
       actions: read
       pages: write
       id-token: write
-    # Required reviewers on this environment enforce approval before this job starts.
+    # Approval is enforced only after Required reviewers are configured in GitHub.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -93,6 +94,6 @@ jobs:
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: site
-      - name: Deploy approved static files
+      - name: Deploy validated static files
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

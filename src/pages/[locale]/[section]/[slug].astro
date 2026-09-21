@@ -11,11 +11,16 @@ import { isCase, orderedPathArticles, publishedArticles, pathArticleNavigation }
 import { localePath, translatedArticlePath } from '../../../utils/routes';
 import { articlePath } from '../../../utils/routes';
 import { articleJsonLd } from '../../../utils/seo';
+import { legacyContentRoutes } from '../../../config/legacy-routes';
 export async function getStaticPaths() {
   const { graph } = await getContentGraph();
   const paths = publishedArticles(graph.articles).map(article => ({ params: { locale: localePrefix[article.locale], section: isCase(article) ? 'cases' : 'blog', slug: article.slug }, props: { locale: article.locale, kind: 'article', id: article.id } }));
   for (const locale of locales) for (const [kind, entries] of [['topics', graph.topics], ['learn', graph['learning-paths']], ['projects', graph.projects]] as const)
     for (const entry of entries) paths.push({ params: { locale: localePrefix[locale], section: kind, slug: entry.id }, props: { locale, kind, id: entry.id } });
+  for (const locale of locales) for (const route of legacyContentRoutes) {
+    const [section, slug] = route.from.split('/');
+    paths.push({ params: { locale: localePrefix[locale], section: section!, slug: slug! }, props: { locale, kind: 'legacy', id: route.from } });
+  }
   return paths;
 }
 interface Props { locale: Locale; kind: string; id: string }
@@ -27,12 +32,14 @@ const topic = kind === 'topics' ? graph.topics.find(a => a.id === id) : undefine
 const path = kind === 'learn' ? graph['learning-paths'].find(a => a.id === id) : undefined;
 const project = kind === 'projects' ? graph.projects.find(a => a.id === id) : undefined;
 const entity = article ?? topic ?? path ?? project;
-if (!entity) throw new Error(`Missing entity ${id}`);
-const text = article ? { title: article.title, description: article.description } : entityText(topic ? 'topics' : path ? 'learning-paths' : 'projects', entity, locale);
+const legacy = kind === 'legacy' ? legacyContentRoutes.find(route => route.from === id) : undefined;
+if (!entity && !legacy) throw new Error(`Missing entity ${id}`);
+const text = legacy ? { title: locale === 'zh-TW' ? '這份內容已改版' : 'This content has been revised', description: locale === 'zh-TW' ? '原本的新手內容已改寫為 Astro 部落格系列，適合具備基本 HTML 與程式經驗的讀者。' : 'The former beginner content has been rewritten as an Astro blog series for readers with basic HTML and programming experience.' } : article ? { title: article.title, description: article.description } : entityText(topic ? 'topics' : path ? 'learning-paths' : 'projects', entity!, locale);
 const entry = article ? (await getCollection('articles')).find(a => a.id === id) : undefined;
 const rendered = entry ? await render(entry) : undefined;
 const Content = rendered?.Content;
 const articles = publishedArticles(graph.articles, locale);
+const noindex = Boolean(legacy || (topic && !articles.some(article => article.topics.includes(topic.id))));
 const base = import.meta.env.BASE_URL;
 const languageLinks = Object.fromEntries(locales.map(target => [target, article ? translatedArticlePath(article, target, graph.articles, base) : localePath(target, `${kind}/${encodeURIComponent(id)}`, base)]));
 const articleReverse = reverse.articles.get(id);
@@ -40,11 +47,12 @@ const searchTerms = article ? [
   ...graph.topics.filter(topic => article.topics.includes(topic.id)).map(topic => entityText('topics', topic, locale).title),
   ...graph.skills.filter(skill => article.skills.includes(skill.id) || article.prerequisiteSkills.includes(skill.id)).map(skill => entityText('skills', skill, locale).title),
 ].join(' · ') : undefined;
-const alternates = article ? Object.fromEntries(publishedArticles(graph.articles).filter(a => a.translationKey === article.translationKey).map(a => [a.locale, articlePath(a, base)])) : languageLinks;
+const alternates = article ? Object.fromEntries(publishedArticles(graph.articles).filter(a => a.translationKey === article.translationKey).map(a => [a.locale, articlePath(a, base)])) : topic ? Object.fromEntries(locales.filter(target => publishedArticles(graph.articles, target).some(article => article.topics.includes(topic.id))).map(target => [target, languageLinks[target]])) : languageLinks;
 ---
-<BaseLayout locale={locale} indexContent title={text.title} description={text.description} languageLinks={languageLinks} alternates={alternates} article={Boolean(article)} jsonLd={article ? articleJsonLd(article, Astro.site?.href ?? 'http://localhost:4321', base) : undefined}>
+<BaseLayout locale={locale} indexContent={!noindex} noindex={noindex} title={text.title} description={text.description} languageLinks={legacy ? Object.fromEntries(locales.map(target => [target, localePath(target, legacy.from, base)])) : languageLinks} alternates={alternates} article={Boolean(article)} jsonLd={article ? articleJsonLd(article, Astro.site?.href ?? 'http://localhost:4321', base) : undefined}>
   <article data-search-terms={searchTerms} data-pagefind-index-attrs={article ? 'data-search-terms' : undefined}>
     <h1 data-pagefind-meta="title">{text.title}</h1><p class="lead" data-pagefind-meta="description">{text.description}</p>
+    {legacy && <p><a href={localePath(locale, legacy.to, base)}>{locale === 'zh-TW' ? '閱讀新版內容' : 'Read the revised content'}</a></p>}
     {article && <>
       {article.publishedAt && <p>{t.published}: <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></p>}
       {article.updatedAt && <p>{t.updated}: <time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></p>}

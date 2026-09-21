@@ -1,9 +1,11 @@
 {
   "id": "editing-web-pages",
   "name": "Edit and save a web page",
-  "description": "Write page content, styles and links, save the files and check the browser result.",
+  "description": "Edit HTML and CSS and inspect semantics, links and responsive layout.",
   "category": "Web foundations",
   "aliases": [],
-  "prerequisites": ["local-website-preview"],
+  "prerequisites": [
+    "local-website-preview"
+  ],
   "status": "active"
 }

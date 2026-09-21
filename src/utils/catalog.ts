@@ -1,7 +1,8 @@
 import type { Article, ContentGraph, LearningPath } from '../content/schemas';
-import type { Locale } from '../i18n';
+import { locales, type Locale } from '../i18n';
 import { articlePath, localePath } from './routes';
 import { sections } from '../i18n/ui';
+import { legacyContentRoutes } from '../config/legacy-routes';
 export function resolveOrderedIds<T extends { id: string }>(ids: readonly string[], entries: readonly T[]): T[] {
   const byId = new Map(entries.map(entry => [entry.id, entry]));
   return ids.flatMap(id => { const entry = byId.get(id); return entry ? [entry] : []; });
@@ -12,6 +13,10 @@ export function isCase(article: Article): boolean {
 export function publishedArticles(articles: Article[], locale?: Locale): Article[] {
   return articles.filter(a => a.status === 'published' && (!locale || a.locale === locale))
     .sort((a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0) || a.id.localeCompare(b.id, 'en'));
+}
+export function topicsWithArticles(graph: ContentGraph, locale: Locale) {
+  const used = new Set(publishedArticles(graph.articles, locale).flatMap(article => article.topics));
+  return graph.topics.filter(topic => used.has(topic.id));
 }
 export function orderedPathArticles(path: LearningPath, articles: Article[], locale: Locale) {
   const byId = new Map(publishedArticles(articles, locale).map(a => [a.id, a]));
@@ -33,6 +38,14 @@ export function publicRoutes(graph: ContentGraph, base = '/') {
       for (const entry of entries) routes.push(localePath(locale, `${section}/${encodeURIComponent(entry.id)}`, base));
   }
   for (const article of publishedArticles(graph.articles)) routes.push(articlePath(article, base));
-  if (new Set(routes).size !== routes.length) throw new Error('Public route collision: check Article slugs and entity IDs');
+  const reserved = locales.flatMap(locale => legacyContentRoutes.map(route => localePath(locale, route.from, base)));
+  const allRoutes = [...routes, ...reserved];
+  if (new Set(allRoutes).size !== allRoutes.length) throw new Error('Public route collision: check Article slugs, entity IDs and reserved migration routes');
   return routes;
+}
+export function sitemapRoutes(graph: ContentGraph, base = '/') {
+  const emptyTopics = new Set(locales.flatMap(locale => graph.topics
+    .filter(topic => !publishedArticles(graph.articles, locale).some(article => article.topics.includes(topic.id)))
+    .map(topic => localePath(locale, `topics/${encodeURIComponent(topic.id)}`, base))));
+  return publicRoutes(graph, base).filter(route => !emptyTopics.has(route));
 }

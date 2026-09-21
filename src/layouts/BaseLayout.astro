@@ -11,11 +11,15 @@ import { absoluteUrl, withBase } from '../utils/routes';
 import { safeJson } from '../utils/seo';
 import Author from '../components/Author.astro';
 import { siteConfig } from '../config/site';
-interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean; indexContent?: boolean }
+import { getContentGraph } from '../utils/build-graph';
+import { publishedArticles, isCase } from '../utils/catalog';
+interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean; indexContent?: boolean; noindex?: boolean }
 const { locale, title, description, languageLinks = {}, alternates = languageLinks, jsonLd, article = false, indexContent = false } = Astro.props;
 const t = messages[locale];
 const site = Astro.site?.href ?? 'http://localhost:4321';
 const canonical = absoluteUrl(Astro.url.pathname, site);
+const { graph } = await getContentGraph();
+const hasCases = publishedArticles(graph.articles, locale).some(isCase);
 const analyticsId = buildMeasurementId(import.meta.env.PROD, import.meta.env.PUBLIC_GA_MEASUREMENT_ID);
 const equivalentLinks = Object.keys(alternates).length ? alternates : Object.fromEntries(locales.map(target => [target, localePath(target, '', import.meta.env.BASE_URL)]));
 const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => localePath(target, '', import.meta.env.BASE_URL))].includes(Astro.url.pathname);
@@ -26,11 +30,12 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
     <meta charset="utf-8" />
     {analyticsId && <Analytics id={analyticsId} canonical={canonical} />}
     <meta name="viewport" content="width=device-width" />
+    {Astro.props.noindex && <meta name="robots" content="noindex,follow" />}
     <ThemeInit />
     <title>{title ?? t.title}</title>
     <meta name="description" content={description ?? t.tagline} />
-    <link rel="canonical" href={canonical} />
-    {Object.entries(equivalentLinks).map(([target, path]) => <link rel="alternate" hreflang={target} href={absoluteUrl(path, site)} />)}
+    {!Astro.props.noindex && <link rel="canonical" href={canonical} />}
+    {!Astro.props.noindex && Object.entries(equivalentLinks).map(([target, path]) => <link rel="alternate" hreflang={target} href={absoluteUrl(path, site)} />)}
     {isHomeCluster && <link rel="alternate" hreflang="x-default" href={absoluteUrl(import.meta.env.BASE_URL, site)} />}
     <meta property="og:title" content={title ?? t.title} />
     <meta property="og:description" content={description ?? t.tagline} />
@@ -51,10 +56,10 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
       <div><ThemeSelect locale={locale} /></div>
     </header>
     <nav class="site-nav" aria-label={ui[locale].explore}>
-      {sections.map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)} aria-current={Astro.url.pathname.startsWith(localePath(locale, section, import.meta.env.BASE_URL)) ? 'page' : undefined}>{ui[locale][section]}</a>)}
+      {sections.filter(section => section !== 'cases' || hasCases).map(section => <a href={localePath(locale, section, import.meta.env.BASE_URL)} aria-current={Astro.url.pathname.startsWith(localePath(locale, section, import.meta.env.BASE_URL)) ? 'page' : undefined}>{ui[locale][section]}</a>)}
       <a href={localePath(locale, 'search', import.meta.env.BASE_URL)}>{ui[locale].search}</a>
     </nav>
     <main id="main" class:list={{ 'article-page': article }} tabindex="-1" data-pagefind-body={indexContent || undefined} data-pagefind-ignore={!indexContent || undefined}>{article && <div data-pagefind-ignore><Author locale={locale} compact /></div>}<slot /></main>
-    <footer><p>{t.tagline}</p><a href={siteConfig.author.githubUrl}>GitHub ↗</a><a href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)}>RSS</a></footer>
+    <footer><p>{siteConfig.author.name} · {locale === 'zh-TW' ? '全端工程師' : 'Full-stack engineer'}</p><a href={siteConfig.author.githubUrl}>GitHub ↗</a><a href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)}>RSS</a></footer>
   </body>
 </html>

@@ -1,7 +1,7 @@
 {
   "id": "terminal-basics",
   "name": "Run commands in a terminal",
-  "description": "Open PowerShell, run one command at a time and check tool versions.",
+  "description": "Manage working directories, tool versions and session-scoped environment variables.",
   "category": "Web foundations",
   "aliases": [],
   "prerequisites": [],

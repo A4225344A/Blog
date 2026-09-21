@@ -16,6 +16,7 @@
     "preview": "astro preview",
     "test:build": "tsx scripts/verify-build.ts",
     "test:collections": "tsx scripts/verify-collections.ts",
+    "test:article-example": "tsx scripts/verify-article-example.ts",
     "test:browser": "playwright test"
   },
   "dependencies": {
