@@ -18,19 +18,21 @@ status: published
 
 先把文章列表、搜尋和雙語切換放一邊。一個只有首頁的 Astro 專案，需要哪些檔案？
 
-這裡從空的 `engineering-blog` 資料夾開始，逐一放進設定和首頁。範例固定使用 Node.js 24.x、pnpm 10.32.1、Astro 5.18.2。以下使用 PowerShell，所有 pnpm 指令統一寫為 `pnpm.cmd`。
+這裡從空的 `engineering-blog` 資料夾開始，逐一放進設定和首頁。範例固定使用 Node.js 24.x、pnpm 10.32.1、Astro 5.18.2。本系列操作指令以 Windows PowerShell 為準。macOS／Linux 可將 `pnpm.cmd`、`npm.cmd` 改為 `pnpm`、`npm`；後續 PowerShell 的環境變數設定與清除指令，則需換成所用 shell 的語法。
 
 ## 先準備工具
 
 Windows 可用 [Node.js 官方下載頁](https://nodejs.org/en/download) 安裝 24.x，再透過 `npm.cmd install --global pnpm@10.32.1` 安裝本系列使用的 pnpm。編輯器可用 [VS Code](https://code.visualstudio.com/docs/setup/windows)。已經有自己的開發環境就不必重裝。
 
-本文使用 `pnpm.cmd`，不需要放寬 PowerShell 執行原則。
+Windows 使用 `pnpm.cmd`，不需要放寬 PowerShell 執行原則。另請安裝 [Git](https://git-scm.com/downloads)，重新開啟終端機並確認 `git --version`。
+
+固定 Astro 5.18.2 是為了與本系列已驗證的範例一致。看到有新版本的提示不代表安裝失敗；跟著操作時先沿用固定版本，升級另外測試。
 
 執行安裝和 dev 時，終端機的目前位置都要在 `engineering-blog`，也就是放著 `package.json` 的那一層。
 
 ## 從空資料夾建立專案
 
-安裝 [Git](https://git-scm.com/downloads)，重新開啟終端機，確認 `git --version`。先執行：
+先在預計存放專案的父資料夾開啟 PowerShell，例如自己的「文件」資料夾。以下會在目前位置建立 `engineering-blog`：
 
 ```powershell
 mkdir engineering-blog
@@ -48,7 +50,7 @@ dist/
 .env.*
 ```
 
-在同一個資料夾放入 `package.json`。這份設定只裝 Astro，並留下開發、建置和預覽三個入口：
+在同一個資料夾放入 `package.json`。這份設定包含 Astro 與型別檢查工具，提供開發、建置、預覽與檢查指令：
 
 ```json
 {
@@ -59,10 +61,15 @@ dist/
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "astro check"
   },
   "dependencies": {
     "astro": "5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.6",
+    "typescript": "5.9.3"
   },
   "packageManager": "pnpm@10.32.1"
 }
@@ -78,9 +85,7 @@ pnpm.cmd install
 
 pnpm 10 可能顯示 esbuild 或 sharp 的「Ignored build scripts」提醒。本篇純文字範例不批准這些腳本也能建置；這項提醒不代表安裝失敗。
 
-Lockfile（`pnpm-lock.yaml`）記下實際安裝的相依版本；`--frozen-lockfile` 會要求這份紀錄與 package.json 一致，不偷偷更新它。
-
-首次安裝會建立 `pnpm-lock.yaml`，所以此時不使用 `--frozen-lockfile`。把產生的 lockfile 納入 Git，後續 CI 才能按既有解析結果安裝。
+首次安裝會建立 `pnpm-lock.yaml`，記下實際安裝的相依版本；把它納入 Git。後續 CI 才使用 `--frozen-lockfile`，要求紀錄與 package.json 一致且不更新它。第一次安裝時不要加這個選項。
 
 建立 `tsconfig.json`：
 
@@ -127,6 +132,16 @@ pnpm.cmd run dev
 按 Ctrl+C 結束 dev，localhost 就停止回應。檔案仍留在專案裡，下次執行 `pnpm.cmd run dev` 可以接著改。
 
 首頁的 HTML 先留在這個檔案。如果再加一篇文章，標題、導覽和樣式就開始重複了；接下來會把這些共用部分抽成版型。
+
+## 提交前執行型別檢查
+
+停止 dev 後，執行一開始隨 package.json 安裝的檢查工具：
+
+```powershell
+pnpm.cmd run check
+```
+
+這會透過 `@astrojs/check` 與 `typescript` 執行 `astro check`；只跑 `astro build` 不會檢查型別。參考 [Astro TypeScript 說明](https://v5.docs.astro.build/en/guides/typescript/)。
 
 ## 保存第一個版本
 

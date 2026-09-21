@@ -186,8 +186,8 @@ The maintainer approved replacing the zero-experience course positioning with a
 full-stack engineer's personal technical blog. Home prioritizes recent articles
 and the featured project. Start introduces the blog and links to projects,
 articles and the author's confirmed full-stack role. No employment history,
-production experience or measured results are inferred. The About page uses
-only the healthcare, CIM and MES background explicitly supplied by the maintainer.
+production experience or measured results are inferred. At the maintainer's
+request, About describes technical interests and tools without industry history.
 
 LearningPath is presented as an Article Series. The `knowledge-platform` entity
 owns all four bilingual Astro articles, from selection and setup to publishing
@@ -205,6 +205,14 @@ Git initialization precede their first use; Windows examples use Node.js 24.x,
 pnpm 10.32.1 and `pnpm.cmd`. Article three includes a self-contained Pages workflow
 for the minimal example. The final article describes the actual blog's five-entity
 Content Graph, without internal handoff or review-status prose.
+The bilingual tutorial pins Astro 5.18.2 for reproducibility and includes
+`@astrojs/check`/TypeScript plus executable `check` commands. Windows PowerShell
+is the documented shell; Unix readers are told which syntax needs adapting.
+Original publication dates remain historical metadata; series order is owned by
+LearningPath, not inferred from dates. The walkthrough explains why it predates
+the tutorials. Latest articles stay chronological and link readers to the series.
+Topic discovery shares configured ordering, with a stable ID fallback for new
+topics. The walkthrough is classified under website and platform engineering.
 The selection article uses a static publishing-flow illustration; the other
 articles use code examples where a diagram would only repeat a short list.
 Start is a reading guide, distinct from the author's About page. Discovery lists
@@ -225,10 +233,13 @@ relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
 
-The bilingual About page presents the maintainer-confirmed healthcare, semiconductor
-CIM and manufacturing MES background, C#/Angular/React stack, and current exploration
+The bilingual About page uses the maintainer's chosen display name Jacky, a
+cloud-native exploration tagline, C#/Angular/React stack, and current exploration
 of cloud native and platform engineering. Exploration is not represented as production
-experience. Its article count uses published Articles in the current locale at build
+experience. Industry history is omitted at the maintainer's request. The page
+introduces the writing motivation before the personal introduction. The GitHub
+profile URL remains the existing account; Jacky is the site's display name. Its
+article count uses published Articles in the current locale at build
 time, avoiding double-counting translations. No founding year or public view count is
 shown without supplied evidence; no GA4 reporting API, credentials or scheduled job
 is introduced. Reading entry links use the existing localized canonical sections.

@@ -10,5 +10,5 @@ const author = siteConfig.author;
   <a class="avatar-link" href={author.githubUrl} aria-label={locale === 'zh-TW' ? `${author.name} 的 GitHub` : `${author.name} on GitHub`}>
     <img src={withBase(author.avatar, import.meta.env.BASE_URL)} alt={author.name} width="96" height="96" />
   </a>
-  <div><a class="author-name" href={author.githubUrl}>{author.name}</a><p>{locale === 'zh-TW' ? '全端工程師 · 個人實作筆記' : 'Full-stack engineer · Personal notes'}</p></div>
+  <div><a class="author-name" href={author.githubUrl}>{author.name}</a><p>{author.tagline[locale]}</p></div>
 </div>

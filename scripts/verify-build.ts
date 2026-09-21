@@ -138,6 +138,10 @@ for (const article of graph.articles) {
   const route = articlePath(article, base);
   if (article.status === 'published') {
     const html = await readFile(resolve('dist', route.slice(base.length), 'index.html'), 'utf8');
+    if (article.translationKey === 'astro-knowledge-platform') {
+      assert.doesNotMatch(html, /href="https:\/\/name\.github\.io(?:\/[^"\s]*)?"/, 'Example domains must remain code, not external links');
+      assert.match(html, /<code>https:\/\/name\.github\.io<\/code>/);
+    }
     assert.match(html, /application\/ld\+json/);
     assert.ok(html.includes(article.contentType === 'opinion' ? '"@type":"Article"' : '"@type":"TechArticle"'));
   } else assert.ok(!sitemap.includes(new URL(route, site).href));

@@ -7,7 +7,7 @@ locale: zh-TW
 translationKey: astro-knowledge-platform
 contentType: tutorial
 difficulty: intermediate
-topics: [platform-engineering, backend-engineering]
+topics: [web-foundations, platform-engineering]
 skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
@@ -16,7 +16,7 @@ updatedAt: 2026-09-21
 status: published
 ---
 
-這篇說明「全端工程師的技術部落格」如何管理內容。前三篇做出能部署的小網站；當文章需要雙語版本、系列順序與主題分類時，接下來要處理的是同一份內容如何被多個頁面找到。
+這篇說明「全端工程師的技術部落格」如何管理內容。這篇架構說明最早先發布，之後才編入系列第四篇。建議先讀三篇操作教學，做出能部署的小網站；當文章需要雙語版本、系列順序與主題分類時，接下來要處理的是同一份內容如何被多個頁面找到。
 
 本站使用 Astro 5、TypeScript、Markdown 與 Pagefind。它們在建置時產生頁面和搜尋索引，GitHub Pages 負責提供檔案。以下的檔案路徑都對應本站儲存庫。
 
@@ -74,15 +74,13 @@ LearningPath 代表文章系列，自己的 `sections[].articleIds` 決定閱讀
 
 Project 決定專案有哪些相關文章。Article 則記錄自己的 Topic 分類、Skill 技能與推薦文章。每種關聯只維護一個來源。要從文章回查所屬系列時，由 `src/utils/graph.ts` 算出反向索引，不再手寫另一份清單。
 
-AI SRE Platform 是另一個實驗室專案，目前沒有相關文章。Astro 系列說明的是部落格本身，因此不屬於該專案。
-
 ## 在產生頁面之前找出資料錯誤
 
 Astro 依 ID 載入內容。如果兩份檔案誤用相同 ID，等載入完才檢查可能已經看不到被覆蓋的那筆。本站先由 `src/utils/content-source.ts` 讀取原始檔案，保留來源路徑再驗證。
 
 會中止建置的錯誤包括重複 ID、引用不存在的文章或分類、缺少必要欄位，以及使用禁止的文章欄位。例如文章不能自己填 `order`：順序已由系列決定。錯誤輸出會指出對應檔案，指令也會回傳失敗狀態，讓 CI 停止。
 
-有些情況只適合提醒。文章尚未歸屬專案會得到 `W_ARTICLE_NO_PROJECT`，但仍能發布。本站目前的 Astro 文章就屬於這種情況。比起硬湊專案關聯，保留這個提醒比較符合內容現況。
+有些情況只適合提醒。文章尚未歸屬專案會得到 `W_ARTICLE_NO_PROJECT`，但仍能發布。本站目前的 Astro 文章就屬於這種情況。
 
 技能依賴是否形成循環等進階檢查尚未加入。現有驗證先處理會讓頁面引用失效的問題。
 
@@ -100,7 +98,7 @@ Astro 依 ID 載入內容。如果兩份檔案誤用相同 ID，等載入完才�
 
 Pagefind 在 `dist` 的 HTML 中擷取文章與內容詳情頁，建立本地搜尋索引。首頁與導覽不加入索引，避免每次搜尋都重複命中選單文字。搜尋頁讀取部署目錄裡的索引檔，不呼叫遠端搜尋服務。
 
-繁體中文可搜尋，但 Pagefind 不會替 `zh-tw` 做詞形還原，也就是不自動把不同詞形當作相同字詞。這和搜尋功能完全不能使用是兩回事。
+繁體中文可搜尋，但 Pagefind 不會替 `zh-tw` 做詞形還原，也就是不自動把不同詞形當作相同字詞。
 
 文章正文與目錄是靜態 HTML。外觀選擇只有淺色、深色與跟隨系統；小段 JavaScript 負責記住選擇，沒有把整個網站改成 React 應用。鍵盤使用者可以用跳至正文連結略過導覽。
 
@@ -131,8 +129,6 @@ pnpm.cmd run dev
 
 本站 `.github/workflows/ci.yml` 在 PR 和 main push 執行安裝、內容驗證、測試與建置。PR 不部署。main 建置成功後保存產物，deploy 工作只有在 `github-pages` 設定 Required reviewers 後才會等待批准，接著檢查 main 的 commit SHA（版本識別碼）是否仍相同。
 
-部署時不重新建置，是因為我希望發布的就是先前檢查過的那份檔案。只有 deploy 取得 Pages 寫入與短效身分驗證權限。GitHub 上的必要審查者與分支限制必須另外設定，單靠 YAML 的環境名稱不會啟用它們。
-
-本站也有選配 GA4。瀏覽器測試只使用合成 Measurement ID；最後的正式產物才讀取正式 ID，並做靜態產物檢查，不在測試瀏覽器中執行。這樣測試流量不會進入正式統計。GA4 不參與內容模型，也不提供網站上的公開瀏覽計數器。
+部署時不重新建置，是因為我希望發布的就是先前檢查過的那份檔案。只有 deploy 取得 Pages 寫入與短效身分驗證權限。
 
 前三篇的小部落格已足以發布幾個頁面。當頁面需要共用分類、系列順序與翻譯時，本站才加入這些內容關聯。規劃自己的部落格時，可以先想清楚要維護哪些關聯，以及哪些檢查能在讀者遇到斷鏈之前發現問題。

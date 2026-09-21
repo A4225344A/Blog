@@ -141,9 +141,9 @@ pnpm.cmd run dev
 
 ## 建立可直接使用的 GitHub Pages workflow
 
-GitHub Actions 的 workflow 是放在儲存庫裡的自動化工作清單。CI（持續整合）會在提交變更後建置並檢查結果。下面只使用這個範例已有的 build 指令，不依賴本站的內容驗證腳本。
+GitHub Actions 的 workflow 是放在儲存庫裡的自動化工作清單。CI（持續整合）會在提交變更後建置並檢查結果。下面使用這個範例已有的 check 與 build 指令。
 
-在 GitHub 建立名為 `Blog` 的空白公開儲存庫，不要預先建立 README。到 Settings → Pages 將 Source 選成 **GitHub Actions**。接著在 Settings → Environments 建立 `github-pages`，限制部署分支為 `main`，並設定 Required reviewers。Environment 是 GitHub 的部署保護設定；YAML 中寫出名稱，不會自動設定審查者。
+在 GitHub 建立名為 `Blog` 的空白公開儲存庫，不要預先建立 README。到 Settings → Pages 將 Source 選成 **GitHub Actions**。接著到 Settings → Environments：若 Pages 已自動建立 `github-pages` 就開啟它，沒有才新增。限制部署分支為 `main`，在 Required reviewers 選擇審查者或團隊；目前 GitHub 方案的公開儲存庫可使用這項規則。如果只有自己一位審查者，保持 Prevent self-review 不勾選，才能批准自己的部署。第一次 push 前先儲存保護規則。參考 [GitHub 環境設定](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)。
 
 建立 `.github/workflows/pages.yml`：
 
@@ -179,6 +179,7 @@ jobs:
           export SITE_URL="https://${owner}.github.io"
           export SITE_BASE="/${repo}/"
           if [[ "${repo,,}" == "${owner}.github.io" ]]; then export SITE_BASE='/'; fi
+          pnpm run check
           pnpm run build
           test -s dist/index.html
           test -s dist/posts/build-notes/index.html
@@ -212,6 +213,8 @@ jobs:
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 ```
 
+最上層的 `concurrency` 依 PR 分支分組，同一個 PR 的新執行會取消舊執行；main 則用 run ID 分組，避免新的建置取消等待批准的執行。deploy 的另一個 concurrency 群組讓部署逐一進行，不取消正在進行的部署。
+
 這份流程在 PR 建置但不部署。main 建置成功後，上傳同一份 `dist` 作為 artifact（供下一個工作使用的產物）；deploy 等待 environment 核准，再發布它，不重新建置。
 
 SHA 是 Git commit 的識別碼。核准後的檢查用它確認 main 沒有前進到另一個版本，避免較舊的待批准產物蓋掉新版。`id-token: write` 允許 deploy 透過 OIDC（短效身分驗證）向 Pages 證明它是授權工作，不必存放部署密碼。PR 工作沒有這項權限。
@@ -229,8 +232,10 @@ git remote add origin https://github.com/YOUR_USERNAME/Blog.git
 git push -u origin main
 ```
 
-到 Actions 開啟這次 run。build 成功後，在 Review deployments 核准 `github-pages`。部署完成後開啟工作顯示的網址，確認首頁能進入 **Read the build notes**，文章也能返回 Home。若 CSS 或連結失效，先檢查它們是否包含儲存庫的 `/Blog/` 路徑。
+第一次透過 HTTPS push 時，Git Credential Manager 可能開啟瀏覽器要求登入 GitHub。完成授權後回到終端機；參考 [Git 認證設定](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git)。
 
-後續修改用分支與 PR：先看 build 結果，合併 main 後再批准部署。Required reviewers 若在你的儲存庫方案不可用，需先釐清 GitHub 的環境保護限制，不能把沒有設定的保護視為已啟用。
+到 Actions 開啟這次 run。build 成功後，在 Review deployments 核准 `github-pages`。部署完成後開啟工作顯示的網址，確認首頁能進入 **Read the build notes**，並確認文章中的 Home 連結會返回 `/Blog/`（或你設定的 base）首頁。若 CSS 或連結失效，先檢查它們是否包含儲存庫的 `/Blog/` 路徑。
+
+後續修改用分支與 PR：先看 build 結果，合併 main 後再批准部署。
 
 本站在相同交付原則上還加入內容驗證、搜尋與瀏覽器測試；下一篇會說明那一層內容模型。參考：[GitHub Pages 自訂 workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)、[Astro 部署指南](https://docs.astro.build/en/guides/deploy/github/)。

@@ -2,6 +2,21 @@ import { test, expect } from '@playwright/test';
 import { normalizeBase } from '../../src/config/hosting';
 const base = normalizeBase(process.env.SITE_BASE);
 
+test('discovery topic order is consistent and example URLs are not clickable', async ({ page }) => {
+  for (const locale of ['en', 'zh-tw']) {
+    await page.goto(`${locale}/`);
+    const homeLinks = await page.locator('.topic-directory a').evaluateAll(links => links.map(link => link.getAttribute('href')));
+    for (const section of ['topics', 'start']) {
+      await page.goto(`${locale}/${section}/`);
+      const links = await page.locator(`main a[href^="${base}${locale}/topics/"]`).evaluateAll(links => links.map(link => link.getAttribute('href')));
+      expect(links).toEqual(homeLinks);
+    }
+    await page.goto(`${locale}/blog/astro-knowledge-platform/`);
+    await expect(page.locator('.prose a[href^="https://name.github.io"]')).toHaveCount(0);
+    await expect(page.locator('.prose code').filter({ hasText: 'https://name.github.io' }).first()).toBeVisible();
+  }
+});
+
 test('old links explain the rewrite and empty cases are not recommended', async ({ page }) => {
   for (const locale of ['en', 'zh-tw']) {
     await page.goto(`${locale}/blog/beginner-tools/`);
@@ -36,7 +51,7 @@ test('author avatars link to GitHub and the blog layout fits both screen sizes',
         await page.goto(`${locale}/${route}`);
         const avatar = page.locator('.avatar-link');
         await expect(avatar).toHaveAttribute('href', 'https://github.com/A4225344A');
-        await expect(avatar).toHaveAccessibleName(/A4225344A.*GitHub/);
+        await expect(avatar).toHaveAccessibleName(/Jacky.*GitHub/);
         await expect(avatar.locator('img')).toHaveAttribute('src', `${base}images/avatar.png`);
         expect(await avatar.locator('img').evaluate(img => img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0)).toBe(true);
         await avatar.focus();
@@ -83,6 +98,7 @@ test('readers can follow the Astro series and switch languages without losing th
     ['zh-tw', '這個部落格如何建立', '探索專案與文章', '為什麼我用 Astro 建立技術部落格', '下一篇', '上一篇', 'English'],
     ['en', 'How this blog is built', 'Explore projects and articles', 'Why I use Astro for a technical blog', 'Next article', 'Previous article', '繁體中文'],
   ] as const) {
+    const separator = locale === 'zh-tw' ? '：' : ': ';
     await page.goto(`${locale}/start/`);
     const entry = page.getByRole('region', { name: beginner });
     await expect(page.getByRole('region', { name: experienced })).toBeVisible();
@@ -92,23 +108,26 @@ test('readers can follow the Astro series and switch languages without losing th
     await page.getByRole('link', { name: firstTitle, exact: true }).click();
     await expect(page.locator('h1')).toHaveText(firstTitle);
     const pathNav = page.locator('nav[aria-label^="Continue this series"], nav[aria-label^="繼續閱讀系列"]');
+    await expect(pathNav).toHaveAttribute('aria-label', new RegExp(`^${locale === 'en' ? 'Continue this series' : '繼續閱讀系列'}${separator}`));
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${locale === 'en' ? 'Back to the series' : '回到文章系列'}${separator}`) })).toBeVisible();
     const proseEnd = await page.locator('.prose').evaluate(element => element.getBoundingClientRect().bottom + window.scrollY);
     const navigationStart = await pathNav.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
     expect(navigationStart).toBeGreaterThanOrEqual(proseEnd);
     for (const label of locale === 'en' ? ['Topics', 'Skills', 'Prerequisite skills', 'Article series'] : ['主題', '技能', '先備技能', '文章系列'])
       await expect(page.locator('main').getByRole('heading', { name: label, exact: true })).toHaveCount(0);
     await expect(page.locator('main')).not.toContainText(locale === 'en' ? 'min read' : '分鐘閱讀');
-    await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toHaveCount(0);
-    await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}${separator}`) })).toHaveCount(0);
+    await pathNav.getByRole('link', { name: new RegExp(`^${next}${separator}`) }).click();
     await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/astro-project-setup/$`));
     await page.getByRole('link', { name: switchLanguage, exact: true }).click();
     const other = locale === 'en' ? 'zh-tw' : 'en';
     await expect(page).toHaveURL(new RegExp(`${base}${other}/blog/astro-project-setup/$`));
     await page.getByRole('link', { name: locale === 'en' ? 'English' : '繁體中文', exact: true }).click();
-    await pathNav.getByRole('link', { name: new RegExp(`^${next}:`) }).click();
+    await pathNav.getByRole('link', { name: new RegExp(`^${next}${separator}`) }).click();
     await expect(page).toHaveURL(new RegExp(`${base}${locale}/blog/astro-content-and-deployment/$`));
-    await expect(pathNav.getByRole('link', { name: new RegExp(`^${next}:`) })).toHaveAttribute('href', `${base}${locale}/blog/astro-knowledge-platform/`);
-    await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}:`) })).toBeVisible();
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${next}${separator}`) })).toHaveAttribute('href', `${base}${locale}/blog/astro-knowledge-platform/`);
+    await expect(pathNav.getByRole('link', { name: new RegExp(`^${previous}${separator}`) })).toBeVisible();
+    await expect(page.locator('.prose')).toContainText(locale === 'en' ? 'Home returns to the /Blog/ home page (or your configured base)' : 'Home 連結會返回 /Blog/（或你設定的 base）首頁');
     await expect(page.locator('.prose')).toContainText('src/pages/index.astro');
     await expect(page.locator('.prose')).toContainText('Ctrl+S');
   }
@@ -193,9 +212,9 @@ test('detail pages localize metadata and omit empty optional relationships', asy
     await page.goto(`${locale}/projects/ai-sre-platform/`);
     await expect(page.getByRole('heading', { name: related, exact: true })).toHaveCount(0);
     await expect(page.getByRole('heading', { name: paths, exact: true })).toHaveCount(0);
-    await expect(page.locator('main')).toContainText(locale === 'en' ? 'Maturity: Lab' : '成熟度: 實驗室（lab）');
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'Maturity: Lab' : '成熟度：實驗室（lab）');
     await page.goto(`${locale}/learn/knowledge-platform/`);
     await expect(page.locator('.cards')).not.toContainText(difficulty);
-    await expect(page.locator('main')).toContainText(locale === 'en' ? 'For: Engineers · Technical writers' : '適合對象: 工程師 · 技術寫作者');
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'For: Engineers · Technical writers' : '適合對象：工程師 · 技術寫作者');
   }
 });

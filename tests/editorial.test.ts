@@ -51,6 +51,15 @@ test('topic discovery requires published content in the reader locale', () => {
   assert.deepEqual(topicsWithArticles(content, 'en').map(topic => topic.id), ['live']);
   assert.deepEqual(topicsWithArticles(content, 'zh-TW').map(topic => topic.id), ['translated']);
 });
+
+test('topic discovery uses configured order, then a stable fallback for new topics', () => {
+  const content = graph();
+  const ids = ['z-new', 'platform-engineering', 'a-new', 'web-foundations'];
+  content.topics = ids.map(id => ({ id, name: id, description: id }));
+  content.articles = [article({ topics: ids })];
+  assert.deepEqual(topicsWithArticles(content, 'en').map(topic => topic.id),
+    ['web-foundations', 'platform-engineering', 'a-new', 'z-new']);
+});
 test('public route collision reports both source files; locale, section and drafts remain distinct', () => {
   const entry = (source: string, overrides: Parameters<typeof article>[0]): RawEntry => ({ collection: 'articles', source, data: article(overrides), body: '' });
   const first = entry('articles/first.md', {});

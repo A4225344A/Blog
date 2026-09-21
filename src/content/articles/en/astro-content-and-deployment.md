@@ -127,9 +127,10 @@ pnpm.cmd run preview
 Replace YOUR_USERNAME and Blog with your account and repository. Use preview's printed URL to test both directions between home and article. BASE_URL keeps links within the deployment path. Apply the same care to later image URLs.
 
 A successful build creates `dist`. Preview serves that output; source changes require another build. These steps remain local and do not upload the site.
-## PowerShell settings are session-scoped
 
-`$env:SITE_URL` and `$env:SITE_BASE` affect the current PowerShell window and processes it starts, not permanent account settings. `site` is the origin (scheme and host); `base` is the deployment path with leading and trailing slashes. After stopping preview, clear both before returning to root-path development:
+## Clear settings before returning to local development
+
+`$env:SITE_URL` and `$env:SITE_BASE` affect the current PowerShell window and processes it starts, not permanent account settings. After stopping preview, clear both before returning to root-path development:
 
 ```powershell
 Remove-Item Env:SITE_URL, Env:SITE_BASE -ErrorAction SilentlyContinue
@@ -140,9 +141,9 @@ Without this step, a later dev server in the same window still uses `/Blog/`.
 
 ## A complete GitHub Pages workflow
 
-A workflow is an automation file in the repository. CI (continuous integration) builds and checks changes. This example uses only the build script already present in the sample project.
+A workflow is an automation file in the repository. CI (continuous integration) builds and checks changes. This example uses the check and build scripts already present in the sample project.
 
-Create an empty public GitHub repository named `Blog`, without a README. Under Settings → Pages, select **GitHub Actions** as the source. Under Settings → Environments, create `github-pages`, restrict deployment branches to `main`, and configure Required reviewers. An environment holds deployment protection rules; mentioning its name in YAML does not create reviewer rules.
+Create an empty public GitHub repository named `Blog`, without a README. Under Settings → Pages, select **GitHub Actions** as the source. Under Settings → Environments, open `github-pages` if Pages already created it, or create it if absent. Restrict deployment branches to `main` and choose the users or teams under Required reviewers. These rules are available for public repositories on current GitHub plans. If you are the only reviewer, leave Prevent self-review unchecked so you can approve your own deployment. Save the protection rules before the first push. See [GitHub environment setup](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
 
 Create `.github/workflows/pages.yml`:
 
@@ -178,6 +179,7 @@ jobs:
           export SITE_URL="https://${owner}.github.io"
           export SITE_BASE="/${repo}/"
           if [[ "${repo,,}" == "${owner}.github.io" ]]; then export SITE_BASE='/'; fi
+          pnpm run check
           pnpm run build
           test -s dist/index.html
           test -s dist/posts/build-notes/index.html
@@ -211,6 +213,8 @@ jobs:
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 ```
 
+The workflow-level `concurrency` groups runs by PR branch or, for main, by run ID. A newer PR run cancels the older one; main runs stay independent while awaiting approval. The deploy-level group serializes deployments without cancelling an active deployment.
+
 PRs build without deploying. A successful main build uploads `dist` as an artifact (output shared with the next job). Deployment waits for environment approval and publishes that artifact without rebuilding.
 
 A SHA identifies a Git commit. The post-approval check rejects an older build if main has moved. `id-token: write` allows the deployment job to use OIDC, short-lived identity verification with Pages, without storing a deployment password. PR builds do not receive this permission.
@@ -228,8 +232,10 @@ git remote add origin https://github.com/YOUR_USERNAME/Blog.git
 git push -u origin main
 ```
 
-Open the run under Actions. After build succeeds, approve `github-pages` through Review deployments. Open the URL shown by the deployment job, follow **Read the build notes**, and confirm that Home returns to the site root. For missing styles or broken links, check that resource paths include `/Blog/`.
+The first HTTPS push may open a browser login through Git Credential Manager. Complete GitHub authentication, then return to the terminal; see [credential setup](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git).
 
-Use branches and PRs for subsequent changes, then approve main deployments. If Required reviewers is unavailable for your repository plan, resolve that environment-protection limitation before relying on an approval gate.
+Open the run under Actions. After build succeeds, approve `github-pages` through Review deployments. Open the URL shown by the deployment job, follow **Read the build notes**, and confirm that Home returns to the `/Blog/` home page (or your configured base). For missing styles or broken links, check that resource paths include `/Blog/`.
+
+Use branches and PRs for subsequent changes, then approve main deployments.
 
 The next article examines the additional content model, search and validation used by this blog. References: [custom GitHub Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [Astro deployment guide](https://docs.astro.build/en/guides/deploy/github/).
