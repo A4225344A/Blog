@@ -34,7 +34,7 @@ test('Astro article series preserves bilingual order and teaches declared prereq
   const translations: string[][] = [];
   for (const locale of locales) {
     const lessons = orderedPathArticles(beginner, result.graph.articles, locale).flatMap(section => section.articles);
-    assert.equal(lessons.length, 3);
+    assert.equal(lessons.length, 4);
     assert.deepEqual(lessons[0]?.prerequisiteSkills, []);
     const learned = new Set<string>();
     for (const lesson of lessons) {
@@ -45,6 +45,6 @@ test('Astro article series preserves bilingual order and teaches declared prereq
     translations.push(lessons.map(lesson => lesson.translationKey));
   }
   assert.deepEqual(translations[0], translations[1]);
-  const experienced = paths.find(path => path.id === siteConfig.startLearningPathIds.architecture)!;
-  assert.ok(orderedPathArticles(experienced, result.graph.articles, 'en').some(section => section.articles.some(lesson => lesson.difficulty === 'intermediate')));
+  assert.equal(paths.length, 1);
+  assert.equal(translations[0]?.at(-1), 'astro-knowledge-platform');
 });

@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { messages } from '../i18n';
 import { localePath } from '../utils/routes';
 ---
 <BaseLayout locale="zh-TW">
-  <h1>A Full-Stack Engineer’s Blog</h1>
-  <p>記錄個人專案、全端實作與架構取捨。</p>
-  <p><a href={localePath('zh-TW', '', import.meta.env.BASE_URL)}>繁體中文</a> · <a href={localePath('en', '', import.meta.env.BASE_URL)}>English</a></p>
+  <h1>{messages['zh-TW'].title}</h1>
+  <p>選擇閱讀語言 / <span lang="en">Choose your language</span></p>
+  <p><a href={localePath('zh-TW', '', import.meta.env.BASE_URL)}>繁體中文</a> · <a lang="en" href={localePath('en', '', import.meta.env.BASE_URL)}>English</a></p>
 </BaseLayout>

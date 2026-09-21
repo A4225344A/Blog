@@ -2,11 +2,11 @@
 import Author from './Author.astro';
 import type { Locale } from '../i18n';
 import { localePath } from '../utils/routes';
-interface Props { locale: Locale; articleCount: number }
-const { locale, articleCount } = Astro.props;
+interface Props { locale: Locale; articleCount: number; hasCases: boolean }
+const { locale, articleCount, hasCases } = Astro.props;
 const copy = {
   'zh-TW': {
-    greeting: '嗨，我是一名軟體工程師',
+    greeting: '嗨，我是一名全端工程師',
     title: '從全端開發，走向雲原生與平台工程',
     intro: '從應用程式的實作出發，持續探索系統如何部署、如何觀察，以及如何穩定運作。這裡記錄我一路實作、排障與思考的過程。',
     count: '篇已發布文章', countNote: '繁體中文內容',
@@ -14,7 +14,6 @@ const copy = {
     backgroundText: '我的開發背景涵蓋醫療系統、半導體 CIM（電腦整合製造）與製造業 MES（製造執行系統），使用的技術包括 C#、Angular 與 React。',
     motivation: '為什麼開始學 Cloud Native',
     motivationText: '除了把功能做出來，我也想更深入理解：程式如何部署？出了問題如何定位？系統如何保持穩定？哪些重複工作可以自動化？這些問題讓我的學習方向，從全端開發延伸到雲原生與平台工程。',
-    motivations: ['部署', '監控', '排障', '穩定性', '自動化'],
     exploring: '現在在探索什麼',
     explorations: [
       ['Kubernetes', '理解容器化應用的部署、管理與運作方式。'],
@@ -25,17 +24,17 @@ const copy = {
       ['AI Engineering', '探索 AI 功能如何整合進實際的軟體系統。'],
     ],
     purpose: '這個網站在做什麼',
-    purposeText: '把學習與實作留下來，也把選擇背後的理由說清楚。內容會圍繞實作筆記、Troubleshooting 排障紀錄、Learning Path 學習路徑、Project Case Study 專案案例，以及 Architecture Notes 架構筆記逐步整理。',
+    purposeText: '目前已發布的文章是一組 Astro 部落格系列，從空專案走到 GitHub Pages，再說明本站的內容模型。AI SRE Platform 目前提供實驗室介紹。',
     start: '從哪裡開始',
     entries: [
-      ['learn', '學習路徑', '沿著文章系列，循序理解一個主題。'],
+      ['learn', '文章系列', '沿著文章系列，循序理解一個主題。'],
       ['projects', '專案', '從個人專案看實作方式與架構取捨。'],
       ['cases', '排障案例', '查看已整理的問題分析與處理紀錄。'],
       ['blog', '技術文章', '直接從感興趣的實作與觀念開始。'],
     ],
   },
   en: {
-    greeting: 'Hi, I’m a software engineer',
+    greeting: 'Hi, I’m a full-stack engineer',
     title: 'From full-stack development to cloud native and platform engineering',
     intro: 'Starting with application development, I’m exploring how systems are deployed, understood and kept reliable. This is where I document implementation, troubleshooting and the reasoning behind my choices.',
     count: 'published articles', countNote: 'English content',
@@ -43,7 +42,6 @@ const copy = {
     backgroundText: 'My development background spans healthcare systems, semiconductor CIM (Computer Integrated Manufacturing) and manufacturing MES (Manufacturing Execution Systems). My tools include C#, Angular and React.',
     motivation: 'Why I started learning cloud native',
     motivationText: 'Beyond implementing features, I want to understand how applications reach deployment, how failures are diagnosed, how systems stay reliable and which repetitive tasks can be automated. These questions are taking me from full-stack development toward cloud native and platform engineering.',
-    motivations: ['Deployment', 'Monitoring', 'Troubleshooting', 'Reliability', 'Automation'],
     exploring: 'What I’m exploring now',
     explorations: [
       ['Kubernetes', 'Deploying, managing and operating containerized applications.'],
@@ -54,10 +52,10 @@ const copy = {
       ['AI Engineering', 'Exploring how AI capabilities fit into practical software systems.'],
     ],
     purpose: 'What this site is for',
-    purposeText: 'A place to document what I learn and build, including the reasoning behind each choice. I’m gradually organizing implementation notes, troubleshooting records, learning paths, project case studies and architecture notes.',
+    purposeText: 'The published articles form an Astro blog series, from an empty project to GitHub Pages and this site’s content model. AI SRE Platform currently has a lab overview.',
     start: 'Where to start',
     entries: [
-      ['learn', 'Learning paths', 'Follow an article series through a topic step by step.'],
+      ['learn', 'Article series', 'Follow an article series through a topic step by step.'],
       ['projects', 'Projects', 'Explore personal projects and their architecture decisions.'],
       ['cases', 'Case studies', 'Browse available troubleshooting and problem analysis records.'],
       ['blog', 'Articles', 'Start with an implementation or concept that interests you.'],
@@ -73,10 +71,10 @@ const t = copy[locale];
   </div>
   <div class="publication-count"><strong>{articleCount}</strong><div><span>{t.count}</span><small>{t.countNote}</small></div></div>
   <section><h2>{t.background}</h2><p>{t.backgroundText}</p><ul class="labels" aria-label={locale === 'zh-TW' ? '開發技術' : 'Development tools'}>{['C#', 'Angular', 'React'].map(tool => <li>{tool}</li>)}</ul></section>
-  <section><h2>{t.motivation}</h2><p>{t.motivationText}</p><ul class="labels">{t.motivations.map(item => <li>{item}</li>)}</ul></section>
+  <section><h2>{t.motivation}</h2><p>{t.motivationText}</p></section>
   <section><h2>{t.exploring}</h2><dl class="explorations">{t.explorations.map(([name, description]) => <div><dt>{name}</dt><dd>{description}</dd></div>)}</dl></section>
   <section><h2>{t.purpose}</h2><p>{t.purposeText}</p></section>
-  <section><h2>{t.start}</h2><ul class="entry-links">{t.entries.map(([path, label, description]) => <li><a href={localePath(locale, path, import.meta.env.BASE_URL)}>{label}<span aria-hidden="true"> ↗</span></a><p>{description}</p></li>)}</ul></section>
+  <section><h2>{t.start}</h2><ul class="entry-links">{t.entries.filter(([path]) => path !== 'cases' || hasCases).map(([path, label, description]) => <li><a href={localePath(locale, path, import.meta.env.BASE_URL)}>{label}<span aria-hidden="true"> ↗</span></a><p>{description}</p></li>)}</ul></section>
 </div>
 <style>
   .about-profile { max-width: 64rem; margin-inline: auto; }

@@ -6,7 +6,7 @@ import AboutProfile from '../../../components/AboutProfile.astro';
 import { locales, localePrefix, type Locale } from '../../../i18n';
 import { ui, sections, sectionDescriptions, type Section } from '../../../i18n/ui';
 import { getContentGraph } from '../../../utils/build-graph';
-import { publishedArticles, isCase } from '../../../utils/catalog';
+import { publishedArticles, isCase, topicsWithArticles } from '../../../utils/catalog';
 import { localePath } from '../../../utils/routes';
 import { siteConfig } from '../../../config/site';
 export function getStaticPaths() {
@@ -24,12 +24,12 @@ const languageLinks = Object.fromEntries(locales.map(target => [target, localePa
   {section === 'start' && <>
     <p class="lead">{t.startIntro}</p>
     <section aria-labelledby="blog-entry"><h2 id="blog-entry">{t.blogEntry}</h2><p>{t.blogIntro}</p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.blog)} section="learn" locale={locale} /></section>
-    <section aria-labelledby="explore-entry"><h2 id="explore-entry">{t.exploreEntry}</h2><p>{t.exploreIntro}</p><p><a href={localePath(locale, 'projects', import.meta.env.BASE_URL)}>{t.projects}</a> · <a href={localePath(locale, 'blog', import.meta.env.BASE_URL)}>{t.blog}</a> · <a href={localePath(locale, 'about', import.meta.env.BASE_URL)}>{t.about}</a></p><EntityList entries={graph['learning-paths'].filter(path => path.id === siteConfig.startLearningPathIds.architecture)} section="learn" locale={locale} /></section>
-    <h2>{t.topics}</h2><EntityList entries={graph.topics} section="topics" locale={locale} />
+    <section aria-labelledby="explore-entry"><h2 id="explore-entry">{t.exploreEntry}</h2><p>{t.exploreIntro}</p><p><a href={localePath(locale, 'projects', import.meta.env.BASE_URL)}>{t.projects}</a> · <a href={localePath(locale, 'blog', import.meta.env.BASE_URL)}>{t.blog}</a> · <a href={localePath(locale, 'about', import.meta.env.BASE_URL)}>{t.about}</a></p></section>
+    <h2>{t.topics}</h2><EntityList entries={topicsWithArticles(graph, locale)} section="topics" locale={locale} />
   </>}
   {section === 'learn' && <EntityList entries={graph['learning-paths']} section="learn" locale={locale} />}
-  {section === 'topics' && <EntityList entries={graph.topics} section="topics" locale={locale} />}
+  {section === 'topics' && <EntityList entries={topicsWithArticles(graph, locale)} section="topics" locale={locale} />}
   {section === 'projects' && <EntityList entries={graph.projects} section="projects" locale={locale} />}
   {(section === 'blog' || section === 'cases') && <ArticleList articles={articles.filter(a => isCase(a) === (section === 'cases'))} locale={locale} />}
-  {section === 'about' && <AboutProfile locale={locale} articleCount={articles.length} />}
+  {section === 'about' && <AboutProfile locale={locale} articleCount={articles.length} hasCases={articles.some(isCase)} />}
 </BaseLayout>

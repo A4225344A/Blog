@@ -22,8 +22,8 @@ test('CI has read-only permissions and ordered quality gates; artifacts only fro
   assert.ok(Object.hasOwn(ci.on, 'pull_request'));
   const steps = ci.jobs.validate!.steps;
   const runs = steps.flatMap(s => s.run ? [s.run] : []);
-  const commands = ['pnpm install --frozen-lockfile', 'pnpm run content:validate', 'pnpm run test', 'pnpm run check'];
-  assert.deepEqual(runs.slice(0, 4), commands);
+  const commands = ['pnpm install --frozen-lockfile', 'pnpm run content:validate', 'pnpm run test', 'pnpm run check', 'pnpm run test:article-example'];
+  assert.deepEqual(runs.slice(0, commands.length), commands);
   const upload = steps.find(s => s.uses?.startsWith('actions/upload-artifact@'));
   assert.match(upload?.if ?? '', /event_name == 'push'/);
   assert.match(upload?.if ?? '', /refs\/heads\/main/);

@@ -1,8 +1,8 @@
 ---
 id: astro-knowledge-platform-zh-tw
 slug: astro-knowledge-platform
-title: 使用 Astro 建立零成本技術知識平台：從內容模型到 GitHub Pages
-description: 以本儲存庫的實作說明五種內容實體、Astro 靜態頁面、雙語路由、內容圖譜驗證、Pagefind 搜尋與 CI 驗證後的 GitHub Pages 交付。
+title: "本站 Astro 部落格的內容模型與交付設計"
+description: "從四篇文章共用的內容模型出發，說明雙語路由、靜態搜尋與 GitHub Pages 產物交付。"
 locale: zh-TW
 translationKey: astro-knowledge-platform
 contentType: tutorial
@@ -12,133 +12,127 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
-updatedAt: 2026-09-20
+updatedAt: 2026-09-21
 status: published
 ---
 
-工程網站的讀者不一定從最新文章開始。有些人需要循序學習，有些人想查概念，也有人帶著具體錯誤尋找排障案例。本儲存庫把知識建模一次，再產生不同的靜態閱讀入口，讓文章不只是依日期排列的清單。
+這篇說明「全端工程師的技術部落格」如何管理內容。前三篇做出能部署的小網站；當文章需要雙語版本、系列順序與主題分類時，接下來要處理的是同一份內容如何被多個頁面找到。
 
-本文描述本儲存庫已實作的架構：Astro 5、嚴格 TypeScript、Markdown、pnpm、Pagefind 與 GitHub Actions。建置產物包含 HTML、CSS、少量瀏覽器 JavaScript、搜尋索引，以及 XML／文字格式的 feeds。不需要部署應用程式伺服器、資料庫、帳號系統或遠端搜尋服務。
+本站使用 Astro 5、TypeScript、Markdown 與 Pagefind。它們在建置時產生頁面和搜尋索引，GitHub Pages 負責提供檔案。以下的檔案路徑都對應本站儲存庫。
 
-標題中的「零成本」指以公開儲存庫搭配 GitHub Pages 為目標，不需要額外付費基礎設施；不代表所有 GitHub 使用情境、流量規模或其他雲端專案都免費。服務適用條件請參閱 [GitHub Pages 官方文件](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。網站展示的 AI SRE Platform 是獨立的 **lab 架構實驗室**，不能因此把這個知識平台描述成正式環境維運成果。
+## 在本機跑一次完整建置
 
-## 先取得可重現的本機建置
+沿用系列的 Node.js 24.x 與 pnpm 10.32.1。尚未安裝的讀者，先依第二篇準備 Node.js、Git，再用 PowerShell 執行 `npm.cmd install --global pnpm@10.32.1`。儲存庫的最低 Node 版本為 22.12，但本文操作統一使用 24.x。
 
-準備 Node.js 22.12 以上版本，以及 `package.json` 固定的 pnpm 10.32.1。取得儲存庫後執行：
-
-```bash
-pnpm install --frozen-lockfile
-pnpm run content:validate
-pnpm run test
-pnpm run check
-pnpm run build
-pnpm run test:build
-pnpm preview
+```powershell
+git clone https://github.com/A4225344A/Blog.git
+cd Blog
+pnpm.cmd install --frozen-lockfile
+pnpm.cmd run content:validate
+pnpm.cmd run test
+pnpm.cmd run check
+pnpm.cmd run build
+pnpm.cmd run test:build
+pnpm.cmd run preview
 ```
 
-Frozen install 使用已提交的 lockfile。內容驗證會在正式建置前執行；`check` 同時執行 Astro 診斷及 TypeScript no-emit 檢查。`build` 先產生 `dist/`，再讓 Pagefind 建立搜尋索引。`test:build` 檢查實際 HTML、連結與資源，以及 canonical、sitemap、RSS、robots.txt 是否符合設定的部署路徑。
+`--frozen-lockfile` 要求依照已提交的相依版本紀錄安裝。`check` 檢查 Astro 與 TypeScript；`build` 產生 `dist` 並建立 Pagefind 索引；`test:build` 再檢查產物中的連結與網址。
 
-編輯時可以使用 `pnpm dev`，但它不會建立 Pagefind 索引。搜尋測試應使用 build 後的 preview。Windows 若找不到 pnpm，可改用 `corepack.cmd pnpm`；`scripts/validate-all.ps1` 會透過 Corepack 執行五項必要指令與建置產物檢查。整合測試與 Chromium 測試需另外執行 `test:collections` 和 `test:browser`。
+平常編輯可執行 `pnpm.cmd run dev`。搜尋索引只在 build 產生，因此要驗證搜尋，請先停止 dev，再 build 和 preview。Preview 顯示的是上次建置結果，修改文章後必須重新建置。
 
-## 五種實體，共用一份文章來源
-
-內容目錄如下：
+## 文章只存一次，閱讀入口分開產生
 
 ```text
 src/content/
-  articles/en/                 英文 Markdown 與 YAML frontmatter
-  articles/zh-tw/              繁體中文 Markdown
-  topics/                     JSON 瀏覽分類
-  skills/                     JSON 學習依賴節點
-  learning-paths/             JSON 有序文章清單
-  projects/                   JSON 專案與關聯
+  articles/zh-tw/     繁體中文文章
+  articles/en/        英文文章
+  topics/            瀏覽分類
+  skills/            技能與先備能力
+  learning-paths/    有順序的文章系列
+  projects/          專案資料
 ```
 
-五種 schema 定義於 `src/content/schemas.ts`，命令列驗證器與 Astro Content Collections 共用它們。Schema 採嚴格模式，不認得的欄位會報錯，不會悄悄丟棄。目前文章使用 Markdown、其他實體使用 JSON，沒有安裝 MDX integration。
+文章是 Markdown，檔案開頭兩條 `---` 之間的欄位稱為 frontmatter，用來描述標題、語言與發布狀態。其餘四種資料使用 JSON。`src/content/schemas.ts` 定義每種資料可接受的欄位與型別，這就是內容的 schema（資料規格）。
 
-Article 的三種識別資訊各有用途：`id` 是單一實體的穩定身分；`translationKey` 把不同語言的對應內容分組；`slug` 決定公開網址。本文的兩個語言版本具有不同 ID，但共用 translation key。只改網址 slug 時，不應被迫修改所有 LearningPath 或 Project 引用。
+例如，同一篇文章可以出現在主題頁與系列頁，但這些入口只放連結，不複製正文。修改原始文章後，所有入口都指向更新後的同一頁。
 
-Topic 是讓人瀏覽的分類，例如平台工程。Skill 則描述能力或學習依賴。把兩者分開，才不會把廣泛分類誤當作具體先備知識。初始 Topic 分類刻意維持淺層。
+### ID、翻譯群組與網址
 
-## 每個關聯只有一個權威來源
+三個欄位處理不同問題：
 
-Article 擁有 Topic、Skill、先備 Skill 與推薦 Article 引用。LearningPath 擁有有序的文章成員清單；Project 擁有相關文章、精選技能及相關學習路徑。
+| 欄位 | 用途 | 改動的影響 |
+| --- | --- | --- |
+| `id` | 穩定的內容身分 | 系列與專案用它引用文章，不隨改標題更動 |
+| `translationKey` | 將中英文版本配成一組 | 語言切換依它找到對應文章 |
+| `slug` | 公開網址的最後一段 | 可更新網址，舊網址另保留改版說明 |
 
-例如 `knowledge-platform` 學習路徑的 section 包含本文的兩個語言 ID。頁面依語言與發布狀態篩選後保留原始順序，不會再依標題或日期排序。
+系列前三篇原本使用 `beginner-*` 網址，內容重寫後改用描述用途的網址。舊入口會說明改版與目前閱讀門檻，再提供新版連結；文章 ID 保留，避免改網址牽動所有引用。
 
-Article 不得加入 `order`、`level`、`learningPaths`、`projects` 或 `estimatedMinutes`。前四者會造成重複權威來源或模糊語意；閱讀時間應由建置推導。只有需要例外時，才使用正整數 `estimatedMinutesOverride`。
+### 誰決定文章的順序
 
-`src/utils/graph.ts` 的 `reverseIndexes()` 計算反向關聯：從 Article ID 找到引用它的 LearningPath 與 Project，或從 Skill ID 找到引用文章、依賴技能與專案。反向清單會去重，但不改動來源的順序。內容圖譜留在建置時記憶體中，不會在瀏覽器執行整套圖譜運算。
+LearningPath 代表文章系列，自己的 `sections[].articleIds` 決定閱讀順序。現在四篇文章收在同一個 Astro 系列：選型、專案、內容與部署、本站架構。建置時先依語言與發布狀態篩選，然後保留這份清單的順序。
 
-## 在 Astro 載入前驗證原始檔案
+Project 決定專案有哪些相關文章。Article 則記錄自己的 Topic 分類、Skill 技能與推薦文章。每種關聯只維護一個來源。要從文章回查所屬系列時，由 `src/utils/graph.ts` 算出反向索引，不再手寫另一份清單。
 
-Loader 以 ID 儲存內容。如果兩個檔案使用相同 ID，只檢查載入後的資料可能看不到重複。因此 `src/utils/content-source.ts` 先讀原始內容、保留每筆來源路徑，再進行 ID 與 schema 檢查。即使其中一筆 metadata 不合法，也不會讓重複 ID 消失。
+AI SRE Platform 是另一個實驗室專案，目前沒有相關文章。Astro 系列說明的是部落格本身，因此不屬於該專案。
 
-V1 的 hard errors 包含：
+## 在產生頁面之前找出資料錯誤
 
-- 五種實體各自出現重複 ID。
-- Article 引用了不存在的 Topic、Skill、先備 Skill 或推薦 Article。
-- LearningPath 引用了不存在的 Article。
-- Project 引用了不存在的 Article、Skill 或 LearningPath。
-- Article 使用禁止欄位、內容無法解析，或不符合 schema。
+Astro 依 ID 載入內容。如果兩份檔案誤用相同 ID，等載入完才檢查可能已經看不到被覆蓋的那筆。本站先由 `src/utils/content-source.ts` 讀取原始檔案，保留來源路徑再驗證。
 
-錯誤會讓 CLI 以非零狀態結束。警告則具有固定 ID，不阻擋指令：文章沒有 Topic／Skill、已發布文章不屬於 LearningPath／Project、已棄用 Skill 仍被引用，以及翻譯群組只有一個語言。
+會中止建置的錯誤包括重複 ID、引用不存在的文章或分類、缺少必要欄位，以及使用禁止的文章欄位。例如文章不能自己填 `order`：順序已由系列決定。錯誤輸出會指出對應檔案，指令也會回傳失敗狀態，讓 CI 停止。
 
-本文刻意不屬於 Project：說明知識平台的文章，不等於 AI SRE 實驗室的專案文件。`W_ARTICLE_NO_PROJECT` 是提醒，不應為了消除警告而建立不真實的關聯。
+有些情況只適合提醒。文章尚未歸屬專案會得到 `W_ARTICLE_NO_PROJECT`，但仍能發布。本站目前的 Astro 文章就屬於這種情況。比起硬湊專案關聯，保留這個提醒比較符合內容現況。
 
-Skill 依賴循環、Topic 父層循環、supersession 循環、空 LearningPath section，以及複雜翻譯圖譜檢查，都不是 V1 阻擋條件。這個範圍同時記錄於架構文件與測試。
+技能依賴是否形成循環等進階檢查尚未加入。現有驗證先處理會讓頁面引用失效的問題。
 
-## 雙語頁面與單一 canonical Article
+## 雙語路由與搜尋引擎標記
 
-Astro 會靜態產生 `/zh-tw/` 與 `/en/`，以及 Start、Learn、Topics、Blog、Cases、Projects、About、Search 區段。Topic、LearningPath、Project 詳細頁只聚合文章連結，不複製完整文章內容。
+繁體中文頁面位於 `/zh-tw/`，英文頁面位於 `/en/`。一般文章使用 `/blog/`，排障或案例文章使用 `/cases/`。只有 `published` 狀態會產生公開文章，草稿與封存內容不進入列表、RSS 或搜尋。
 
-`tutorial`、`concept`、`reference`、`opinion` 對應 `/blog/:slug/`；`troubleshooting`、`case-study` 對應 `/cases/:slug/`。路徑工具還會加入語言與部署 base。只有 `status: published` 的文章產生公開頁面；draft 與 archived 仍接受內容驗證，但不進入公開列表、feeds 或搜尋。
+讀者切換語言時，程式用 `translationKey` 找對應文章，再使用該版本自己的網址。沒有翻譯時才回到目標語言首頁。
 
-文章的語言切換依 translation key 尋找已發布對應版本，並使用目標自己的 slug 與內容類型路由。找不到時返回目標語言首頁；SEO 的 hreflang 只列出真正存在的已發布翻譯。語言入口與兩個首頁構成互相對應的群組，以語言入口作為 `x-default`。共用的非文章實體維持單一 ID，繁體中文顯示文字放在 `src/i18n/content.ts`，依 collection 與所屬學習路徑區分命名空間。缺少翻譯時會警告並使用來源文字，找不到對應實體的翻譯鍵則會報錯。適合對象與成熟度的顯示文字也依語言切換，不改變關聯擁有權。文章頁與卡片不顯示難度。
+給搜尋引擎的 `canonical` 指定正文的主要網址；`hreflang` 列出實際存在的語言版本。語言入口另外使用 `x-default` 表示未指定語言時的入口。這些標記集中在版型產生，不需每篇文章自行填寫。
 
-首頁以個人技術部落格為定位，依序呈現 Hero、認識部落格、最新文章、精選專案、文章系列、精選主題、最新案例與關於作者。文章系列沿用 LearningPath 模型。空清單會明確顯示尚無已發布內容，不會為了填版面而虛構事件或工作經歷。
+主題與專案是中英文共用的資料，翻譯放在 `src/i18n/content.ts`。這裡只翻譯顯示名稱，不另建兩份專案實體。
 
-## 主題控制與靜態搜尋
+## 不靠後端的搜尋與閱讀介面
 
-外觀只有 light、dark、system 三種選擇。沒有儲存偏好時使用 system。Head 中的小型 inline script 在初次繪製前決定色彩模式；瀏覽器控制程式儲存明確選擇、監聽作業系統變更，也能在 localStorage 被阻擋時繼續操作。停用 JavaScript 時，CSS 仍可跟隨作業系統偏好。
+Pagefind 在 `dist` 的 HTML 中擷取文章與內容詳情頁，建立本地搜尋索引。首頁與導覽不加入索引，避免每次搜尋都重複命中選單文字。搜尋頁讀取部署目錄裡的索引檔，不呼叫遠端搜尋服務。
 
-導覽使用語意化連結，在窄螢幕自動換行，不依賴 JavaScript 才能開啟。Layout 提供 skip link、可見的鍵盤焦點、語言標籤與原生 theme select。Article 標題產生靜態目錄，不需要 React hydration。
+繁體中文可搜尋，但 Pagefind 不會替 `zh-tw` 做詞形還原，也就是不自動把不同詞形當作相同字詞。這和搜尋功能完全不能使用是兩回事。
 
-閱讀時間在建置時計算：漢字以每分鐘 400 字、其他詞語以每分鐘 200 詞估算，加總後向上取整且至少一分鐘。Fenced code、HTML tags、Markdown 連結／圖片目的網址不列入估算。這是可預期的近似值，目前保留在建置資料中，不顯示在文章頁。
+文章正文與目錄是靜態 HTML。外觀選擇只有淺色、深色與跟隨系統；小段 JavaScript 負責記住選擇，沒有把整個網站改成 React 應用。鍵盤使用者可以用跳至正文連結略過導覽。
 
-Pagefind 索引 canonical Article 與 Topic、LearningPath、Project 詳情頁的主要內容，包含標題、描述、內文及透過 data-pagefind-index-attrs 索引的 Topic／Skill 名稱；文章頁不再顯示這些分類面板。首頁、分類索引頁、語言入口、全站導覽與搜尋介面都排除。搜尋頁只載入本地 Pagefind 檔案，bundle 與結果網址都帶有部署 base。不同語言使用分開的索引。目前 Pagefind 對 `zh-tw` 不提供 stemming，因此不會跨詞根形式擴展匹配；瀏覽器測試會實際查詢兩種語言並開啟結果。
+## GitHub Pages 的子路徑
 
-## 在建置階段產生 SEO 與 feeds
+`https://name.github.io` 是 origin（協定與主機名稱）；`/Blog/` 是 base（部署子路徑）。圖片、文章連結與搜尋結果都必須包含正確的 base。
 
-共用 Layout 輸出 title、description、canonical、Open Graph、分享圖片、語言 alternate links 與 RSS discovery link。技術文章使用 `TechArticle` JSON-LD，opinion 使用 `Article`。JSON 序列化會跳脫 `<`，避免文字終止 script element。
-
-Astro 的 `sitemap.xml.ts`、`robots.txt.ts` 與語言目錄下的 `rss.xml.ts` 是建置時 endpoint，最後產生靜態檔案，不是部署後的 backend API。RSS 使用穩定 Article ID 作 GUID、canonical URL 作連結，並提供在地化頻道標題與絕對 Atom self URL。已發布文章的路由碰撞會在內容驗證階段列出兩個來源檔案；sitemap 另保留最終唯一性檢查。產生的 robots 文字允許一般 crawler 與 OAI-SearchBot，並指向設定好的 sitemap。儲存庫網站的 crawler 只採用 origin 根目錄的 robots，因此 `/Blog/robots.txt` 本身無法設定爬取政策或 sitemap discovery。維護者須在發布前設定使用者網站根目錄的 robots 與 sitemap 指令；本機驗證只檢查產生的文字。
-
-## 分開設定 GitHub Pages 的 origin 與 base
-
-使用者網站可使用 `https://username.github.io` 搭配 `/`；儲存庫網站則使用相同 origin 搭配 `/repository-name/`。只設定 origin 不夠，導覽、CSS、scripts、搜尋結果、feeds 與分享 metadata 都需要一致的 base。
-
-PowerShell 範例：
+下面設定只對目前 PowerShell 視窗有效：
 
 ```powershell
-$env:SITE_URL = 'https://username.github.io'
-$env:SITE_BASE = '/repository-name/'
-corepack.cmd pnpm run build
-corepack.cmd pnpm run test:build
+$env:SITE_URL = 'https://YOUR_USERNAME.github.io'
+$env:SITE_BASE = '/Blog/'
+pnpm.cmd run build
+pnpm.cmd run test:build
+pnpm.cmd run preview
 ```
 
-`SITE_URL` 只接受 HTTP(S) origin，儲存庫路徑放入獨立的 `SITE_BASE`。本機預設是 `http://localhost:4321` 與 `/`。CI 的 `scripts/configure-pages.ts` 會從 `GITHUB_REPOSITORY` 推導設定，並處理 owner-site 的特殊名稱。本儲存庫的專案網站目標為 `https://a4225344a.github.io/Blog/`。
+停止 preview 後，回到一般本機開發先清除：
 
-## 交付已驗證的同一份產物
+```powershell
+Remove-Item Env:SITE_URL, Env:SITE_BASE -ErrorAction SilentlyContinue
+pnpm.cmd run dev
+```
 
-CI 在 pull request 與 main push 時執行，驗證 job 的儲存庫權限為 read-only。流程先 frozen install、內容驗證、確定性測試與 Astro／TypeScript 檢查，再建置根路徑及 production base 版本。每個版本都接受產物檢查與 Chromium 測試。
+`sitemap.xml` 列出公開網址，RSS 提供各語言的文章更新。專案路徑下的 `/Blog/robots.txt` 不是爬蟲使用的網域根目錄檔案；若要設定爬取政策，還需在 `https://name.github.io/robots.txt` 所屬的網站處理。
 
-只有 main push 會上傳 `verified-site`。同一個 workflow 內的 deploy job 使用 `needs: validate`，只接受驗證成功的 main push，並引用 `github-pages` environment，由其 required reviewers 強制人工核准後才開始執行。核准後先拒絕已不是目前 main 的 SHA，再從同次 run 下載產物，重新封裝供 Pages 使用，不 checkout 或重新建置原始碼。只有 deploy job 取得 Pages write 與 OIDC 權限，外部 Actions 固定至 commit hash。
+## 發布的是檢查過的那份產物
 
-維護者須保留 Actions 作為 Pages source，並維持 branch／environment protection。Required reviewers 由 GitHub 設定，YAML 本身不會建立審批者。在該次 CI run 選擇 Review deployments，即可核准等待中的部署。本機成功不能證明遠端執行或人工 gate 已生效。此次統一 workflow 的變更仍待獨立審查，狀態為 `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`。
+本站 `.github/workflows/ci.yml` 在 PR 和 main push 執行安裝、內容驗證、測試與建置。PR 不部署。main 建置成功後保存產物，deploy 工作只有在 `github-pages` 設定 Required reviewers 後才會等待批准，接著檢查 main 的 commit SHA（版本識別碼）是否仍相同。
 
-## 讓 V1 保持小而可驗證
+部署時不重新建置，是因為我希望發布的就是先前檢查過的那份檔案。只有 deploy 取得 Pages 寫入與短效身分驗證權限。GitHub 上的必要審查者與分支限制必須另外設定，單靠 YAML 的環境名稱不會啟用它們。
 
-儲存庫包含 schema、引用、警告、順序、路徑、閱讀時間、feeds 與 hosting 設定的純邏輯測試，也檢查 workflow 結構與實際產物，並用 Chromium 測試主題、行動導覽與搜尋。這些是驗證證據，不是獨立 review。
+本站也有選配 GA4。瀏覽器測試只使用合成 Measurement ID；最後的正式產物才讀取正式 ID，並做靜態產物檢查，不在測試瀏覽器中執行。這樣測試流量不會進入正式統計。GA4 不參與內容模型，也不提供網站上的公開瀏覽計數器。
 
-V1 不實作帳號、資料庫、AI chat／推薦、quiz、progress tracking 或互動 Skill Graph。接下來最有價值的投入，是能符合既有模型的真實工程內容：文章只存一次，從正確的權威實體引用它的 ID，執行驗證，再由靜態頁面讓讀者找到它。
+前三篇的小部落格已足以發布幾個頁面。當頁面需要共用分類、系列順序與翻譯時，本站才加入這些內容關聯。規劃自己的部落格時，可以先想清楚要維護哪些關聯，以及哪些檢查能在讀者遇到斷鏈之前發現問題。

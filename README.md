@@ -20,10 +20,10 @@ evidence; the human remains the final merge authority.
 - Accessible wrapping navigation, language switching, static TOC and three-state theme.
 - Local Pagefind search, canonical/hreflang/Open Graph/JSON-LD, sitemap, RSS and robots.
 - One CI workflow with read-only validation and a deployment job using the same
-  run's main CI artifact after human approval, with deployment-only Pages/OIDC permissions.
-- The complete bilingual Astro implementation article and its LearningPath.
-- A bilingual Astro blog series: selection rationale, an empty project, Markdown,
-  shared layouts and delivery, with architecture diagrams and tradeoffs.
+  run's main CI artifact, with deployment-only Pages/OIDC permissions. Human
+  approval requires Required reviewers configured separately in GitHub.
+- One four-article bilingual Astro series: selection, project setup, Markdown
+  and a complete Pages workflow, followed by this blog's content model.
 - AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
   for learning, demonstration and experimentation, not production deployment.
 
@@ -32,12 +32,14 @@ quiz or interactive Skill Graph is implemented. The AI SRE lab is content about
 an external project, not an AI feature in this website. Cases currently have no
 published entries; About does not invent employment history or operational metrics.
 
-Start introduces the full-stack engineer's blog and leads to projects, articles
-and the Astro series. Home prioritizes recent articles and the featured project.
-LearningPath remains the internal owner of series membership and order. Existing
-IDs and URLs remain stable. The small blog example is distinct from this site's
-Content Collections model; the deeper architecture Article remains available.
-Delivery guidance does not claim to deploy a reader's repository.
+Start is a reading guide; About introduces the author. Home prioritizes articles
+and the featured project. LearningPath owns series membership and order in the
+single `knowledge-platform` series. Article IDs and translation keys remain stable;
+the first three slugs now describe their intermediate content. Old `beginner-*`
+and `learn/first-website` URLs show migration notices, not duplicate articles.
+Cases links depend on published local-language cases. Empty topics retain routes
+but are excluded from discovery lists, search and sitemap. The tutorial includes
+a self-contained Pages workflow; the final article explains the larger repository.
 
 ## Local development
 
@@ -62,6 +64,7 @@ Additional validation:
 
 ```bash
 pnpm run test:collections
+pnpm run test:article-example
 # This temporarily writes exclusive fixtures and removes them afterward.
 pnpm run build
 pnpm run test:build
@@ -158,14 +161,14 @@ PRs never deploy. Only a main push uploads `verified-site`.
 
 ```text
 PR:         validate → deploy skipped
-main push:  validate → human approval → deploy
+main push with Required reviewers configured: validate → human approval → deploy
 ```
 
 The `deploy` job requires successful `validate` and references the `github-pages`
 environment. With Required reviewers enabled, it waits for a human to select
 **Review deployments → github-pages → Approve and deploy** in that CI run.
 Keep this environment protection enabled: the YAML alone cannot create reviewers.
-After approval, the job rejects stale SHAs, downloads that run's `verified-site`
+When the job starts, it rejects stale SHAs, downloads that run's `verified-site`
 artifact, and deploys without a source checkout or rebuild. Only `deploy` receives
 Pages write/OIDC rights. The old separate deployment workflow is removed.
 The workflow name `CI` and job ID `validate` stay unchanged for branch protections.

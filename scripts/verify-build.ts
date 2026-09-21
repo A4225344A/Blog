@@ -3,12 +3,13 @@ import { access, readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { hosting } from '../src/config/hosting';
 import { readContent, validateContent } from '../src/utils/content-source';
-import { publicRoutes, publishedArticles } from '../src/utils/catalog';
+import { publicRoutes, publishedArticles, sitemapRoutes } from '../src/utils/catalog';
 import { articlePath, localePath } from '../src/utils/routes';
 import { xmlEscape } from '../src/utils/seo';
 import { locales, localePrefix, messages } from '../src/i18n';
 import { sections, sectionDescriptions, ui } from '../src/i18n/ui';
 import { siteConfig } from '../src/config/site';
+import { legacyContentRoutes } from '../src/config/legacy-routes';
 import { buildMeasurementId } from '../src/lib/analytics/config';
 
 const { base, site } = hosting(process.env.SITE_URL, process.env.SITE_BASE);
@@ -23,7 +24,22 @@ async function verifyDisabledOutput(directory: string): Promise<void> {
 if (!gaId) await verifyDisabledOutput(resolve('dist'));
 const { graph } = validateContent(await readContent(resolve('src/content')));
 const routes = publicRoutes(graph, base);
+const sitemapInventory = new Set(sitemapRoutes(graph, base));
 const sitemap = await readFile('dist/sitemap.xml', 'utf8');
+for (const locale of locales) for (const legacy of legacyContentRoutes) {
+  const route = localePath(locale, legacy.from, base);
+  const target = localePath(locale, legacy.to, base);
+  const html = await readFile(resolve('dist', route.slice(base.length), 'index.html'), 'utf8');
+  assert.ok(routes.includes(target) && !routes.includes(route), `Migration target: ${route}`);
+  assert.ok(html.includes('name="robots" content="noindex,follow"'), `Migration noindex: ${route}`);
+  assert.ok(!html.includes('rel="canonical"'));
+  assert.ok(html.includes(`property="og:url" content="${new URL(route, site).href}"`));
+  assert.ok(html.includes(`href="${target}"`), `Migration link: ${route}`);
+  assert.ok(!html.includes('data-pagefind-body'), `Migration excluded from search: ${route}`);
+  assert.ok(!sitemap.includes(`<loc>${xmlEscape(new URL(route, site).href)}</loc>`));
+  const rss = await readFile(`dist/${localePrefix[locale]}/rss.xml`, 'utf8');
+  assert.ok(!rss.includes(`<link>${new URL(route, site).href}</link>`));
+}
 const htmlByRoute = new Map<string, string>();
 const alternateSets = new Map<string, Record<string, string>>();
 const homeCluster: Record<string, string> = {
@@ -36,7 +52,7 @@ const sharedPaths = [...sections, 'search'];
 for (const [section, entries] of [['topics', graph.topics], ['learn', graph['learning-paths']], ['projects', graph.projects]] as const)
   for (const entry of entries) sharedPaths.push(`${section}/${encodeURIComponent(entry.id)}`);
 for (const path of sharedPaths) {
-  const links = Object.fromEntries(locales.map(locale => [locale, new URL(localePath(locale, path, base), site).href]));
+  const links = Object.fromEntries(locales.filter(locale => sitemapInventory.has(localePath(locale, path, base))).map(locale => [locale, new URL(localePath(locale, path, base), site).href]));
   for (const locale of locales) expectedAlternates.set(localePath(locale, path, base), links);
 }
 for (const article of publishedArticles(graph.articles)) expectedAlternates.set(articlePath(article, base), Object.fromEntries(
@@ -44,7 +60,10 @@ for (const article of publishedArticles(graph.articles)) expectedAlternates.set(
 ));
 const indexedRoutes = new Set<string>();
 for (const locale of locales) for (const [section, entries] of [['topics', graph.topics], ['learn', graph['learning-paths']], ['projects', graph.projects]] as const)
-  for (const entry of entries) indexedRoutes.add(localePath(locale, `${section}/${encodeURIComponent(entry.id)}`, base));
+  for (const entry of entries) {
+    const route = localePath(locale, `${section}/${encodeURIComponent(entry.id)}`, base);
+    if (sitemapInventory.has(route)) indexedRoutes.add(route);
+  }
 for (const article of publishedArticles(graph.articles)) indexedRoutes.add(articlePath(article, base));
 for (const route of routes) {
   const html = await readFile(resolve('dist', decodeURIComponent(route.slice(base.length)), 'index.html'), 'utf8');
@@ -58,8 +77,12 @@ for (const route of routes) {
   }
   assert.equal((html.match(/www\.googletagmanager\.com\/gtag\/js/g) ?? []).length, gaId ? 1 : 0, `Conditional guarded loader: ${route}`);
   if (!gaId) assert.ok(!html.includes('googletagmanager'), `No Google tag references when disabled: ${route}`);
-  assert.ok(html.includes(`rel="canonical" href="${canonical}"`), `Canonical: ${route}`);
-  assert.ok(sitemap.includes(`<loc>${xmlEscape(canonical)}</loc>`), `Sitemap: ${route}`);
+  const indexable = sitemapInventory.has(route);
+  if (!indexable) assert.ok(!html.includes('rel="canonical"'), `No canonical on noindex pages: ${route}`);
+  assert.equal(html.includes(`rel="canonical" href="${canonical}"`), indexable, `Canonical: ${route}`);
+  assert.equal(html.includes('name="robots" content="noindex,follow"'), !indexable, `Indexability: ${route}`);
+  assert.ok(html.includes(`property="og:url" content="${canonical}"`));
+  assert.equal(sitemap.includes(`<loc>${xmlEscape(canonical)}</loc>`), indexable, `Sitemap: ${route}`);
   assert.ok(html.includes('name="description"'));
   assert.ok(html.includes('property="og:title"'));
   assert.equal((html.match(/<h1[ >]/g) ?? []).length, 1, `One h1: ${route}`);
@@ -76,11 +99,13 @@ for (const route of routes) {
     assert.ok(href);
     alternates[language] = href;
   }
-  assert.ok(Object.values(alternates).includes(canonical), `Self hreflang: ${route}`);
-  assert.deepEqual(alternates, expectedAlternates.get(route), `Complete hreflang: ${route}`);
-  if (Object.values(homeCluster).includes(canonical)) assert.deepEqual(alternates, homeCluster, `Home cluster: ${route}`);
-  else assert.ok(!Object.hasOwn(alternates, 'x-default'), `Unrelated home must not join detail cluster: ${route}`);
-  alternateSets.set(canonical, alternates);
+  if (indexable) {
+    assert.ok(Object.values(alternates).includes(canonical), `Self hreflang: ${route}`);
+    assert.deepEqual(alternates, expectedAlternates.get(route), `Complete hreflang: ${route}`);
+    if (Object.values(homeCluster).includes(canonical)) assert.deepEqual(alternates, homeCluster, `Home cluster: ${route}`);
+    else assert.ok(!Object.hasOwn(alternates, 'x-default'), `Unrelated home must not join detail cluster: ${route}`);
+    alternateSets.set(canonical, alternates);
+  } else assert.deepEqual(alternates, {}, `No hreflang on noindex pages: ${route}`);
   for (const match of html.matchAll(/(?:href|src)="([^"#]+)"/g)) {
     const value = match[1];
     assert.ok(value);
@@ -101,7 +126,7 @@ for (const locale of locales) {
   const home = htmlByRoute.get(localePath(locale, '', base)) ?? '';
   const featured = home.split(`<h2>${ui[locale].featuredTopics}</h2>`)[1]?.split('</section>')[0] ?? '';
   const actualLinks = [...featured.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
-  assert.deepEqual(actualLinks, siteConfig.featuredTopicIds.map(id => localePath(locale, `topics/${id}`, base)), `Featured order: ${locale}`);
+  assert.deepEqual(actualLinks, siteConfig.featuredTopicIds.filter(id => publishedArticles(graph.articles, locale).some(article => article.topics.includes(id))).map(id => localePath(locale, `topics/${id}`, base)), `Featured order: ${locale}`);
 }
 for (const locale of ['en', 'zh-TW'] as const) {
   const rss = await readFile(`dist/${locale === 'en' ? 'en' : 'zh-tw'}/rss.xml`, 'utf8');
