@@ -19,6 +19,12 @@
   Updates need CI
   and human review; action hash changes must also update `.github/action-pins.json`
   and the published example workflow after upstream verification.
+  A Dependabot Action PR that changes only the workflow will deliberately fail
+  `Unreviewed commit` until the verified SHA manifest and examples are synchronized.
+  Keep this gate. An npm update job can also temporarily fail with
+  `ERR_PNPM_NO_MATURE_MATCHING_VERSION` when its release-age policy rejects an
+  already pinned recent package. Inspect the package/version and expiry time,
+  then retry after the waiting period rather than globally disabling that policy.
 - `CODEOWNERS` identifies the maintainer for security-sensitive changes.
   It does not itself enforce approval, and a solo owner cannot approve their
   own PR as another reviewer. Configure rules according to available reviewers.
