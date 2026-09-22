@@ -8,7 +8,6 @@ import { getContentGraph } from '../../utils/build-graph';
 import { publishedArticles, isCase, resolveOrderedIds, topicsWithArticles } from '../../utils/catalog';
 import { localePath } from '../../utils/routes';
 import { siteConfig } from '../../config/site';
-import Author from '../../components/Author.astro';
 export function getStaticPaths() { return locales.map(locale => ({ params: { locale: localePrefix[locale] }, props: { locale } })); }
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -17,8 +16,8 @@ const { graph } = await getContentGraph();
 const articles = publishedArticles(graph.articles, locale);
 const href = (section: string) => localePath(locale, section, import.meta.env.BASE_URL);
 ---
-<BaseLayout locale={locale}>
-  <section class="hero"><div><p class="eyebrow">{t.heroLabel}</p><h1>{t.heroTitle}</h1><a class="button" href={href('blog')}>{t.blog} <span aria-hidden="true">↗</span></a></div><aside class="author-panel"><Author locale={locale} /><p>{locale === 'zh-TW' ? '把專案裡的做法與選擇，寫成下一次用得上的筆記。' : 'Notes on the choices and implementation behind personal projects.'}</p><a href={siteConfig.author.githubUrl}>GitHub <span aria-hidden="true">↗</span></a></aside></section>
+<BaseLayout locale={locale} showRecent={false}>
+  <section class="banner" slot="banner"><div class="banner-inner"><p class="eyebrow">{t.heroLabel}</p><h1>{t.heroTitle}</h1><p class="banner-sub">{locale === 'zh-TW' ? '把專案裡的做法與選擇，寫成下一次用得上的筆記。' : 'Notes on the choices and implementation behind personal projects.'}</p><a class="button" href={href('blog')}>{t.blog} <span aria-hidden="true">→</span></a></div></section>
   <section class="intro-strip"><h2><a href={href('start')}>{t.start}</a></h2><p>{t.startIntro}</p></section>
   <section class="latest-articles"><h2><a href={href('blog')}>{t.latestArticles}</a></h2><p>{t.latestNote}</p><ArticleList articles={articles.filter(a => !isCase(a)).slice(0, 3)} locale={locale} /></section>
   <section class="project-feature"><p class="eyebrow">{t.projectLabel}</p><h2>{t.featuredProject}</h2><EntityList entries={graph.projects.filter(p => p.id === siteConfig.featuredProjectId)} section="projects" locale={locale} /></section>

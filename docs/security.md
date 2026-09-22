@@ -1,5 +1,39 @@
 # Security — Static Knowledge Platform
 
+## Public repository controls (2026-09-22)
+
+- `pnpm run security:check` checks tracked and non-ignored working files for
+  credential filenames, private-key markers and common GitHub/AWS/npm/Google
+  credential shapes. It prints paths and categories, never matched values.
+  This is an accidental-disclosure guard, not a complete secret scanner: it
+  does not inspect Git history, binary contents or all credential formats.
+- CI runs this guard and `pnpm audit --audit-level=high`; audit service failures
+  also fail the step. A clean audit only covers advisories known at run time.
+- Dependabot proposes weekly npm and GitHub Actions updates. Updates need CI
+  and human review; action hash changes must also update `.github/action-pins.json`
+  and the published example workflow after upstream verification.
+- `CODEOWNERS` identifies the maintainer for security-sensitive changes.
+  It does not itself enforce approval, and a solo owner cannot approve their
+  own PR as another reviewer. Configure rules according to available reviewers.
+- `SECURITY.md` documents private reporting. No secrets belong in public issues.
+
+The following **GitHub settings are not enabled by these files and have not
+been verified during this change**: secret scanning, repository push protection,
+Dependabot alerts/security updates, private vulnerability reporting, main branch
+rules, fork workflow approval, and current `github-pages` protection rules.
+In Settings, enable the security features available for this public repository;
+require PRs and successful `validate` checks before merging to main, block force
+push/deletion, review fork workflow runs, and restrict `github-pages` to main with
+required human reviewers. Do not grant PR code production secrets or write tokens.
+
+Reference: [GitHub's repository security quickstart](https://docs.github.com/en/code-security/getting-started/quickstart-for-securing-your-repository).
+The historical environment review recorded elsewhere is not a fresh settings audit.
+
+The current UI uses local CSS, fonts provided by the operating system and local
+assets; it adds no remote CDN, image service or third-party script. Approved GA4
+behavior remains governed by `analytics-ga4.md`. CSP remains deferred pending a
+dedicated policy/browser validation; no response headers are claimed for Pages.
+
 ## Purpose
 
 This document defines the V1.1 security baseline for the Astro + GitHub Pages Knowledge Platform.
@@ -145,7 +179,7 @@ Build
 ↓
 github-pages Environment
 ↓
-optional manual deployment approval
+required manual deployment approval
 ↓
 Deploy
 ```
@@ -162,10 +196,10 @@ Do not allow feature branches to deploy to production.
 
 # Environment Protection
 
-Where GitHub plan/repository settings permit:
+Required for this public repository:
 
 - restrict deployment branch to `main`
-- configure Required Reviewers if manual deployment approval is desired
+- configure Required Reviewers for the `github-pages` environment
 - consider Prevent Self-Review when another reviewer exists
 - avoid unnecessary administrator bypass for stricter environments
 

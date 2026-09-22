@@ -18,7 +18,7 @@ Do not act as the final reviewer of your own implementation.
 
 ## Product Definition
 
-This repository is a **bilingual personal technical blog by a full-stack engineer** combining:
+This repository is **Jacky's bilingual personal technical blog, 小小工程師的技術部落格 / A Little Engineer’s Blog**, combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
@@ -29,6 +29,10 @@ This repository is a **bilingual personal technical blog by a full-stack enginee
 
 The product shares personal projects, technical articles and architecture decisions.
 Explain unfamiliar tools clearly without framing the author as a first-time developer.
+「小小工程師」 is the public brand and self-description; it does not claim the author
+has no development experience. The no-first-time-developer rule applies to claims
+about experience, not this brand. Full-stack development may describe technical
+background, but must not replace the chosen public name.
 
 Public positioning:
 
@@ -100,6 +104,9 @@ Merge
 ```
 
 Do not let Builder and Reviewer edit the same working tree simultaneously.
+Review conclusions apply only to the files and revision actually inspected.
+Disclose all subsequent changes, including branding and identity changes, in the
+handoff and request re-review; do not carry earlier approval over to a changed diff.
 
 ## Source of Truth
 

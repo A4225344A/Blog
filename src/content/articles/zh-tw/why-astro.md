@@ -2,7 +2,7 @@
 id: beginner-tools-zh-tw
 slug: why-astro
 title: "為什麼我用 Astro 建立技術部落格"
-description: "從全端工程師的角度，說明個人專案與技術文章的需求，以及靜態建置、Git 管理與 GitHub Pages 的取捨。"
+description: "從小小工程師的角度，說明個人專案與技術文章的需求，以及靜態建置、Git 管理與 GitHub Pages 的取捨。"
 locale: zh-TW
 translationKey: beginner-tools
 contentType: concept

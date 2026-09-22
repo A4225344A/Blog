@@ -17,19 +17,20 @@
     "test:build": "tsx scripts/verify-build.ts",
     "test:collections": "tsx scripts/verify-collections.ts",
     "test:article-example": "tsx scripts/verify-article-example.ts",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "security:check": "tsx scripts/verify-security.ts"
   },
   "dependencies": {
-    "astro": "^5.18.0",
+    "astro": "7.3.3",
     "yaml": "^2.8.2",
-    "zod": "^3.25.76"
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
     "@playwright/test": "1.58.0",
     "@types/node": "^22.19.0",
     "pagefind": "1.4.0",
-    "tsx": "^4.21.0",
+    "tsx": "4.23.15",
     "typescript": "^5.9.3"
   },
   "pnpm": {

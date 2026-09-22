@@ -18,7 +18,7 @@ export const sectionDescriptions: Record<Locale, Record<Section, string>> = {
     blog: 'Read engineering tutorials, concepts, references and implementation articles.',
     cases: 'Explore published troubleshooting investigations and engineering case studies.',
     projects: 'Explore engineering projects, their maturity, repositories and related knowledge.',
-    about: 'Meet the full-stack engineer behind the projects and technical writing.',
+    about: 'Meet the engineer behind the projects and technical writing.',
   },
   'zh-TW': {
     start: '依照需求選擇 Astro 系列的起點，並確認閱讀前需要的基礎。',
@@ -27,7 +27,7 @@ export const sectionDescriptions: Record<Locale, Record<Section, string>> = {
     blog: '閱讀工程教學、概念解析、技術參考與實作文章。',
     cases: '探索已發布的排障過程與工程案例研究。',
     projects: '了解工程專案的成熟度、原始碼與相關知識。',
-    about: '認識分享個人專案與技術文章的全端工程師。',
+    about: '認識分享個人專案與技術文章的小小工程師。',
   },
 };
 const en = {
@@ -42,7 +42,7 @@ const en = {
   blogIntro: 'Read the Astro series for the requirements, implementation and delivery decisions behind a technical blog.',
   exploreIntro: 'For the full content model, read the fourth article in the Astro series. The Projects page provides an overview of the AI SRE Platform lab.',
   previousLesson: 'Previous article', nextLesson: 'Next article', pathNavigation: 'Continue this series', pathOverview: 'Back to the series',
-  aboutIntro: 'I’m Jacky, a full-stack engineer exploring cloud native and platform engineering. This blog records what I learn through implementation.',
+  aboutIntro: 'I’m Jacky, an engineer exploring cloud native and platform engineering. This blog records what I learn through implementation.',
   aboutEvidence: 'Articles explain concrete implementation decisions. Project maturity and operational claims are published only when supporting information is available.',
   experience: 'About the author', updated: 'Updated', published: 'Published', home: 'Home', all: 'View all',
 };
@@ -58,7 +58,7 @@ const zh: typeof en = {
   blogIntro: '從 Astro 系列了解技術部落格的需求、建置方法與交付選擇。',
   exploreIntro: '想直接了解本站內容模型，可以閱讀 Astro 系列第四篇；專案頁則提供 AI SRE Platform 實驗室介紹。',
   previousLesson: '上一篇', nextLesson: '下一篇', pathNavigation: '繼續閱讀系列', pathOverview: '回到文章系列',
-  aboutIntro: '我是 Jacky，一名全端工程師，正在探索雲原生與平台工程。這裡記錄我在實作中學到的事。',
+  aboutIntro: '我是 Jacky，一名小小工程師，正在探索雲原生與平台工程。這裡記錄我在實作中學到的事。',
   aboutEvidence: '文章說明具體的實作決策。專案成熟度與維運成果只會在有實際資料佐證時發布。',
   experience: '關於作者', updated: '更新日期', published: '發布日期', home: '首頁', all: '查看全部',
 };

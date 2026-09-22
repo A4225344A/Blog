@@ -18,7 +18,7 @@ status: published
 
 Set aside article lists, search and language switching for a moment. Which files does an Astro project with just a home page need?
 
-Start with an empty `engineering-blog` folder and add the configuration and page one at a time. The example uses Node.js 24.x, pnpm 10.32.1 and Astro 5.18.2. These are Windows PowerShell instructions. macOS/Linux readers can use `pnpm` and `npm` without `.cmd`; the PowerShell environment-variable commands in later articles need shell-specific equivalents.
+Start with an empty `engineering-blog` folder and add the configuration and page one at a time. The example uses Node.js 24.x, pnpm 10.32.1 and Astro 7.3.3. These are Windows PowerShell instructions. macOS/Linux readers can use `pnpm` and `npm` without `.cmd`; the PowerShell environment-variable commands in later articles need shell-specific equivalents.
 
 ## Prepare the tools first
 
@@ -26,7 +26,7 @@ On Windows, install Node.js 24.x from its [official download page](https://nodej
 
 Use `pnpm.cmd` on Windows to avoid changing PowerShell execution policy. Install [Git](https://git-scm.com/downloads), reopen the terminal and check `git --version`.
 
-Astro 5.18.2 matches the version used to verify this series. An available-update notice is informational; keep the pinned version while following these examples, and test upgrades separately.
+Astro 7.3.3 matches the version used to verify this series. An available-update notice is informational; keep the pinned version while following these examples, and test upgrades separately.
 
 Run installation and dev from `engineering-blog`, the directory containing `package.json`.
 
@@ -65,7 +65,7 @@ Add `package.json` in the same folder. This configuration includes Astro and its
     "check": "astro check"
   },
   "dependencies": {
-    "astro": "5.18.2"
+    "astro": "7.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.6",

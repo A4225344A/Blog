@@ -19,7 +19,7 @@ const { graph } = await getContentGraph();
 const articles = publishedArticles(graph.articles, locale);
 const languageLinks = Object.fromEntries(locales.map(target => [target, localePath(target, section, import.meta.env.BASE_URL)]));
 ---
-<BaseLayout locale={locale} title={t[section]} description={sectionDescriptions[locale][section]} languageLinks={languageLinks}>
+<BaseLayout locale={locale} sidebar={section !== 'about'} title={t[section]} description={sectionDescriptions[locale][section]} languageLinks={languageLinks}>
   {section !== 'about' && <h1>{t[section]}</h1>}
   {section === 'start' && <>
     <p class="lead">{t.startIntro}</p>

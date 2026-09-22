@@ -4,12 +4,12 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
-const stepSchema = z.object({ run: z.string().optional(), uses: z.string().optional(), if: z.string().optional(), env: z.record(z.string()).optional(), with: z.record(z.unknown()).optional() }).passthrough();
+const stepSchema = z.object({ run: z.string().optional(), uses: z.string().optional(), if: z.string().optional(), env: z.record(z.string(), z.string()).optional(), with: z.record(z.string(), z.unknown()).optional() }).loose();
 const workflowSchema = z.object({
-  name: z.string(), on: z.record(z.unknown()), permissions: z.record(z.string()),
+  name: z.string(), on: z.record(z.string(), z.unknown()), permissions: z.record(z.string(), z.string()),
   concurrency: z.object({ group: z.string(), 'cancel-in-progress': z.union([z.boolean(), z.string()]) }),
-  jobs: z.record(z.object({ if: z.string().optional(), needs: z.string().optional(), environment: z.object({ name: z.string(), url: z.string() }).optional(), permissions: z.record(z.string()).optional(), concurrency: z.object({ group: z.string(), 'cancel-in-progress': z.boolean() }).optional(), steps: z.array(stepSchema) }).passthrough()),
-}).passthrough();
+  jobs: z.record(z.string(), z.object({ if: z.string().optional(), needs: z.string().optional(), environment: z.object({ name: z.string(), url: z.string() }).optional(), permissions: z.record(z.string(), z.string()).optional(), concurrency: z.object({ group: z.string(), 'cancel-in-progress': z.boolean() }).optional(), steps: z.array(stepSchema) }).loose()),
+}).loose();
 function workflow(file: string) {
   const parsed = parseDocument(readFileSync(file, 'utf8'), { uniqueKeys: true });
   assert.equal(parsed.errors.length, 0);
@@ -24,6 +24,10 @@ test('CI has read-only permissions and ordered quality gates; artifacts only fro
   const runs = steps.flatMap(s => s.run ? [s.run] : []);
   const commands = ['pnpm install --frozen-lockfile', 'pnpm run content:validate', 'pnpm run test', 'pnpm run check', 'pnpm run test:article-example'];
   assert.deepEqual(runs.slice(0, commands.length), commands);
+  assert.ok(runs.includes('pnpm run security:check'));
+  assert.ok(runs.includes('pnpm audit --audit-level=high'));
+  const checkout = steps.find(step => step.uses?.startsWith('actions/checkout@'));
+  assert.equal(checkout?.with?.['persist-credentials'], false);
   const upload = steps.find(s => s.uses?.startsWith('actions/upload-artifact@'));
   assert.match(upload?.if ?? '', /event_name == 'push'/);
   assert.match(upload?.if ?? '', /refs\/heads\/main/);
@@ -83,7 +87,7 @@ test('the actual deployment guard rejects a stale SHA and accepts the validated 
   }
 });
 test('workflow action hashes match the reviewed commit allowlist', () => {
-  const pins = z.record(z.object({ commit: z.string().regex(/^[a-f0-9]{40}$/), version: z.string().regex(/^v\d+$/) }).strict()).parse(JSON.parse(readFileSync('.github/action-pins.json', 'utf8')));
+  const pins = z.record(z.string(), z.object({ commit: z.string().regex(/^[a-f0-9]{40}$/), version: z.string().regex(/^v\d+$/) }).strict()).parse(JSON.parse(readFileSync('.github/action-pins.json', 'utf8')));
   for (const file of ['.github/workflows/ci.yml'])
     for (const job of Object.values(workflow(file).jobs)) for (const step of job.steps)
       if (step.uses) {

@@ -2,7 +2,7 @@
 id: beginner-tools-en
 slug: why-astro
 title: "Why I use Astro for a technical blog"
-description: "A full-stack engineer's perspective on personal projects, technical writing and the tradeoffs of static builds, Git and GitHub Pages."
+description: "An engineer's perspective on personal projects, technical writing and the tradeoffs of static builds, Git and GitHub Pages."
 locale: en
 translationKey: beginner-tools
 contentType: concept

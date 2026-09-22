@@ -35,7 +35,7 @@ export const projectSchema = z.object({
   id: text, title: text, description: text,
   maturity: z.enum(['lab', 'prototype', 'production', 'experiment']),
   featuredSkills: ids, relatedArticles: ids, relatedLearningPaths: ids,
-  repositoryUrl: z.string().url().refine(value => {
+  repositoryUrl: z.url().refine(value => {
     try {
       const url = new URL(value);
       return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password;

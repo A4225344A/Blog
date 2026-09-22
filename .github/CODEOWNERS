@@ -1,0 +1,9 @@
+# Enforce code-owner review using the main branch ruleset in GitHub settings.
+/.github/ @A4225344A
+/scripts/ @A4225344A
+/src/lib/analytics/ @A4225344A
+/src/layouts/BaseLayout.astro @A4225344A
+/package.json @A4225344A
+/pnpm-lock.yaml @A4225344A
+/SECURITY.md @A4225344A
+/docs/security.md @A4225344A

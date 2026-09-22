@@ -6,5 +6,6 @@ const base = normalizeBase(process.env.SITE_BASE);
 export default defineConfig({
   testDir: './tests/browser', workers: 1,
   use: { baseURL: `http://127.0.0.1:4322${base}`, headless: true },
-  webServer: { command: 'node node_modules/astro/astro.js preview --host 127.0.0.1 --port 4322', url: `http://127.0.0.1:4322${base}`, reuseExistingServer: false },
+  // Playwright owns the process lifecycle; Astro's agent background mode must not detach it.
+  webServer: { command: 'node node_modules/astro/bin/astro.mjs preview --host 127.0.0.1 --port 4322', env: { ASTRO_PREVIEW_BACKGROUND: '0' }, url: `http://127.0.0.1:4322${base}`, reuseExistingServer: false },
 });

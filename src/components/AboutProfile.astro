@@ -7,12 +7,12 @@ interface Props { locale: Locale; articleCount: number; hasCases: boolean }
 const { locale, articleCount, hasCases } = Astro.props;
 const copy = {
   'zh-TW': {
-    greeting: `嗨，我是 ${siteConfig.author.name}，一名全端工程師`,
+    greeting: `嗨，我是 ${siteConfig.author.name}，一名小小工程師`,
     title: '從全端開發，走向雲原生與平台工程',
     intro: '從應用程式的實作出發，持續探索系統如何部署、如何觀察，以及如何穩定運作。目前先記錄這個 Astro 部落格的建置過程。',
     count: '篇已發布文章', countNote: '繁體中文內容',
     background: '關於我',
-    backgroundText: '我是一名全端工程師，使用 C#、Angular 與 React。從寫應用程式開始，現在也想理解程式部署之後，系統如何運作。',
+    backgroundText: '我是一名小小工程師，使用 C#、Angular 與 React。從寫應用程式開始，現在也想理解程式部署之後，系統如何運作。',
     motivation: '接下來的學習方向：雲原生',
     motivationText: '除了把功能做出來，我也想更深入理解：程式如何部署？出了問題如何定位？系統如何保持穩定？哪些重複工作可以自動化？這些問題讓我的學習方向，從全端開發延伸到雲原生與平台工程。',
     exploring: '現在在探索什麼',
@@ -35,12 +35,12 @@ const copy = {
     ],
   },
   en: {
-    greeting: `Hi, I’m ${siteConfig.author.name}, a full-stack engineer`,
+    greeting: `Hi, I’m ${siteConfig.author.name}, an engineer`,
     title: 'From full-stack development to cloud native and platform engineering',
     intro: 'Starting with application development, I’m exploring how systems are deployed, understood and kept reliable. The published series currently documents how I built this Astro blog.',
     count: 'published articles', countNote: 'English content',
     background: 'About me',
-    backgroundText: 'I’m a full-stack engineer working with C#, Angular and React. Building applications has made me curious about what happens after deployment and how those systems run.',
+    backgroundText: 'I’m an engineer working with C#, Angular and React. Building applications has made me curious about what happens after deployment and how those systems run.',
     motivation: 'Learning direction: cloud native',
     motivationText: 'Beyond implementing features, I want to understand how applications reach deployment, how failures are diagnosed, how systems stay reliable and which repetitive tasks can be automated. These questions are taking me from full-stack development toward cloud native and platform engineering.',
     exploring: 'What I’m exploring now',

@@ -39,6 +39,27 @@ see `docs/handoff-content-review-fixes.md` for the evidence and review outcome.
 The main production build
 reads the public Measurement ID from repository Actions variables, not secrets.
 
+## September 2026 presentation and dependency update
+
+Public branding is **小小工程師的技術部落格 / A Little Engineer’s Blog**.
+The author remains Jacky; full-stack tools describe experience, not the display
+name. Local reference screenshots inform indigo gradients, article cards and a
+desktop sidebar with author, actual content counts, article TOC and recent posts.
+Counts derive from published localized content; they are not visitor metrics.
+On smaller screens the TOC appears before the article body; the desktop TOC is
+hidden and the remaining sidebar stacks below content. Both TOCs share the same
+build-time headings, use CSS visibility without JavaScript and are excluded from
+Pagefind. The hidden copy is outside the accessibility tree and tab order.
+Light/dark/system modes,
+storage fallback, reduced motion and static navigation remain supported.
+No reference-patch article split, image zoom or theme-test removal is adopted.
+
+Astro is pinned to 7.3.3 with Zod 4 shared schemas. CI uses Node 24, matching the
+tutorial commands. Security controls and settings that still need external
+verification are described in `docs/security.md`. The content graph, stable
+identities, route ownership, static hosting and GA4 acquisition policy are unchanged.
+Status: implementation awaiting Claude independent review.
+
 ## Purpose
 
 This document is the shared architecture source of truth for:
@@ -183,9 +204,9 @@ Implementation details:
 ## Personal Blog Positioning Within V1
 
 The maintainer approved replacing the zero-experience course positioning with a
-full-stack engineer's personal technical blog. Home prioritizes recent articles
+Jacky's personal technical blog. Home prioritizes recent articles
 and the featured project. Start introduces the blog and links to projects,
-articles and the author's confirmed full-stack role. No employment history,
+articles and the author's technical background. No employment history,
 production experience or measured results are inferred. At the maintainer's
 request, About describes technical interests and tools without industry history.
 
@@ -205,7 +226,7 @@ Git initialization precede their first use; Windows examples use Node.js 24.x,
 pnpm 10.32.1 and `pnpm.cmd`. Article three includes a self-contained Pages workflow
 for the minimal example. The final article describes the actual blog's five-entity
 Content Graph, without internal handoff or review-status prose.
-The bilingual tutorial pins Astro 5.18.2 for reproducibility and includes
+The bilingual tutorial pins Astro 7.3.3 for reproducibility and includes
 `@astrojs/check`/TypeScript plus executable `check` commands. Windows PowerShell
 is the documented shell; Unix readers are told which syntax needs adapting.
 Original publication dates remain historical metadata; series order is owned by
@@ -224,9 +245,9 @@ entry links and the homepage omit cases until that locale has published cases;
 the canonical Cases section remains available with an honest empty state.
 About distinguishes the published Astro series, the AI SRE lab introduction and
 future cloud-native case writing. The lab has no related articles yet.
-Article pages show dates, TOC, body and previous/next series navigation. Reading
-time and difficulty are not displayed; Article cards omit difficulty too. Topic,
-Skill, prerequisite and duplicate series panels are omitted from Article pages.
+Article pages show dates, topic chips, a sidebar TOC, body and previous/next series
+navigation. Reading time and difficulty are not displayed; Article cards omit
+difficulty too. Skill, prerequisite and duplicate series panels are omitted.
 Topic/Skill references remain searchable through build-time HTML attributes.
 Reading estimates remain derived internally. No schema,
 relationship ownership, backend or deployment permissions change.
@@ -249,7 +270,7 @@ pages. Identity and GitHub URL come from siteConfig; the public GitHub avatar is
 stored locally in public/images/avatar.png and served with the configured base.
 Updating the GitHub avatar does not automatically update this snapshot. Avatar
 links are ordinary keyboard-accessible links with localized accessible names.
-The homepage retains its section order, with an author panel, dated article rows,
+The homepage retains its section order, with a sidebar author card, dated article cards,
 a highlighted project and a compact topic directory. Mobile layouts stack through
 CSS; there is no new client state, remote widget, font service or dependency.
 
@@ -290,7 +311,7 @@ and [configuration](https://docs.astro.build/en/reference/configuration-referenc
 
 ## Product Definition
 
-The system is a **bilingual personal technical blog by a full-stack engineer** combining:
+The system is **Jacky's bilingual personal technical blog, 小小工程師的技術部落格 / A Little Engineer’s Blog**, combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies

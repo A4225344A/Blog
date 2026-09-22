@@ -29,7 +29,7 @@ test('old links explain the rewrite and empty cases are not recommended', async 
     await expect(page).toHaveURL(new RegExp(`${locale}/blog/why-astro/$`));
     await page.goto(`${locale}/about/`);
     await expect(page.locator(`a[href="${base}${locale}/cases/"]`)).toHaveCount(0);
-    await expect(page.locator('.profile-intro .eyebrow')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
+    await expect(page.locator('.profile-intro .eyebrow')).toContainText(locale === 'en' ? 'engineer' : '小小工程師');
     await page.setViewportSize({ width: 375, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `test-results/about-${locale}.png`, fullPage: true });
@@ -56,6 +56,8 @@ test('author avatars link to GitHub and the blog layout fits both screen sizes',
         expect(await avatar.locator('img').evaluate(img => img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0)).toBe(true);
         await avatar.focus();
         await expect(avatar).toBeFocused();
+        await expect(page.locator('.sidebar .stats strong')).toHaveText(['4', '2', '1']);
+        expect(await page.locator('body').evaluate(element => getComputedStyle(element).color)).toBe(width === 375 ? 'rgb(227, 229, 240)' : 'rgb(51, 56, 77)');
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         if (locale === 'zh-tw') await page.screenshot({ path: `test-results/blog-${route ? 'article' : 'home'}-${width}.png`, fullPage: true });
       }
@@ -72,7 +74,8 @@ test('the personal blog leads with articles and projects and retains static diag
     expect(headings.indexOf(articleLabel)).toBeGreaterThanOrEqual(0);
     expect(headings.indexOf(articleLabel)).toBeLessThan(headings.indexOf(projectLabel));
     expect(headings.indexOf(projectLabel)).toBeLessThan(headings.indexOf(seriesLabel));
-    await expect(page.locator('main')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'engineer' : '小小工程師');
+    await expect(page.locator('.site-brand')).toContainText(locale === 'en' ? 'A Little Engineer' : '小小工程師');
     if (locale === 'zh-tw') await page.screenshot({ path: 'test-results/personal-blog-home.png', fullPage: true });
     for (const slug of ['why-astro', 'astro-project-setup', 'astro-content-and-deployment']) {
       for (const width of [375, 1280]) {
@@ -105,7 +108,7 @@ test('readers can follow the Astro series and switch languages without losing th
     await entry.getByRole('link').click();
     await expect(page).toHaveURL(`${new URL(page.url()).origin}${base}${locale}/learn/knowledge-platform/`);
     await expect(page.locator('main ol.cards li')).toHaveCount(4);
-    await page.getByRole('link', { name: firstTitle, exact: true }).click();
+    await page.locator('main').getByRole('link', { name: firstTitle, exact: true }).click();
     await expect(page.locator('h1')).toHaveText(firstTitle);
     const pathNav = page.locator('nav[aria-label^="Continue this series"], nav[aria-label^="繼續閱讀系列"]');
     await expect(pathNav).toHaveAttribute('aria-label', new RegExp(`^${locale === 'en' ? 'Continue this series' : '繼續閱讀系列'}${separator}`));
@@ -132,6 +135,47 @@ test('readers can follow the Astro series and switch languages without losing th
     await expect(page.locator('.prose')).toContainText('Ctrl+S');
   }
 });
+test('article TOC is reachable before mobile prose without JavaScript and appears only once', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'reduce' });
+  try {
+    const page = await context.newPage();
+    for (const locale of ['zh-tw', 'en']) {
+      for (const width of [375, 960, 961, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/why-astro/`);
+        const mobile = page.locator('.mobile-toc');
+        const desktop = page.locator('.sidebar .toc');
+        const active = width <= 960 ? mobile : desktop;
+        const hidden = width <= 960 ? desktop : mobile;
+        await expect(active).toBeVisible();
+        await expect(hidden).toBeHidden();
+        const label = await active.getAttribute('aria-label');
+        expect(label).toBeTruthy();
+        await expect(page.getByRole('navigation', { name: label!, exact: true })).toHaveCount(1);
+        if (width <= 960) {
+          expect(await mobile.evaluate(element => element.getBoundingClientRect().bottom)).toBeLessThanOrEqual(
+            await page.locator('.prose').evaluate(element => element.getBoundingClientRect().top));
+          await expect(mobile).toHaveAttribute('data-pagefind-ignore', '');
+        }
+        const firstLink = active.getByRole('link').first();
+        const target = await page.locator('.prose h2').first().getAttribute('id');
+        await expect(firstLink).toHaveAttribute('href', `#${target}`);
+        await firstLink.focus();
+        await expect(firstLink).toBeFocused();
+        await page.keyboard.press('Enter');
+        expect(decodeURIComponent(new URL(page.url()).hash)).toBe(`#${target}`);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        if (width === 375) {
+          await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/why-astro/`);
+          await page.screenshot({ path: `test-results/mobile-toc-${locale}.png`, fullPage: true });
+        }
+      }
+    }
+  } finally {
+    await context.close();
+  }
+});
+
 test('theme follows OS, persists explicit choices, and restores system', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('en/');

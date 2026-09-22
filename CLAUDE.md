@@ -23,7 +23,7 @@ Responsibilities:
 
 ## Product Definition
 
-The repository should implement a **bilingual personal technical blog by a full-stack engineer** combining:
+The repository should implement **Jacky's bilingual personal technical blog, 小小工程師的技術部落格 / A Little Engineer’s Blog**, combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
@@ -33,6 +33,10 @@ The repository should implement a **bilingual personal technical blog by a full-
 The maintainer-approved positioning shares personal projects, technical articles
 and architecture decisions. Explain unfamiliar tools clearly without framing
 the author as a first-time developer. LearningPath is presented as Article Series.
+「小小工程師」 is the public brand and self-description, not a claim of no
+development experience. Apply the no-first-time-developer rule to experience
+claims, not the brand. Full-stack development may describe technical background,
+but must not replace the chosen public name.
 
 ## Source of Truth
 
@@ -41,6 +45,9 @@ Read:
 - `AGENTS.md`
 
 Do not trust Codex's handoff summary without checking the code and executable evidence.
+Scope each review conclusion to the files and revision actually inspected.
+Subsequent changes, including branding and identity changes, need explicit
+disclosure and re-review; previous approval does not cover a changed diff.
 
 ## Review Philosophy
 

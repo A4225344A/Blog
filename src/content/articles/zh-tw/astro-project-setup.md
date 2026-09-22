@@ -18,7 +18,7 @@ status: published
 
 先把文章列表、搜尋和雙語切換放一邊。一個只有首頁的 Astro 專案，需要哪些檔案？
 
-這裡從空的 `engineering-blog` 資料夾開始，逐一放進設定和首頁。範例固定使用 Node.js 24.x、pnpm 10.32.1、Astro 5.18.2。本系列操作指令以 Windows PowerShell 為準。macOS／Linux 可將 `pnpm.cmd`、`npm.cmd` 改為 `pnpm`、`npm`；後續 PowerShell 的環境變數設定與清除指令，則需換成所用 shell 的語法。
+這裡從空的 `engineering-blog` 資料夾開始，逐一放進設定和首頁。範例固定使用 Node.js 24.x、pnpm 10.32.1、Astro 7.3.3。本系列操作指令以 Windows PowerShell 為準。macOS／Linux 可將 `pnpm.cmd`、`npm.cmd` 改為 `pnpm`、`npm`；後續 PowerShell 的環境變數設定與清除指令，則需換成所用 shell 的語法。
 
 ## 先準備工具
 
@@ -26,7 +26,7 @@ Windows 可用 [Node.js 官方下載頁](https://nodejs.org/en/download) 安裝 
 
 Windows 使用 `pnpm.cmd`，不需要放寬 PowerShell 執行原則。另請安裝 [Git](https://git-scm.com/downloads)，重新開啟終端機並確認 `git --version`。
 
-固定 Astro 5.18.2 是為了與本系列已驗證的範例一致。看到有新版本的提示不代表安裝失敗；跟著操作時先沿用固定版本，升級另外測試。
+固定 Astro 7.3.3 是為了與本系列已驗證的範例一致。看到有新版本的提示不代表安裝失敗；跟著操作時先沿用固定版本，升級另外測試。
 
 執行安裝和 dev 時，終端機的目前位置都要在 `engineering-blog`，也就是放著 `package.json` 的那一層。
 
@@ -65,7 +65,7 @@ dist/
     "check": "astro check"
   },
   "dependencies": {
-    "astro": "5.18.2"
+    "astro": "7.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.6",

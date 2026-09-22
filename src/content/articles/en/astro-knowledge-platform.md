@@ -16,7 +16,7 @@ updatedAt: 2026-09-21
 status: published
 ---
 
-This article explains how A Full-Stack Engineer’s Blog handles translations, ordered series and topic discovery. It was first published before the hands-on tutorials and later placed fourth in the series. Read those tutorials first if you want to build a small deployable site before exploring this repository.
+This article explains how A Little Engineer’s Blog handles translations, ordered series and topic discovery. It was first published before the hands-on tutorials and later placed fourth in the series. Read those tutorials first if you want to build a small deployable site before exploring this repository.
 
 The repository uses Astro 5, TypeScript, Markdown and Pagefind. Pages and search indexes are generated during the build; GitHub Pages serves the files. Paths below refer to this repository.
 

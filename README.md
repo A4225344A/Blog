@@ -1,4 +1,4 @@
-# A Full-Stack Engineer’s Blog
+# A Little Engineer’s Blog · 小小工程師的技術部落格
 
 > Personal projects, full-stack implementation and architecture decisions.
 >
@@ -43,7 +43,7 @@ a self-contained Pages workflow; the final article explains the larger repositor
 
 ## Local development
 
-Use Node.js 22.12+ and pnpm 10.32.1, pinned in `package.json`.
+Use Node.js 24.x and pnpm 10.32.1, pinned in `package.json`.
 
 ```bash
 pnpm install --frozen-lockfile

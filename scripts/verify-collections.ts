@@ -25,7 +25,7 @@ try {
       created.push(file);
     }
   }
-  const result = spawnSync(process.execPath, [resolve('node_modules/astro/astro.js'), 'build'], { stdio: 'inherit' });
+  const result = spawnSync(process.execPath, [resolve('node_modules/astro/bin/astro.mjs'), 'build'], { stdio: 'inherit' });
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`Collection fixture build exited ${result.status}`);
   await access('dist/en/cases/fixture-case/index.html');
