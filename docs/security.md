@@ -9,7 +9,14 @@
   does not inspect Git history, binary contents or all credential formats.
 - CI runs this guard and `pnpm audit --audit-level=high`; audit service failures
   also fail the step. A clean audit only covers advisories known at run time.
-- Dependabot proposes weekly npm and GitHub Actions updates. Updates need CI
+- Dependabot checks monthly for version updates, grouping npm dependencies into
+  one PR and GitHub Actions into another. Each ecosystem allows at most one open
+  version-update PR. Security updates have separate groups per ecosystem and do
+  not wait for the monthly schedule; the version-PR limit does not limit security
+  PRs. Security updates still require enabling the relevant GitHub setting.
+  Existing unmerged update branches are not part of merged-branch cleanup.
+  The configuration takes effect after it reaches the default branch.
+  Updates need CI
   and human review; action hash changes must also update `.github/action-pins.json`
   and the published example workflow after upstream verification.
 - `CODEOWNERS` identifies the maintainer for security-sensitive changes.
