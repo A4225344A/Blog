@@ -189,8 +189,9 @@ Implementation details:
   supersede earlier PR validation, and deployment jobs share a serialized group.
   Only the deploy job has Pages write/OIDC permissions. All
   external actions are pinned to resolved commit hashes, recorded in
-  `.github/action-pins.json`. The pnpm v4 annotated tag was peeled upstream to
-  `b906affcce14559ad1aafd4ab0e942779e9f58b1`; tests verify allowlist consistency,
+  `.github/action-pins.json`. The current versions require Node 24-capable Actions
+  runners (the observed GitHub-hosted runner is 2.337.0). Upstream tags were
+  checked against the exact SHA, including peeling annotated tags. Tests verify allowlist consistency,
   not live upstream object types. Human review/protection
   rules must be configured in GitHub; local validation is not independent review.
 - The first complete bilingual Article describes this repository, including its
