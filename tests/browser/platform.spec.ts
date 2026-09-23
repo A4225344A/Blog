@@ -29,7 +29,7 @@ test('old links explain the rewrite and empty cases are not recommended', async 
     await expect(page).toHaveURL(new RegExp(`${locale}/blog/why-astro/$`));
     await page.goto(`${locale}/about/`);
     await expect(page.locator(`a[href="${base}${locale}/cases/"]`)).toHaveCount(0);
-    await expect(page.locator('.profile-intro .eyebrow')).toContainText(locale === 'en' ? 'engineer' : '小小工程師');
+    await expect(page.locator('.profile-intro .eyebrow')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
     await page.setViewportSize({ width: 375, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `test-results/about-${locale}.png`, fullPage: true });
@@ -74,8 +74,8 @@ test('the personal blog leads with articles and projects and retains static diag
     expect(headings.indexOf(articleLabel)).toBeGreaterThanOrEqual(0);
     expect(headings.indexOf(articleLabel)).toBeLessThan(headings.indexOf(projectLabel));
     expect(headings.indexOf(projectLabel)).toBeLessThan(headings.indexOf(seriesLabel));
-    await expect(page.locator('main')).toContainText(locale === 'en' ? 'engineer' : '小小工程師');
-    await expect(page.locator('.site-brand')).toContainText(locale === 'en' ? 'A Little Engineer' : '小小工程師');
+    await expect(page.locator('main')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
+    await expect(page.locator('.site-brand')).toContainText(locale === 'en' ? 'From Full-Stack to Cloud Native' : '從全端到雲原生');
     if (locale === 'zh-tw') await page.screenshot({ path: 'test-results/personal-blog-home.png', fullPage: true });
     for (const slug of ['why-astro', 'astro-project-setup', 'astro-content-and-deployment']) {
       for (const width of [375, 1280]) {
@@ -220,10 +220,10 @@ test('local search returns working canonical URLs in both locales', async ({ pag
 });
 test('Article translation preserves context and search indexes Skill text', async ({ page }) => {
   await page.goto('en/blog/astro-knowledge-platform/');
-  await expect(page.locator('h1')).toHaveText('The content model and delivery design of this Astro blog');
+  await expect(page.locator('h1')).toHaveText('Organizing bilingual articles, series and search with Astro');
   await page.getByRole('link', { name: '繁體中文', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`${base}zh-tw/blog/astro-knowledge-platform/$`));
-  await expect(page.locator('h1')).toHaveText('本站 Astro 部落格的內容模型與交付設計');
+  await expect(page.locator('h1')).toHaveText('用 Astro 整理雙語文章、系列與搜尋');
   await expect(page.locator('.toc a').first()).toBeVisible();
   for (const [locale, query] of [['en', 'Astro content modeling'], ['zh-tw', '內容建模']]) {
     await page.goto(`${locale}/search/`);

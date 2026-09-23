@@ -2,7 +2,7 @@
 id: beginner-local-website-en
 slug: astro-project-setup
 title: "Building an Astro blog from an empty project"
-description: "Create a minimal project and understand file routing and development before adding articles and shared layouts."
+description: "Start with an empty folder, install Astro, create a home page and commit the first working version."
 locale: en
 translationKey: beginner-local-website
 contentType: tutorial
@@ -12,13 +12,13 @@ skills: [local-website-preview]
 prerequisiteSkills: ["static-site-delivery"]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-Set aside article lists, search and language switching for a moment. Which files does an Astro project with just a home page need?
+Start with a home page you can open in a browser. It takes just a few files: `package.json`, a TypeScript configuration and an `.astro` page.
 
-Start with an empty `engineering-blog` folder and add the configuration and page one at a time. The example uses Node.js 24.x, pnpm 10.32.1 and Astro 7.3.3. These are Windows PowerShell instructions. macOS/Linux readers can use `pnpm` and `npm` without `.cmd`; the PowerShell environment-variable commands in later articles need shell-specific equivalents.
+Create an empty `engineering-blog` folder for the project. The example uses Node.js 24.x, pnpm 10.32.1 and Astro 7.3.3. These are Windows PowerShell instructions. On macOS/Linux, use `pnpm` and `npm` without `.cmd`; the PowerShell environment-variable commands in later articles need shell-specific equivalents.
 
 ## Prepare the tools first
 
@@ -26,7 +26,7 @@ On Windows, install Node.js 24.x from its [official download page](https://nodej
 
 Use `pnpm.cmd` on Windows to avoid changing PowerShell execution policy. Install [Git](https://git-scm.com/downloads), reopen the terminal and check `git --version`.
 
-Astro 7.3.3 matches the version used to verify this series. An available-update notice is informational; keep the pinned version while following these examples, and test upgrades separately.
+The example pins Astro 7.3.3 so the setup is reproducible. Keep that version while following along, even if installation shows an update notice.
 
 Run installation and dev from `engineering-blog`, the directory containing `package.json`.
 
@@ -75,7 +75,7 @@ Add `package.json` in the same folder. This configuration includes Astro and its
 }
 ```
 
-Use `dev` while editing pages. To inspect what will be published, run `build` to generate files, then serve that output with `preview`. Keeping the commands separate helps distinguish a working development page from the output that will go live.
+Use `dev` to see changes as you save. To inspect the files you will publish, run `build`, then open its output with `preview`.
 
 Run this in **the project folder's terminal**:
 
@@ -83,7 +83,7 @@ Run this in **the project folder's terminal**:
 pnpm.cmd install
 ```
 
-pnpm 10 may report “Ignored build scripts” for esbuild or sharp. This text-only example builds without approving those scripts; the warning is not an installation failure.
+pnpm 10 may report “Ignored build scripts” for esbuild. This text-only example builds without approving those scripts; the warning is not an installation failure.
 
 The first install creates `pnpm-lock.yaml`, a record of resolved dependency versions. Commit it to Git. Later, CI uses `--frozen-lockfile` to require that record to agree with package.json without updating it; do not use that option for this first install.
 
@@ -95,7 +95,7 @@ Create `tsconfig.json`:
 }
 ```
 
-I use strict TypeScript here and keep that setting for the layout props added later. Type checking requires a separate command; `astro build` generates the site without running a full type check.
+`strict` enables stricter TypeScript checks, including for the layout parameters in the next article. We will run `check` shortly to check types.
 
 ## Create the home page
 
@@ -129,9 +129,9 @@ pnpm.cmd run dev
 
 Open the Local URL printed in the terminal; it should show **Engineering notes**. Edit the paragraph and save to see the page update. Astro dev is running and reading the source files.
 
-Press Ctrl+C to stop dev and localhost stops responding. The files remain in the project; run `pnpm.cmd run dev` again to continue editing.
+Press Ctrl+C to stop the development server. Run `pnpm.cmd run dev` again when you want to continue editing.
 
-For now, the home page keeps all its HTML in one file. Adding an article would start duplicating headings, navigation and styles. Those shared parts are what the next layout will hold.
+The next article moves the page shell into a shared layout so new posts only need Markdown.
 
 ## Check types before committing
 
@@ -141,7 +141,7 @@ After stopping dev, run the checker installed with the initial package.json:
 pnpm.cmd run check
 ```
 
-This runs `astro check` using `@astrojs/check` and `typescript`; `astro build` alone does not check types. See [Astro’s TypeScript guide](https://v5.docs.astro.build/en/guides/typescript/).
+This runs `astro check` using `@astrojs/check` and `typescript`; `astro build` alone does not check types. See [Astro’s TypeScript guide](https://docs.astro.build/en/guides/typescript/).
 
 ## Save the first version
 

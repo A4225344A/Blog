@@ -2,7 +2,7 @@
 id: beginner-local-website-zh-tw
 slug: astro-project-setup
 title: "從空專案搭建 Astro 部落格"
-description: "建立最小專案、理解檔案路由與開發流程，為文章與共用版型準備結構。"
+description: "從空資料夾開始，安裝 Astro、建立首頁，跑起本機開發環境並提交第一個版本。"
 locale: zh-TW
 translationKey: beginner-local-website
 contentType: tutorial
@@ -12,11 +12,11 @@ skills: [local-website-preview]
 prerequisiteSkills: ["static-site-delivery"]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-先把文章列表、搜尋和雙語切換放一邊。一個只有首頁的 Astro 專案，需要哪些檔案？
+先做出一個能在瀏覽器開啟的首頁。需要的檔案不多：`package.json`、TypeScript 設定，以及一個 `.astro` 頁面。
 
 這裡從空的 `engineering-blog` 資料夾開始，逐一放進設定和首頁。範例固定使用 Node.js 24.x、pnpm 10.32.1、Astro 7.3.3。本系列操作指令以 Windows PowerShell 為準。macOS／Linux 可將 `pnpm.cmd`、`npm.cmd` 改為 `pnpm`、`npm`；後續 PowerShell 的環境變數設定與清除指令，則需換成所用 shell 的語法。
 
@@ -26,7 +26,7 @@ Windows 可用 [Node.js 官方下載頁](https://nodejs.org/en/download) 安裝 
 
 Windows 使用 `pnpm.cmd`，不需要放寬 PowerShell 執行原則。另請安裝 [Git](https://git-scm.com/downloads)，重新開啟終端機並確認 `git --version`。
 
-固定 Astro 7.3.3 是為了與本系列已驗證的範例一致。看到有新版本的提示不代表安裝失敗；跟著操作時先沿用固定版本，升級另外測試。
+範例使用 Astro 7.3.3，方便重現相同結果。安裝時即使跳出新版提示，也先保留這個版本。
 
 執行安裝和 dev 時，終端機的目前位置都要在 `engineering-blog`，也就是放著 `package.json` 的那一層。
 
@@ -75,7 +75,7 @@ dist/
 }
 ```
 
-平常改頁面會用到 `dev`。等要看發布結果時，再用 `build` 產生檔案，接著用 `preview` 開啟那份產物。把三個命令分開，才不會把開發畫面當成最後上線的結果。
+改頁面時用 `dev`，儲存後就能看到變化。要檢查上線的檔案，先跑 `build`，再用 `preview` 開啟建置結果。
 
 在**此資料夾的終端機**執行：
 
@@ -83,7 +83,7 @@ dist/
 pnpm.cmd install
 ```
 
-pnpm 10 可能顯示 esbuild 或 sharp 的「Ignored build scripts」提醒。本篇純文字範例不批准這些腳本也能建置；這項提醒不代表安裝失敗。
+pnpm 10 可能顯示 esbuild 的「Ignored build scripts」提醒。本篇純文字範例不批准這些腳本也能建置；這項提醒不代表安裝失敗。
 
 首次安裝會建立 `pnpm-lock.yaml`，記下實際安裝的相依版本；把它納入 Git。後續 CI 才使用 `--frozen-lockfile`，要求紀錄與 package.json 一致且不更新它。第一次安裝時不要加這個選項。
 
@@ -95,7 +95,7 @@ pnpm 10 可能顯示 esbuild 或 sharp 的「Ignored build scripts」提醒。�
 }
 ```
 
-我把 TypeScript 設定選為 strict，之後寫版型的 props 就沿用這個設定。型別檢查要另外執行；`astro build` 負責產生網站，並不執行完整型別檢查。
+`strict` 會啟用較嚴格的 TypeScript 檢查，下一篇的版型參數也會用到。稍後會執行 `check` 檢查型別。
 
 ## 建立首頁
 
@@ -129,9 +129,9 @@ pnpm.cmd run dev
 
 用瀏覽器開啟終端機顯示的 Local 網址，應該會看到 **Engineering notes**。可以直接改下面的段落，儲存後看畫面更新。這時運作的是 Astro dev，它持續讀取原始檔。
 
-按 Ctrl+C 結束 dev，localhost 就停止回應。檔案仍留在專案裡，下次執行 `pnpm.cmd run dev` 可以接著改。
+按 Ctrl+C 可以停止開發伺服器。下次要繼續修改，再執行 `pnpm.cmd run dev`。
 
-首頁的 HTML 先留在這個檔案。如果再加一篇文章，標題、導覽和樣式就開始重複了；接下來會把這些共用部分抽成版型。
+下一篇會把頁面外框抽成共用版型，讓新增文章時只需要寫 Markdown。
 
 ## 提交前執行型別檢查
 
@@ -141,7 +141,7 @@ pnpm.cmd run dev
 pnpm.cmd run check
 ```
 
-這會透過 `@astrojs/check` 與 `typescript` 執行 `astro check`；只跑 `astro build` 不會檢查型別。參考 [Astro TypeScript 說明](https://v5.docs.astro.build/en/guides/typescript/)。
+這會透過 `@astrojs/check` 與 `typescript` 執行 `astro check`；只跑 `astro build` 不會檢查型別。參考 [Astro TypeScript 說明](https://docs.astro.build/en/guides/typescript/)。
 
 ## 保存第一個版本
 

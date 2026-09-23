@@ -1,7 +1,7 @@
 {
   "id": "knowledge-platform",
   "title": "Building a technical blog with Astro",
-  "description": "Four articles: choose Astro, create a project, publish to GitHub Pages, then examine this blog’s content model.",
+  "description": "Go from an empty project to GitHub Pages, then organize translations and series navigation.",
   "targetAudience": [
     "Engineers",
     "Technical writers"
@@ -9,8 +9,8 @@
   "sections": [
     {
       "id": "foundation",
-      "title": "From selection to the working blog",
-      "description": "Basic HTML and programming experience assumed. Tool installation is covered before the first command.",
+      "title": "From project setup to published articles",
+      "description": "You will need basic HTML and programming experience. Article two starts with installing tools; article four covers managing translations.",
       "articleIds": [
         "beginner-tools-zh-tw",
         "beginner-tools-en",

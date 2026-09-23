@@ -12,13 +12,13 @@ skills: [astro-content-modeling]
 prerequisiteSkills: [local-website-preview]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-When adding the first article, I do not want another copy of the HTML with its title, heading and body edited by hand. The page shell should be shared, leaving the article file for the writing.
+With the home page in place, I can add an article. I put the heading, navigation and styles in a shared layout and write the body in Markdown. Later layout changes will not require editing every article’s HTML.
 
-Continue with `engineering-blog`: add a Markdown article and an Astro layout, then publish them with the complete workflow below.
+Keep working in the `engineering-blog` folder. Once the article is ready, configure GitHub Actions to publish it to GitHub Pages.
 
 ## Give the repeated HTML a layout
 
@@ -65,20 +65,16 @@ title: "Why this blog is static"
 description: "How prebuilt pages fit the needs of a personal blog."
 ---
 
-## Context
+## Writing in Markdown
 
-This blog publishes articles and project notes.
+I keep articles in Markdown and use a shared layout for the HTML around them.
 
-## Decision
+## Publishing an edit
 
-Generate pages before publishing and serve the static output.
-
-## Tradeoff
-
-Content changes need a new build.
+Astro builds the pages before I upload them. Changing an article means building again.
 ```
 
-Frontmatter is the data between the `---` lines. Its layout property points to the shared layout. The body starts at heading level two because the layout already supplies h1. This uses [Astro's Markdown page layout mechanism](https://v5.docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property).
+Frontmatter is the data between the `---` lines. Its layout property points to the shared layout. The body starts at heading level two because the layout already supplies h1. This uses [Astro's Markdown page layout mechanism](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property).
 
 In `src/pages/index.astro`, add this below the paragraph:
 
@@ -88,17 +84,13 @@ In `src/pages/index.astro`, add this below the paragraph:
 
 Save with Ctrl+S, run dev and follow the link from home. The title, description and body appear together, but come from two files: Markdown supplies the text and the layout places it on the page. The return link lives in the layout too, ready to share with later articles.
 
-## Where articles live as the site grows
+## From one article to a collection
 
-Markdown under pages directly creates routes, which makes the content/layout relationship easy to inspect. **This repository stores published articles under src/content/articles**, validates them with Content Collections and schemas, and renders them through canonical routes.
-
-This site also lists the same article under topics, series and projects. Those pages link back to one body. LearningPath records the series order; Project records its related articles. The build then computes where each article is referenced.
-
-That is also why content has a stable ID separate from its URL slug. When a URL changes, series and projects still refer to the original ID. The one-article example can stay small for now, without that relationship model.
+Markdown in `src/pages` creates a page directly, which is enough for this example. Topic lists, series navigation and language switching need more information about each article. I keep this blog’s articles in `src/content/articles` and load them with Content Collections. Article four follows the actual files to explain that setup.
 
 ## Deploy under /Blog/
 
-The link above uses `base` for a reason. This site is deployed under `/Blog/`, and article URLs must start there too. A link hardcoded to `/posts/build-notes/` sends the browser to the origin root, skipping `/Blog/`.
+A GitHub Pages project site includes the repository name in its path, such as `/Blog/`. A link to `/posts/build-notes/` sends the browser to the domain root and skips `/Blog/`. The `base` value in our links supplies that missing path.
 
 Add `astro.config.mjs` to the example so the build can use that path:
 
@@ -126,7 +118,7 @@ pnpm.cmd run preview
 
 Replace YOUR_USERNAME and Blog with your account and repository. Use preview's printed URL to test both directions between home and article. BASE_URL keeps links within the deployment path. Apply the same care to later image URLs.
 
-A successful build creates `dist`. Preview serves that output; source changes require another build. These steps remain local and do not upload the site.
+A successful build creates `dist`, which preview serves locally. Build again after editing an article; the GitHub Actions workflow below will handle uploading.
 
 ## Clear settings before returning to local development
 
@@ -238,4 +230,6 @@ Open the run under Actions. After build succeeds, approve `github-pages` through
 
 Use branches and PRs for subsequent changes, then approve main deployments.
 
-The next article examines the additional content model, search and validation used by this blog. References: [custom GitHub Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [Astro deployment guide](https://docs.astro.build/en/guides/deploy/github/).
+The next article opens up this blog’s source code to show where translations, categories and series order are stored.
+
+References: [custom GitHub Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [Astro deployment guide](https://docs.astro.build/en/guides/deploy/github/).

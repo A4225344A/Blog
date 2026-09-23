@@ -1,8 +1,8 @@
 ---
 id: astro-knowledge-platform-zh-tw
 slug: astro-knowledge-platform
-title: "本站 Astro 部落格的內容模型與交付設計"
-description: "從四篇文章共用的內容模型出發，說明雙語路由、靜態搜尋與 GitHub Pages 產物交付。"
+title: "用 Astro 整理雙語文章、系列與搜尋"
+description: "四篇文章、兩種語言，怎麼管理網址和系列順序？從實際檔案看 Content Collections、Pagefind 與部署檢查。"
 locale: zh-TW
 translationKey: astro-knowledge-platform
 contentType: tutorial
@@ -12,17 +12,19 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-這篇說明「小小工程師的技術部落格」如何管理內容。這篇架構說明最早先發布，之後才編入系列第四篇。建議先讀三篇操作教學，做出能部署的小網站；當文章需要雙語版本、系列順序與主題分類時，接下來要處理的是同一份內容如何被多個頁面找到。
+四篇文章各有中英兩版，還要放進系列目錄和主題頁。我不想每次改標題或網址，都回頭找有哪些清單要一起改，所以把文章之間的關係也存成資料，交給建置程式產生連結。
 
-本站使用 Astro 5、TypeScript、Markdown 與 Pagefind。它們在建置時產生頁面和搜尋索引，GitHub Pages 負責提供檔案。以下的檔案路徑都對應本站儲存庫。
+這篇沿著部落格的檔案說明這個做法。它比操作教學更早發布，後來才排到系列第四篇；想從空專案開始，可以先看前面三篇。
+
+程式使用 Astro 7.3.3 和 TypeScript，文章用 Markdown，搜尋交給 Pagefind。下面的路徑都能在 [GitHub 儲存庫](https://github.com/A4225344A/Blog) 找到。
 
 ## 在本機跑一次完整建置
 
-沿用系列的 Node.js 24.x 與 pnpm 10.32.1。尚未安裝的讀者，先依第二篇準備 Node.js、Git，再用 PowerShell 執行 `npm.cmd install --global pnpm@10.32.1`。儲存庫的最低 Node 版本為 22.12，但本文操作統一使用 24.x。
+準備 Node.js 24.x、Git 和 pnpm 10.32.1。還沒安裝的話，可以照第二篇設定，再用 PowerShell 執行 `npm.cmd install --global pnpm@10.32.1`。`package.json` 接受 Node 22.12 以上，以下沿用系列的 24.x。
 
 ```powershell
 git clone https://github.com/A4225344A/Blog.git
@@ -40,7 +42,7 @@ pnpm.cmd run preview
 
 平常編輯可執行 `pnpm.cmd run dev`。搜尋索引只在 build 產生，因此要驗證搜尋，請先停止 dev，再 build 和 preview。Preview 顯示的是上次建置結果，修改文章後必須重新建置。
 
-## 文章只存一次，閱讀入口分開產生
+## 一份正文，幾種入口
 
 ```text
 src/content/
@@ -54,7 +56,7 @@ src/content/
 
 文章是 Markdown，檔案開頭兩條 `---` 之間的欄位稱為 frontmatter，用來描述標題、語言與發布狀態。其餘四種資料使用 JSON。`src/content/schemas.ts` 定義每種資料可接受的欄位與型別，這就是內容的 schema（資料規格）。
 
-例如，同一篇文章可以出現在主題頁與系列頁，但這些入口只放連結，不複製正文。修改原始文章後，所有入口都指向更新後的同一頁。
+例如「為什麼我用 Astro」同時列在網站建置主題和 Astro 系列裡，兩邊都連到 `/Blog/zh-tw/blog/why-astro/`。正文只改一份 Markdown。
 
 ### ID、翻譯群組與網址
 
@@ -66,21 +68,21 @@ src/content/
 | `translationKey` | 將中英文版本配成一組 | 語言切換依它找到對應文章 |
 | `slug` | 公開網址的最後一段 | 可更新網址，舊網址另保留改版說明 |
 
-系列前三篇原本使用 `beginner-*` 網址，內容重寫後改用描述用途的網址。舊入口會說明改版與目前閱讀門檻，再提供新版連結；文章 ID 保留，避免改網址牽動所有引用。
+前三篇改過網址：原本的 `beginner-*` 現在是改版說明頁，會連到新版文章。檔案裡的 ID 仍保留，例如 `beginner-tools-zh-tw` 的網址已是 `why-astro`，系列清單不必跟著換 ID。
 
 ### 誰決定文章的順序
 
-LearningPath 代表文章系列，自己的 `sections[].articleIds` 決定閱讀順序。現在四篇文章收在同一個 Astro 系列：選型、專案、內容與部署、本站架構。建置時先依語言與發布狀態篩選，然後保留這份清單的順序。
+`src/content/learning-paths/knowledge-platform.json` 裡的 `sections[].articleIds` 就是系列順序。建置時依語言和發布狀態篩選，保留清單原本的排列，所以中英文都會從選型、建立專案、發布文章，一路讀到這篇。
 
-Project 決定專案有哪些相關文章。Article 則記錄自己的 Topic 分類、Skill 技能與推薦文章。每種關聯只維護一個來源。要從文章回查所屬系列時，由 `src/utils/graph.ts` 算出反向索引，不再手寫另一份清單。
+專案的相關文章記在 Project；分類、技能和推薦文章記在 Article。如果要知道一篇文章屬於哪個系列，`src/utils/graph.ts` 會從系列清單反查，文章裡不用再填一次。
 
 ## 在產生頁面之前找出資料錯誤
 
-Astro 依 ID 載入內容。如果兩份檔案誤用相同 ID，等載入完才檢查可能已經看不到被覆蓋的那筆。本站先由 `src/utils/content-source.ts` 讀取原始檔案，保留來源路徑再驗證。
+如果兩份檔案用了同一個 ID，Astro 載入時可能只留下其中一筆。我讓 `src/utils/content-source.ts` 先讀取原始檔案和路徑，這樣才能在資料被覆蓋前找出重複 ID。
 
 會中止建置的錯誤包括重複 ID、引用不存在的文章或分類、缺少必要欄位，以及使用禁止的文章欄位。例如文章不能自己填 `order`：順序已由系列決定。錯誤輸出會指出對應檔案，指令也會回傳失敗狀態，讓 CI 停止。
 
-有些情況只適合提醒。文章尚未歸屬專案會得到 `W_ARTICLE_NO_PROJECT`，但仍能發布。本站目前的 Astro 文章就屬於這種情況。
+執行驗證時，也會看到 `W_ARTICLE_NO_PROJECT`。四篇 Astro 文章的中英版本都沒有掛在 Project 下，因此會產生八個警告，但不會中止建置。
 
 技能依賴是否形成循環等進階檢查尚未加入。現有驗證先處理會讓頁面引用失效的問題。
 
@@ -88,7 +90,7 @@ Astro 依 ID 載入內容。如果兩份檔案誤用相同 ID，等載入完才�
 
 繁體中文頁面位於 `/zh-tw/`，英文頁面位於 `/en/`。一般文章使用 `/blog/`，排障或案例文章使用 `/cases/`。只有 `published` 狀態會產生公開文章，草稿與封存內容不進入列表、RSS 或搜尋。
 
-讀者切換語言時，程式用 `translationKey` 找對應文章，再使用該版本自己的網址。沒有翻譯時才回到目標語言首頁。
+點語言切換時，程式用 `translationKey` 找另一個版本，再開啟它的網址。沒有翻譯才回到該語言首頁。
 
 給搜尋引擎的 `canonical` 指定正文的主要網址；`hreflang` 列出實際存在的語言版本。語言入口另外使用 `x-default` 表示未指定語言時的入口。這些標記集中在版型產生，不需每篇文章自行填寫。
 
@@ -100,7 +102,7 @@ Pagefind 在 `dist` 的 HTML 中擷取文章與內容詳情頁，建立本地搜
 
 繁體中文可搜尋，但 Pagefind 不會替 `zh-tw` 做詞形還原，也就是不自動把不同詞形當作相同字詞。
 
-文章正文與目錄是靜態 HTML。外觀選擇只有淺色、深色與跟隨系統；小段 JavaScript 負責記住選擇，沒有把整個網站改成 React 應用。鍵盤使用者可以用跳至正文連結略過導覽。
+文章正文和目錄都是靜態 HTML，關閉 JavaScript 也能閱讀和跳段落。外觀切換則用一小段 JavaScript 記住淺色、深色或跟隨系統的選擇；鍵盤操作可以從「跳至主要內容」略過導覽。
 
 ## GitHub Pages 的子路徑
 
@@ -127,8 +129,8 @@ pnpm.cmd run dev
 
 ## 發布的是檢查過的那份產物
 
-本站 `.github/workflows/ci.yml` 在 PR 和 main push 執行安裝、內容驗證、測試與建置。PR 不部署。main 建置成功後保存產物，deploy 工作只有在 `github-pages` 設定 Required reviewers 後才會等待批准，接著檢查 main 的 commit SHA（版本識別碼）是否仍相同。
+打開 `.github/workflows/ci.yml`，可以看到驗證與部署分成兩個工作。PR 只做檢查；推送到 main 時，驗證成功後會保存建置產物。`github-pages` 環境設好 Required reviewers，部署才會等人工批准。核准後還會比對 main 的 commit SHA（版本識別碼），確認沒有更新的版本。
 
 部署時不重新建置，是因為我希望發布的就是先前檢查過的那份檔案。只有 deploy 取得 Pages 寫入與短效身分驗證權限。
 
-前三篇的小部落格已足以發布幾個頁面。當頁面需要共用分類、系列順序與翻譯時，本站才加入這些內容關聯。規劃自己的部落格時，可以先想清楚要維護哪些關聯，以及哪些檢查能在讀者遇到斷鏈之前發現問題。
+想試著調整系列順序，可以修改 `knowledge-platform.json` 的 `articleIds`，再跑一次 build。目錄與文章底下的上一篇、下一篇會一起更新，文章檔案本身不用移動。

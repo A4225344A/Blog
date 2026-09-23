@@ -12,7 +12,7 @@ test('entity and section translation namespaces cannot leak across collections',
   assert.equal(entityText('skills', source, 'zh-TW').title, 'Source skill');
   assert.equal(entityText('topics', source, 'en').title, 'Source skill');
   const section = { id: 'foundation', title: 'Source section', articleIds: [] };
-  assert.equal(sectionText('knowledge-platform', section, 'zh-TW').title, '從選型到本站實作');
+  assert.equal(sectionText('knowledge-platform', section, 'zh-TW').title, '從建立專案到發布文章');
   assert.equal(sectionText('another-path', section, 'zh-TW').title, 'Source section');
 });
 test('missing translations warn; stale collection and path-section keys fail', () => {
