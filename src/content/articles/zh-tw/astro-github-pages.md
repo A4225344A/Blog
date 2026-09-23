@@ -1,92 +1,22 @@
 ---
-id: beginner-first-change-zh-tw
-slug: astro-content-and-deployment
-title: "加入文章、版型與部署流程"
-description: "從 Markdown 與共用版型開始，設定部署子路徑，使用完整 workflow 發布到 GitHub Pages。"
+id: astro-github-pages-zh-tw
+slug: astro-github-pages
+title: "部署 Astro 部落格到 GitHub Pages"
+description: "設定部署子路徑、檢查本機建置，再用 GitHub Actions 發布已檢查的檔案。"
 locale: zh-TW
-translationKey: beginner-first-change
+translationKey: astro-github-pages
 contentType: tutorial
 difficulty: intermediate
 topics: [web-foundations]
-skills: [astro-content-modeling]
-prerequisiteSkills: [local-website-preview]
+skills: [static-site-delivery]
+prerequisiteSkills: [astro-content-modeling]
 recommendedArticles: []
-publishedAt: 2026-09-19
-updatedAt: 2026-09-23
+publishedAt: 2026-09-24
+updatedAt: 2026-09-24
 status: published
 ---
 
-上一篇已經有首頁了，接著加一篇文章。我把標題、導覽和樣式放進共用版型，正文用 Markdown 寫。以後改頁面外觀，就不用逐篇修改 HTML。
-
-繼續使用 `engineering-blog` 資料夾。完成文章後，再設定 GitHub Actions，將它發布到 GitHub Pages。
-
-## 把重複的 HTML 留給版型
-
-先建立 `src/layouts/PostLayout.astro`。版型是共用的頁面外框，文章正文放進 slot：
-
-```astro
----
-interface Props {
-  frontmatter: { title: string; description: string };
-}
-const { frontmatter } = Astro.props;
-const base = import.meta.env.BASE_URL;
----
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>{frontmatter.title}</title>
-    <meta name="description" content={frontmatter.description} />
-  </head>
-  <body>
-    <main>
-      <a href={base}>Home</a>
-      <h1>{frontmatter.title}</h1>
-      <p>{frontmatter.description}</p>
-      <slot />
-    </main>
-  </body>
-</html>
-<style>
-  main { max-width: 70ch; margin: 3rem auto; padding: 0 1rem; line-height: 1.8; }
-</style>
-```
-
-`Props` 宣告此版型預期收到的標題與描述。`slot` 是 Markdown 正文插入的位置；CSS 放在版型內，使用該版型的文章會共享這份版面。
-
-接著建立 `src/pages/posts/build-notes.md`：
-
-```markdown
----
-layout: ../../layouts/PostLayout.astro
-title: "Why this blog is static"
-description: "How prebuilt pages fit the needs of a personal blog."
----
-
-## Writing in Markdown
-
-I keep articles in Markdown and use a shared layout for the HTML around them.
-
-## Publishing an edit
-
-Astro builds the pages before I upload them. Changing an article means building again.
-```
-
-frontmatter 是兩條 `---` 中間的資料；layout 指向剛建立的共用版型。正文從二級標題開始，因為版型已經輸出 h1。這種用法對應 [Astro 的 Markdown 頁面與 layout 機制](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property)。
-
-在首頁 `src/pages/index.astro` 的段落下加入：
-
-```astro
-<a href={`${base}posts/build-notes/`}>Read the build notes</a>
-```
-
-用 Ctrl+S 儲存，啟動 dev 後從首頁點進文章。標題、描述和正文會一起出現，但它們來自兩個檔案：Markdown 提供文字，版型負責把它們放進頁面。回首頁的連結也放在版型裡，以後新增文章可以共用。
-
-## 從單篇文章到文章集合
-
-放在 `src/pages` 的 Markdown 會直接產生頁面。一篇文章用這種方式就夠了。如果還要讓文章出現在主題頁、系列目錄，或提供中英切換，就需要另外管理這些關係。我把這個部落格的文章放在 `src/content/articles`，用 Content Collections 載入；第四篇會沿著實際檔案說明。
+沿用前兩篇建立的 `engineering-blog`：首頁已有文章連結，文章也能用 Home 返回首頁。接下來把它放上 GitHub Pages。指令使用 Windows PowerShell；如果還沒做出這兩個頁面，先完成上一篇的文章與版型。
 
 ## 部署到子路徑 /Blog/
 
@@ -116,7 +46,7 @@ pnpm.cmd run build
 pnpm.cmd run preview
 ```
 
-把 YOUR_USERNAME 與 Blog 換成自己的帳號和儲存庫。用 preview 顯示的網址檢查首頁和文章往返；連結使用 BASE_URL，所以不會固定指向網域根目錄。新增圖片時也要同樣考慮 base。
+把 YOUR_USERNAME 與 Blog 換成自己的帳號和儲存庫。開啟 preview 顯示的網址，從首頁點進文章，再點 Home 回到首頁。連結使用 `BASE_URL`，因此會保留 `/Blog/`；新增圖片時也要帶上這段路徑。
 
 build 成功後會產生 `dist`，preview 開啟的就是這個目錄。修改文章後記得再 build；上傳則留給下面的 GitHub Actions。
 
@@ -135,7 +65,17 @@ pnpm.cmd run dev
 
 GitHub Actions 的 workflow 是放在儲存庫裡的自動化工作清單。CI（持續整合）會在提交變更後建置並檢查結果。下面使用這個範例已有的 check 與 build 指令。
 
-在 GitHub 建立名為 `Blog` 的空白公開儲存庫，不要預先建立 README。到 Settings → Pages 將 Source 選成 **GitHub Actions**。接著到 Settings → Environments：若 Pages 已自動建立 `github-pages` 就開啟它，沒有才新增。限制部署分支為 `main`，在 Required reviewers 選擇審查者或團隊；目前 GitHub 方案的公開儲存庫可使用這項規則。如果只有自己一位審查者，保持 Prevent self-review 不勾選，才能批准自己的部署。第一次 push 前先儲存保護規則。參考 [GitHub 環境設定](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)。
+第一次 push 前，先在 GitHub 完成以下設定：
+
+1. 建立名為 `Blog` 的空白公開儲存庫，不要預先建立 README。
+2. 到 **Settings → Pages**，將 Source 選成 **GitHub Actions**。
+3. 到 **Settings → Environments**，開啟 `github-pages`。若還沒有這個環境，再新增。
+4. 在 **Deployment branches and tags** 選擇指定分支，新增 `main` 分支規則。
+5. 啟用 **Required reviewers**，選擇可以批准部署的人或團隊。公開儲存庫可使用這項規則。
+6. 如果只有自己一位審查者，讓 **Prevent self-review** 保持未勾選，才能批准自己的部署。
+7. 儲存保護規則，確認畫面已列出審查者。
+
+參考 [GitHub 環境設定](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)。
 
 建立 `.github/workflows/pages.yml`：
 
@@ -205,17 +145,19 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
 ```
 
-最上層的 `concurrency` 依 PR 分支分組，同一個 PR 的新執行會取消舊執行；main 則用 run ID 分組，避免新的建置取消等待批准的執行。deploy 的另一個 concurrency 群組讓部署逐一進行，不取消正在進行的部署。
+`concurrency` 控制同時有多次執行時怎麼排隊。同一個 PR 連續 push，只保留最新那次建置；main 上等待核准的部署，不會被後來的建置取消。部署一次只跑一個。
 
 這份流程在 PR 建置但不部署。main 建置成功後，上傳同一份 `dist` 作為 artifact（供下一個工作使用的產物）；deploy 等待 environment 核准，再發布它，不重新建置。
 
-SHA 是 Git commit 的識別碼。核准後的檢查用它確認 main 沒有前進到另一個版本，避免較舊的待批准產物蓋掉新版。`id-token: write` 允許 deploy 透過 OIDC（短效身分驗證）向 Pages 證明它是授權工作，不必存放部署密碼。PR 工作沒有這項權限。
+SHA 就是 commit 的版本編號。如果等待期間 main 又有新提交，核准舊的執行也不會發布：檢查會擋下它，改去核准最新那次即可。若舊執行一直卡在等待、擋住新的部署，可以先取消舊執行，再核准最新的。
+
+`id-token: write` 讓部署工作向 GitHub 取得短效身分憑證，這套機制叫 OIDC。不需要另外存一組部署密碼，而且只有 deploy 工作有這項權限，PR 建置沒有。
 
 Actions 在 Linux runner 執行，所以 YAML 使用 `pnpm`；本機 PowerShell 指令一律使用 `pnpm.cmd`。
 
 ## 推送與確認上線結果
 
-把 `YOUR_USERNAME` 換成 GitHub 帳號；若儲存庫不是 `Blog`，remote 也要改成該名稱。延續上一篇初始化的 Git 儲存庫：
+把 `YOUR_USERNAME` 換成 GitHub 帳號；若儲存庫不是 `Blog`，remote 也要改成該名稱。在前面建立的 Git 儲存庫裡執行：
 
 ```powershell
 git add .
@@ -230,6 +172,6 @@ git push -u origin main
 
 後續修改用分支與 PR：先看 build 結果，合併 main 後再批准部署。
 
-下一篇會打開這個部落格的原始碼，看看四篇文章的翻譯、分類和系列順序怎麼存放。
+下一篇會打開這個部落格的原始碼，看看翻譯、分類和系列順序怎麼存放。
 
 參考：[GitHub Pages 自訂 workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)、[Astro 部署指南](https://docs.astro.build/en/guides/deploy/github/)。

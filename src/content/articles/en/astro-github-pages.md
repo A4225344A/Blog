@@ -1,92 +1,22 @@
 ---
-id: beginner-first-change-en
-slug: astro-content-and-deployment
-title: "Adding articles, layouts and a deployment workflow"
-description: "Add Markdown and a shared layout, configure the deployment path, and publish with a complete GitHub Pages workflow."
+id: astro-github-pages-en
+slug: astro-github-pages
+title: "Deploying an Astro blog to GitHub Pages"
+description: "Configure the deployment path, check the local build and publish the same files with GitHub Actions."
 locale: en
-translationKey: beginner-first-change
+translationKey: astro-github-pages
 contentType: tutorial
 difficulty: intermediate
 topics: [web-foundations]
-skills: [astro-content-modeling]
-prerequisiteSkills: [local-website-preview]
+skills: [static-site-delivery]
+prerequisiteSkills: [astro-content-modeling]
 recommendedArticles: []
-publishedAt: 2026-09-19
-updatedAt: 2026-09-23
+publishedAt: 2026-09-24
+updatedAt: 2026-09-24
 status: published
 ---
 
-With the home page in place, I can add an article. I put the heading, navigation and styles in a shared layout and write the body in Markdown. Later layout changes will not require editing every article’s HTML.
-
-Keep working in the `engineering-blog` folder. Once the article is ready, configure GitHub Actions to publish it to GitHub Pages.
-
-## Give the repeated HTML a layout
-
-Create `src/layouts/PostLayout.astro`. A layout supplies the page shell; the slot receives the article body:
-
-```astro
----
-interface Props {
-  frontmatter: { title: string; description: string };
-}
-const { frontmatter } = Astro.props;
-const base = import.meta.env.BASE_URL;
----
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>{frontmatter.title}</title>
-    <meta name="description" content={frontmatter.description} />
-  </head>
-  <body>
-    <main>
-      <a href={base}>Home</a>
-      <h1>{frontmatter.title}</h1>
-      <p>{frontmatter.description}</p>
-      <slot />
-    </main>
-  </body>
-</html>
-<style>
-  main { max-width: 70ch; margin: 3rem auto; padding: 0 1rem; line-height: 1.8; }
-</style>
-```
-
-Props declares the title and description expected by the layout. The slot receives rendered Markdown. Articles using this layout share its CSS and structure.
-
-Create `src/pages/posts/build-notes.md`:
-
-```markdown
----
-layout: ../../layouts/PostLayout.astro
-title: "Why this blog is static"
-description: "How prebuilt pages fit the needs of a personal blog."
----
-
-## Writing in Markdown
-
-I keep articles in Markdown and use a shared layout for the HTML around them.
-
-## Publishing an edit
-
-Astro builds the pages before I upload them. Changing an article means building again.
-```
-
-Frontmatter is the data between the `---` lines. Its layout property points to the shared layout. The body starts at heading level two because the layout already supplies h1. This uses [Astro's Markdown page layout mechanism](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property).
-
-In `src/pages/index.astro`, add this below the paragraph:
-
-```astro
-<a href={`${base}posts/build-notes/`}>Read the build notes</a>
-```
-
-Save with Ctrl+S, run dev and follow the link from home. The title, description and body appear together, but come from two files: Markdown supplies the text and the layout places it on the page. The return link lives in the layout too, ready to share with later articles.
-
-## From one article to a collection
-
-Markdown in `src/pages` creates a page directly, which is enough for this example. Topic lists, series navigation and language switching need more information about each article. I keep this blog’s articles in `src/content/articles` and load them with Content Collections. Article four follows the actual files to explain that setup.
+Continue with `engineering-blog` from the previous tutorials: the home page links to an article, and Home returns from the article. We can now publish it to GitHub Pages. Commands use Windows PowerShell; complete the previous article and layout steps first if those pages are not ready.
 
 ## Deploy under /Blog/
 
@@ -116,7 +46,7 @@ pnpm.cmd run build
 pnpm.cmd run preview
 ```
 
-Replace YOUR_USERNAME and Blog with your account and repository. Use preview's printed URL to test both directions between home and article. BASE_URL keeps links within the deployment path. Apply the same care to later image URLs.
+Replace YOUR_USERNAME and Blog with your account and repository. Open preview's URL, follow the article link from home, then click Home to return. `BASE_URL` keeps `/Blog/` in the links; include it in image paths too.
 
 A successful build creates `dist`, which preview serves locally. Build again after editing an article; the GitHub Actions workflow below will handle uploading.
 
@@ -135,7 +65,17 @@ Without this step, a later dev server in the same window still uses `/Blog/`.
 
 A workflow is an automation file in the repository. CI (continuous integration) builds and checks changes. This example uses the check and build scripts already present in the sample project.
 
-Create an empty public GitHub repository named `Blog`, without a README. Under Settings → Pages, select **GitHub Actions** as the source. Under Settings → Environments, open `github-pages` if Pages already created it, or create it if absent. Restrict deployment branches to `main` and choose the users or teams under Required reviewers. These rules are available for public repositories on current GitHub plans. If you are the only reviewer, leave Prevent self-review unchecked so you can approve your own deployment. Save the protection rules before the first push. See [GitHub environment setup](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
+Before the first push, complete these settings on GitHub:
+
+1. Create an empty public repository named `Blog`, without a README.
+2. Open **Settings → Pages** and select **GitHub Actions** as the source.
+3. Open **Settings → Environments**, then `github-pages`. Create that environment if it does not exist yet.
+4. Under **Deployment branches and tags**, select specific branches and add a branch rule for `main`.
+5. Enable **Required reviewers** and select the people or teams allowed to approve deployments. This rule is available for public repositories.
+6. If you are the only reviewer, leave **Prevent self-review** unchecked so you can approve your own deployment.
+7. Save the protection rules and confirm that the reviewer appears in the list.
+
+See [GitHub environment setup](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
 
 Create `.github/workflows/pages.yml`:
 
@@ -205,17 +145,19 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
 ```
 
-The workflow-level `concurrency` groups runs by PR branch or, for main, by run ID. A newer PR run cancels the older one; main runs stay independent while awaiting approval. The deploy-level group serializes deployments without cancelling an active deployment.
+`concurrency` decides what happens when runs overlap. Push several times to one PR and only the latest build stays active. New main builds do not cancel deployments waiting for approval. Deployments run one at a time.
 
 PRs build without deploying. A successful main build uploads `dist` as an artifact (output shared with the next job). Deployment waits for environment approval and publishes that artifact without rebuilding.
 
-A SHA identifies a Git commit. The post-approval check rejects an older build if main has moved. `id-token: write` allows the deployment job to use OIDC, short-lived identity verification with Pages, without storing a deployment password. PR builds do not receive this permission.
+A SHA is the commit’s version identifier. If main changes while a run waits, approving that old run will not publish it: the check stops it, and you can approve the latest run instead. If an old waiting run blocks the queue, cancel it before approving the new one.
+
+`id-token: write` lets the deployment job obtain a short-lived identity credential from GitHub through OIDC. There is no separate deployment password to store. Only deploy gets this permission; PR builds do not.
 
 The workflow runs on Linux, where the command is `pnpm`. Local PowerShell instructions consistently use `pnpm.cmd`.
 
 ## Push and verify the published site
 
-Replace `YOUR_USERNAME` and, if necessary, the repository name. Continue in the Git repository initialized in the previous article:
+Replace `YOUR_USERNAME` and, if necessary, the repository name. Continue in the Git repository initialized during project setup:
 
 ```powershell
 git add .

@@ -19,14 +19,15 @@ try {
   let previousWorkflow: string | undefined;
   for (const locale of ['en', 'zh-tw']) {
     const setup = await readFile(`src/content/articles/${locale}/astro-project-setup.md`, 'utf8');
-    const delivery = await readFile(`src/content/articles/${locale}/astro-content-and-deployment.md`, 'utf8');
+    const content = await readFile(`src/content/articles/${locale}/astro-content-and-layout.md`, 'utf8');
+    const delivery = await readFile(`src/content/articles/${locale}/astro-github-pages.md`, 'utf8');
     const [manifest, tsconfig] = blocks(setup, 'json');
     const [home] = blocks(setup, 'astro');
-    const [layout, link] = blocks(delivery, 'astro');
-    const [article] = blocks(delivery, 'markdown');
+    const [layout, linkedHome] = blocks(content, 'astro');
+    const [article] = blocks(content, 'markdown');
     const [config] = blocks(delivery, 'js');
     const [workflow] = blocks(delivery, 'yaml');
-    assert.ok(manifest && tsconfig && home && layout && link && article && config && workflow);
+    assert.ok(manifest && tsconfig && home && layout && linkedHome && article && config && workflow);
     assert.equal(JSON.parse(manifest).dependencies.astro, JSON.parse(await readFile('node_modules/astro/package.json', 'utf8')).version);
     if (previousWorkflow) assert.equal(workflow, previousWorkflow, 'Both locales publish the same workflow');
     previousWorkflow = workflow;
@@ -36,7 +37,22 @@ try {
     for (const match of workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]+)/g)) assert.equal(match[2], pins[match[1]!]!.commit);
     await write('package.json', manifest);
     await write('tsconfig.json', tsconfig);
-    await write('src/pages/index.astro', home.replace('</body>', `${link}\n</body>`));
+    // Article two must build on its own, before any layout or deployment setup.
+    const sourceDirectory = resolve(fixture, 'src');
+    assert.equal(dirname(resolve(fixture)), workspace);
+    assert.equal(dirname(sourceDirectory), resolve(fixture));
+    await rm(sourceDirectory, { recursive: true, force: true });
+    await rm(join(fixture, 'astro.config.mjs'), { force: true });
+    await write('src/pages/index.astro', home);
+    execFileSync(process.execPath, [join(workspace, 'node_modules/astro/bin/astro.mjs'), 'check', '--root', fixture], {
+      cwd: fixture, stdio: 'pipe', env: { ...process.env, CI: 'true' },
+    });
+    execFileSync(process.execPath, [join(workspace, 'node_modules/astro/bin/astro.mjs'), 'build', '--root', fixture], {
+      cwd: fixture, stdio: 'pipe', env: { ...process.env, PUBLIC_GA_MEASUREMENT_ID: '' },
+    });
+    assert.match(await readFile(join(fixture, 'dist/index.html'), 'utf8'), /Engineering notes/);
+    console.log(`Standalone setup passed: ${locale}`);
+    await write('src/pages/index.astro', linkedHome);
     await write('src/layouts/PostLayout.astro', layout);
     await write('src/pages/posts/build-notes.md', article);
     await write('astro.config.mjs', config);

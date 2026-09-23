@@ -2,7 +2,7 @@
 id: astro-knowledge-platform-zh-tw
 slug: astro-knowledge-platform
 title: "用 Astro 整理雙語文章、系列與搜尋"
-description: "四篇文章、兩種語言，怎麼管理網址和系列順序？從實際檔案看 Content Collections、Pagefind 與部署檢查。"
+description: "文章有兩種語言，怎麼管理網址和系列順序？從實際檔案看 Content Collections、Pagefind 與部署檢查。"
 locale: zh-TW
 translationKey: astro-knowledge-platform
 contentType: tutorial
@@ -12,13 +12,13 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
-updatedAt: 2026-09-23
+updatedAt: 2026-09-24
 status: published
 ---
 
-四篇文章各有中英兩版，還要放進系列目錄和主題頁。我不想每次改標題或網址，都回頭找有哪些清單要一起改，所以把文章之間的關係也存成資料，交給建置程式產生連結。
+每篇文章各有中英兩版，還要放進系列目錄和主題頁。我不想每次改標題或網址，都回頭找有哪些清單要一起改，所以把文章之間的關係也存成資料，交給建置程式產生連結。
 
-這篇沿著部落格的檔案說明這個做法。它比操作教學更早發布，後來才排到系列第四篇；想從空專案開始，可以先看前面三篇。
+這篇沿著部落格的檔案說明這個做法。想從空專案開始，可以先照系列目錄完成前面的操作教學。
 
 程式使用 Astro 7.3.3 和 TypeScript，文章用 Markdown，搜尋交給 Pagefind。下面的路徑都能在 [GitHub 儲存庫](https://github.com/A4225344A/Blog) 找到。
 
@@ -82,7 +82,7 @@ src/content/
 
 會中止建置的錯誤包括重複 ID、引用不存在的文章或分類、缺少必要欄位，以及使用禁止的文章欄位。例如文章不能自己填 `order`：順序已由系列決定。錯誤輸出會指出對應檔案，指令也會回傳失敗狀態，讓 CI 停止。
 
-執行驗證時，也會看到 `W_ARTICLE_NO_PROJECT`。四篇 Astro 文章的中英版本都沒有掛在 Project 下，因此會產生八個警告，但不會中止建置。
+執行驗證時，也會看到 `W_ARTICLE_NO_PROJECT`。五篇 Astro 文章的中英版本都沒有掛在 Project 下，因此會產生十個警告，但不會中止建置。
 
 技能依賴是否形成循環等進階檢查尚未加入。現有驗證先處理會讓頁面引用失效的問題。
 

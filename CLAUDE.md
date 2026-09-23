@@ -45,6 +45,9 @@ Read:
 - `AGENTS.md`
 
 Do not trust Codex's handoff summary without checking the code and executable evidence.
+Session handoff reports are local ignored `docs/handoff-*.md` files. They are not
+published repository documentation. Read the provided local report when available,
+but verify the entire relevant diff and executable evidence independently.
 Scope each review conclusion to the files and revision actually inspected.
 Subsequent changes, including branding and identity changes, need explicit
 disclosure and re-review; previous approval does not cover a changed diff.

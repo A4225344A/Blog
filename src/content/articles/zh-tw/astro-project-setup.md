@@ -12,7 +12,7 @@ skills: [local-website-preview]
 prerequisiteSkills: ["static-site-delivery"]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-23
+updatedAt: 2026-09-24
 status: published
 ---
 
@@ -102,9 +102,6 @@ pnpm 10 可能顯示 esbuild 的「Ignored build scripts」提醒。本篇純文
 建立 `src/pages/index.astro`，內容如下。程式碼中的英文是範例文案，可換成自己的文字：
 
 ```astro
----
-const base = import.meta.env.BASE_URL;
----
 <!doctype html>
 <html lang="en">
   <head>
@@ -119,7 +116,7 @@ const base = import.meta.env.BASE_URL;
 </html>
 ```
 
-這個檔案的大部分就是 HTML。Astro 多了最上面的 `---` 區塊，可以在產生頁面時執行程式；這裡先讀取部署路徑 `base`，留給下一篇的文章連結使用。放在 `src/pages/index.astro`，它就對應首頁。
+這個頁面先用一般 HTML 就能完成。檔案放在 `src/pages/index.astro`，網址就對應首頁。
 
 在同一個專案終端機執行：
 
@@ -130,8 +127,6 @@ pnpm.cmd run dev
 用瀏覽器開啟終端機顯示的 Local 網址，應該會看到 **Engineering notes**。可以直接改下面的段落，儲存後看畫面更新。這時運作的是 Astro dev，它持續讀取原始檔。
 
 按 Ctrl+C 可以停止開發伺服器。下次要繼續修改，再執行 `pnpm.cmd run dev`。
-
-下一篇會把頁面外框抽成共用版型，讓新增文章時只需要寫 Markdown。
 
 ## 提交前執行型別檢查
 
@@ -150,4 +145,4 @@ git add package.json pnpm-lock.yaml tsconfig.json .gitignore src
 git commit -m "Create Astro blog"
 ```
 
-如果 Git 要求姓名與 email，依照提示設定自己的提交身分後重試。下一篇會從這個專案加入文章並發布。
+如果 Git 要求姓名與 email，依照提示設定自己的提交身分後重試。下一篇會加入 Markdown 文章和共用版型。

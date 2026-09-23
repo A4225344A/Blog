@@ -12,7 +12,7 @@ skills: [static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-23
+updatedAt: 2026-09-24
 status: published
 ---
 
@@ -55,7 +55,9 @@ status: published
 
 這個做法有個麻煩：即使只修正一個錯字，也得重新建置、部署。搜尋索引同樣要更新。我不需要編輯後立刻對外顯示，這段等待可以接受。
 
-另一個要處理的是 `/Blog/` 子路徑。首頁、文章和圖片的連結都得帶上它；漏掉這段，瀏覽器就會去網域根目錄找檔案。第三篇會實際設定和檢查這些連結。
+2026-09-24 的一次本機量測中，`corepack.cmd pnpm run build` 約花 3.8 秒。環境是 Windows x64、Node 24.15.0，已有安裝好的套件與 Astro 快取；內容為五篇雙語文章，使用 `/Blog/`，GA4 停用。這個時間包含內容驗證、Astro 建置和 Pagefind 索引，不含安裝、GitHub CI 或部署等待，只能當作這次本機執行的參考。
+
+另一個要處理的是 `/Blog/` 子路徑。首頁、文章和圖片的連結都得帶上它；漏掉這段，瀏覽器就會去網域根目錄找檔案。部署到 GitHub Pages 那篇會實際設定和檢查這些連結。
 
 ## 文章改了，頁面卻沒更新
 

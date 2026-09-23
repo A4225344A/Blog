@@ -7,12 +7,12 @@ interface Props { locale: Locale; articleCount: number; hasCases: boolean }
 const { locale, articleCount, hasCases } = Astro.props;
 const copy = {
   'zh-TW': {
-    greeting: `嗨，我是 ${siteConfig.author.name}，一名全端工程師`,
+    greeting: `嗨，我是 ${siteConfig.author.name['zh-TW']}，一名全端工程師`,
     title: '從全端開發，走向雲原生與平台工程',
-    intro: '我寫 C#、Angular 和 React，也想弄懂程式上線後怎麼運作。這裡先從 Astro 部落格的建置過程寫起。',
     count: '篇已發布文章', countNote: '繁體中文內容',
     background: '關於我',
-    backgroundText: '我的開發背景是全端，接下來想把學習重心延伸到部署與維運。雲原生和平台工程是目前正在學的方向。',
+    stackLabel: '我使用的技術',
+    backgroundText: '我的開發背景是全端，接下來往雲原生和平台工程方向前進。',
     motivation: '接下來的學習方向：雲原生',
     motivationText: '功能能跑之後，還有部署、監控和故障處理要做。我想知道，服務出問題時該先看哪些訊號，以及哪些操作可以交給自動化。這也是我開始學雲原生的原因。',
     exploring: '現在在探索什麼',
@@ -25,7 +25,7 @@ const copy = {
       ['AI Engineering', '把 AI 接進應用，並檢查結果是否可靠。'],
     ],
     purpose: '為什麼寫這個部落格',
-    purposeText: '寫下來，是為了下次需要時找得到。我會把設定方法和選擇的原因放在一起，希望碰到相同問題時，能少花一點摸索的時間。現在的四篇文章都在談 Astro：從建立專案到部署，再到雙語文章的整理方式。',
+    purposeText: ['當做一個筆記，記錄自己學習過的一切，並且透過文字的方式，讓自己重新整理這些概念。', '希望可以透過分享文章來幫助其他人。'],
     start: '從哪裡開始',
     entries: [
       ['learn', '文章系列', '照順序完成 Astro 部落格。'],
@@ -35,12 +35,12 @@ const copy = {
     ],
   },
   en: {
-    greeting: `Hi, I’m ${siteConfig.author.name}, a full-stack engineer`,
+    greeting: `Hi, I’m ${siteConfig.author.name.en}, a full-stack engineer`,
     title: 'From full-stack development to cloud native and platform engineering',
-    intro: 'I write C#, Angular and React, and I want to understand what happens after the code goes live. The first articles here cover building this Astro blog.',
     count: 'published articles', countNote: 'English content',
     background: 'About me',
-    backgroundText: 'My background is in full-stack development. I’m extending that into deployment and operations, with cloud native and platform engineering as my current areas of study.',
+    stackLabel: 'Technologies I use',
+    backgroundText: 'My background is in full-stack development, and I’m now moving toward cloud native and platform engineering.',
     motivation: 'Learning direction: cloud native',
     motivationText: 'Once a feature works, there is still deployment, monitoring and fault handling to think about. I want to know which signals to check when a service fails and which manual tasks can be automated. That is what draws me to cloud native.',
     exploring: 'What I’m exploring now',
@@ -53,7 +53,7 @@ const copy = {
       ['AI Engineering', 'Adding AI to applications and checking whether the results are reliable.'],
     ],
     purpose: 'Why I write this blog',
-    purposeText: 'I write things down so I can find them again. I keep the setup steps alongside the reasons for choosing them, in the hope that they save some searching next time. The four articles so far cover Astro, from creating the project to deployment and organizing translations.',
+    purposeText: ['I use this blog as a notebook for what I learn. Putting things into words helps me work through the concepts again.', 'I hope sharing these articles can help others too.'],
     start: 'Where to start',
     entries: [
       ['learn', 'Article series', 'Build an Astro blog step by step.'],
@@ -67,12 +67,12 @@ const t = copy[locale];
 ---
 <div class="about-profile">
   <div class="profile-intro">
-    <div><p class="eyebrow">{t.greeting}</p><h1>{t.title}</h1><p class="lead">{t.intro}</p></div>
+    <div><p class="eyebrow">{t.greeting}</p><h1>{t.title}</h1></div>
     <aside class="profile-author"><Author locale={locale} /></aside>
   </div>
   <div class="publication-count"><strong>{articleCount}</strong><div><span>{t.count}</span><small>{t.countNote}</small></div></div>
-  <section><h2>{t.purpose}</h2><p>{t.purposeText}</p></section>
-  <section><h2>{t.background}</h2><p>{t.backgroundText}</p><ul class="labels" aria-label={locale === 'zh-TW' ? '開發技術' : 'Development tools'}>{['C#', 'Angular', 'React'].map(tool => <li>{tool}</li>)}</ul></section>
+  <section><h2>{t.purpose}</h2>{t.purposeText.map(paragraph => <p>{paragraph}</p>)}</section>
+  <section><h2>{t.background}</h2><p>{t.backgroundText}</p><p id="author-stack-label">{t.stackLabel}</p><ul class="labels" aria-labelledby="author-stack-label">{['C#', 'Angular', 'React'].map(tool => <li>{tool}</li>)}</ul></section>
   <section><h2>{t.motivation}</h2><p>{t.motivationText}</p></section>
   <section><h2>{t.exploring}</h2><dl class="explorations">{t.explorations.map(([name, description]) => <div><dt>{name}</dt><dd>{description}</dd></div>)}</dl></section>
   <section><h2>{t.start}</h2><ul class="entry-links">{t.entries.filter(([path]) => path !== 'cases' || hasCases).map(([path, label, description]) => <li><a href={localePath(locale, path, import.meta.env.BASE_URL)}>{label}<span aria-hidden="true"> ↗</span></a><p>{description}</p></li>)}</ul></section>

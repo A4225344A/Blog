@@ -41,9 +41,10 @@ const en = {
   startIntro: 'The first series is about building this blog with Astro. With some HTML and programming experience, you can follow it from an empty folder to GitHub Pages.',
   blogEntry: 'How this blog is built', exploreEntry: 'Explore projects and articles',
   blogIntro: 'Start with why I chose Astro, then build a home page, add an article and publish it.',
-  exploreIntro: 'Already have an Astro project? Article four covers translations and series navigation. The Projects page introduces the AI SRE Platform lab.',
+  exploreIntro: 'Already have an Astro project? The final article covers translations and series navigation. The Projects page introduces the AI SRE Platform lab.',
   previousLesson: 'Previous article', nextLesson: 'Next article', pathNavigation: 'Continue this series', pathOverview: 'Back to the series',
-  aboutIntro: `I’m ${siteConfig.author.name}, a full-stack engineer moving toward cloud native and platform engineering. This blog records what I learn through implementation.`,
+  homeStartIntro: 'Build an Astro blog step by step, from an empty folder to GitHub Pages.',
+  aboutIntro: `I’m ${siteConfig.author.name.en}, a full-stack engineer moving toward cloud native and platform engineering. This blog records what I learn through implementation.`,
 
   experience: 'About the author', updated: 'Updated', published: 'Published', home: 'Home', all: 'View all',
 };
@@ -57,9 +58,10 @@ const zh: typeof en = {
   startIntro: '第一個系列從這個部落格寫起。如果你會一些 HTML，也寫過程式，可以跟著用 Astro 從空資料夾做到 GitHub Pages 上線。',
   blogEntry: '這個部落格如何建立', exploreEntry: '探索專案與文章',
   blogIntro: '從為什麼選 Astro 開始，接著建立首頁、加入文章，最後發布。',
-  exploreIntro: '已經有 Astro 專案，可以直接看第四篇的雙語文章與系列整理方式。專案頁另有 AI SRE Platform 實驗室的介紹。',
+  exploreIntro: '已經有 Astro 專案，可以直接看最後一篇的雙語文章與系列整理方式。專案頁另有 AI SRE Platform 實驗室的介紹。',
   previousLesson: '上一篇', nextLesson: '下一篇', pathNavigation: '繼續閱讀系列', pathOverview: '回到文章系列',
-  aboutIntro: `我是 ${siteConfig.author.name}，一名全端工程師，正在走向雲原生與平台工程。這裡記錄我在實作中學到的事。`,
+  homeStartIntro: '跟著 Astro 系列，從空資料夾做到 GitHub Pages 上線。',
+  aboutIntro: `我是 ${siteConfig.author.name['zh-TW']}，一名全端工程師，正在走向雲原生與平台工程。這裡記錄我在實作中學到的事。`,
 
   experience: '關於作者', updated: '更新日期', published: '發布日期', home: '首頁', all: '查看全部',
 };

@@ -2,7 +2,7 @@
 id: astro-knowledge-platform-en
 slug: astro-knowledge-platform
 title: "Organizing bilingual articles, series and search with Astro"
-description: "Four articles in two languages: a look at the files that connect URLs, series order, Content Collections, Pagefind and deployment checks."
+description: "Articles in two languages: a look at the files that connect URLs, series order, Content Collections, Pagefind and deployment checks."
 locale: en
 translationKey: astro-knowledge-platform
 contentType: tutorial
@@ -12,13 +12,13 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
-updatedAt: 2026-09-23
+updatedAt: 2026-09-24
 status: published
 ---
 
-Each of the four articles has a Chinese and an English version and appears in both a series and a topic list. I do not want to hunt through those lists whenever a title or URL changes. I store the relationships as data and let the build generate the links.
+Each article has a Chinese and an English version and appears in both a series and a topic list. I do not want to hunt through those lists whenever a title or URL changes. I store the relationships as data and let the build generate the links.
 
-This article follows the files behind that setup. It was published before the tutorials and later placed fourth in the series. Start with those first three articles if you want to build from an empty project.
+This article follows the files behind that setup. To build from an empty project, follow the earlier tutorials in the series first.
 
 The code uses Astro 7.3.3 and TypeScript, with Markdown for articles and Pagefind for search. You can find the paths below in the [GitHub repository](https://github.com/A4225344A/Blog).
 
@@ -80,7 +80,7 @@ Astro loads content by ID. Duplicate IDs can overwrite one another before a late
 
 Duplicate IDs, missing references, invalid metadata and forbidden article fields stop the build with a nonzero exit. For example, Article cannot declare `order` because the series already owns it. Diagnostics identify the source so the error can be corrected before deployment.
 
-Validation also prints `W_ARTICLE_NO_PROJECT`. None of the four Astro articles belongs to a Project, so their two language versions produce eight warnings without stopping the build. Checks for skill dependency cycles have not been added.
+Validation also prints `W_ARTICLE_NO_PROJECT`. None of the five Astro articles belongs to a Project, so their two language versions produce ten warnings without stopping the build. Checks for skill dependency cycles have not been added.
 
 ## Language routes and search metadata
 

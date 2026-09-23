@@ -12,7 +12,7 @@ skills: [local-website-preview]
 prerequisiteSkills: ["static-site-delivery"]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-23
+updatedAt: 2026-09-24
 status: published
 ---
 
@@ -102,9 +102,6 @@ Create `tsconfig.json`:
 Create `src/pages/index.astro`:
 
 ```astro
----
-const base = import.meta.env.BASE_URL;
----
 <!doctype html>
 <html lang="en">
   <head>
@@ -119,7 +116,7 @@ const base = import.meta.env.BASE_URL;
 </html>
 ```
 
-Most of this file is HTML. Astro adds the opening `---` block for code that runs while producing the page. Here it reads the deployment `base` for the article link added in the next article. Placing the file at `src/pages/index.astro` gives it the home route.
+This page only needs ordinary HTML. Placing it at `src/pages/index.astro` makes it the home page.
 
 In the same project terminal, run:
 
@@ -130,8 +127,6 @@ pnpm.cmd run dev
 Open the Local URL printed in the terminal; it should show **Engineering notes**. Edit the paragraph and save to see the page update. Astro dev is running and reading the source files.
 
 Press Ctrl+C to stop the development server. Run `pnpm.cmd run dev` again when you want to continue editing.
-
-The next article moves the page shell into a shared layout so new posts only need Markdown.
 
 ## Check types before committing
 
@@ -150,4 +145,4 @@ git add package.json pnpm-lock.yaml tsconfig.json .gitignore src
 git commit -m "Create Astro blog"
 ```
 
-If Git asks for a name and email, configure your commit identity and retry. The next article adds content and publishes this project.
+If Git asks for a name and email, configure your commit identity and retry. The next article adds a Markdown post and a shared layout.

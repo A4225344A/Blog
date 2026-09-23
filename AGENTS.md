@@ -694,6 +694,11 @@ Never claim success unless commands actually ran.
 
 ## Handoff Report
 
+Store session-specific handoff reports locally as ignored `docs/handoff-*.md` files.
+Do not commit those reports or current review-status prose to README or architecture
+documentation. Share the local report for independent review; preserve the review
+gate and record stable implementation requirements in the public documentation.
+
 Provide:
 - Summary
 - Files Changed

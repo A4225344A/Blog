@@ -35,6 +35,11 @@ for (const locale of locales) for (const legacy of legacyContentRoutes) {
   assert.ok(!html.includes('rel="canonical"'));
   assert.ok(html.includes(`property="og:url" content="${new URL(route, site).href}"`));
   assert.ok(html.includes(`href="${target}"`), `Migration link: ${route}`);
+  if (legacy.continuation) {
+    const continuation = localePath(locale, legacy.continuation, base);
+    assert.ok(routes.includes(continuation), `Split continuation exists: ${route}`);
+    assert.ok(html.includes(`href="${continuation}"`), `Split continuation link: ${route}`);
+  }
   assert.ok(!html.includes('data-pagefind-body'), `Migration excluded from search: ${route}`);
   assert.ok(!sitemap.includes(`<loc>${xmlEscape(new URL(route, site).href)}</loc>`));
   const rss = await readFile(`dist/${localePrefix[locale]}/rss.xml`, 'utf8');
