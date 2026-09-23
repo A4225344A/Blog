@@ -12,3 +12,4 @@ playwright-report/
 .phase*-validation.log
 .phase-*.log
 .security-audit.json
+docs/handoff-*.md

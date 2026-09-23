@@ -35,7 +35,12 @@ const project = kind === 'projects' ? graph.projects.find(a => a.id === id) : un
 const entity = article ?? topic ?? path ?? project;
 const legacy = kind === 'legacy' ? legacyContentRoutes.find(route => route.from === id) : undefined;
 if (!entity && !legacy) throw new Error(`Missing entity ${id}`);
-const text = legacy ? { title: locale === 'zh-TW' ? '這份內容已改版' : 'This content has been revised', description: locale === 'zh-TW' ? '這個網址原本是新手教學，現在已重寫為 Astro 部落格系列。新版需要基本 HTML 與程式經驗，可以從下方連結前往。' : 'This URL used to host a beginner tutorial. It has been rewritten as part of the Astro blog series, which assumes basic HTML and programming experience. Follow the link below for the new version.' } : article ? { title: article.title, description: article.description } : entityText(topic ? 'topics' : path ? 'learning-paths' : 'projects', entity!, locale);
+const text = legacy ? {
+  title: locale === 'zh-TW' ? '這份內容已改版' : 'This content has been revised',
+  description: legacy.continuation
+    ? (locale === 'zh-TW' ? '原本的文章已拆成兩篇：先加入文章與共用版型，再部署到 GitHub Pages。可以依目前進度選擇下方連結。' : 'This article is now two posts: first add an article and shared layout, then deploy to GitHub Pages. Choose the link that matches your progress.')
+    : (locale === 'zh-TW' ? '這個網址原本是新手教學，現在已重寫為 Astro 部落格系列。新版需要基本 HTML 與程式經驗，可以從下方連結前往。' : 'This URL used to host a beginner tutorial. It has been rewritten as part of the Astro blog series, which assumes basic HTML and programming experience. Follow the link below for the new version.'),
+} : article ? { title: article.title, description: article.description } : entityText(topic ? 'topics' : path ? 'learning-paths' : 'projects', entity!, locale);
 const entry = article ? (await getCollection('articles')).find(a => a.id === id) : undefined;
 const rendered = entry ? await render(entry) : undefined;
 const Content = rendered?.Content;
@@ -54,7 +59,8 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
 <BaseLayout locale={locale} indexContent={!noindex} noindex={noindex} title={text.title} description={text.description} languageLinks={legacy ? Object.fromEntries(locales.map(target => [target, localePath(target, legacy.from, base)])) : languageLinks} alternates={alternates} article={Boolean(article)} jsonLd={article ? articleJsonLd(article, Astro.site?.href ?? 'http://localhost:4321', base) : undefined}>
   <article data-search-terms={searchTerms} data-pagefind-index-attrs={article ? 'data-search-terms' : undefined}>
     <h1 data-pagefind-meta="title">{text.title}</h1><p class="lead" data-pagefind-meta="description">{text.description}</p>
-    {legacy && <p><a href={localePath(locale, legacy.to, base)}>{locale === 'zh-TW' ? '閱讀新版內容' : 'Read the revised content'}</a></p>}
+    {legacy && <p><a href={localePath(locale, legacy.to, base)}>{legacy.continuation ? (locale === 'zh-TW' ? '加入文章與共用版型' : 'Adding articles and a shared layout') : (locale === 'zh-TW' ? '閱讀新版內容' : 'Read the revised content')}</a></p>}
+    {legacy?.continuation && <p><a href={localePath(locale, legacy.continuation, base)}>{locale === 'zh-TW' ? '部署 Astro 部落格到 GitHub Pages' : 'Deploying an Astro blog to GitHub Pages'}</a></p>}
     {article && <>
       <p class="post-meta">{article.publishedAt && <span>{t.published}{separator}<time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></span>}{article.updatedAt && <span>{t.updated}{separator}<time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></span>}{graph.topics.filter(topic => article.topics.includes(topic.id)).map(topic => <a class="chip" href={localePath(locale, `topics/${encodeURIComponent(topic.id)}`, base)}>{entityText('topics', topic, locale).title}</a>)}</p>
       {tocHeadings.length > 0 && <nav class="mobile-toc" aria-label={t.contents} data-pagefind-ignore><h2>{t.contents}</h2><ol>{tocHeadings.map(heading => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}</ol></nav>}

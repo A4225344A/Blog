@@ -4,11 +4,8 @@
 >
 > 一位全端工程師走向雲原生的實作、排障與架構筆記。
 
-**Status: IMPLEMENTED_PENDING_INDEPENDENT_REVIEW**
-
-The preceding V1 release received Claude's READY_WITH_MINOR_NOTES and was deployed.
-This branch adopts the maintainer-approved personal technical blog positioning. Independent review remains pending. Local validation is Builder
-evidence; the human remains the final merge authority.
+A bilingual blog by Jacky（謝宇逸）, built with Astro and hosted on GitHub Pages.
+The source includes the articles, layouts and build checks used by the website.
 
 ## What is implemented
 
@@ -22,8 +19,8 @@ evidence; the human remains the final merge authority.
 - One CI workflow with read-only validation and a deployment job using the same
   run's main CI artifact, with deployment-only Pages/OIDC permissions. Human
   approval requires Required reviewers configured separately in GitHub.
-- One four-article bilingual Astro series: selection, project setup, Markdown
-  and a complete Pages workflow, followed by this blog's content model.
+- One five-article bilingual Astro series: selection, project setup, Markdown
+  and layouts, GitHub Pages deployment, then the content model.
 - AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
   for learning, demonstration and experimentation, not production deployment.
 
@@ -122,7 +119,7 @@ Content validation fails for duplicate entity IDs, required missing references,
 forbidden fields, published Article route collisions (`E_ROUTE_COLLISION`), stale
 translation keys and schema/read errors. The six V1 graph warning categories and
 the editorial translation warning remain nonblocking.
-The eight Article-to-Project membership warnings are intentional: the architecture
+The ten Article-to-Project membership warnings are intentional: the architecture
 and Astro series are not part of the AI SRE lab. Advanced graph checks remain
 deferred. See [architecture](docs/architecture.md) for exact diagnostic IDs.
 
@@ -182,20 +179,15 @@ Before the first push to main, the maintainer must complete these hard precondit
 5. Configure the origin-root robots policy and sitemap directive described above.
 6. Choose the code/content license before production publication.
 
-These settings are not automatically configured by repository files. The previous
-version has deployed successfully; this workflow replacement needs fresh hosted
-verification, including observing the deployment wait for approval.
+These settings are configured in GitHub, not by repository files. Check them in
+the repository settings before publishing.
 
-## Review and known limits
+## Development notes
 
-Read `AGENTS.md`, `CLAUDE.md`, `docs/architecture.md` and the latest V1 handoff.
-The current report is [Personal Technical Blog](docs/handoff-personal-blog.md).
-The workflow report is [Unified CI and Human-Gated Deployment](docs/handoff-unified-ci.md).
-The earlier [V1 Claude Review Fixes](docs/handoff-review-fixes.md) records the previous findings.
-The earlier Phase 1–3 handoff is historical. Review should focus on ownership,
-publication filtering, base URLs, search/translation, theme accessibility and the
-CI artifact trust boundary. Chromium tests do not replace a full accessibility or
+See [architecture](docs/architecture.md) for the content model and routing, and
+[operations](docs/v1.1-operations.md) for deployment and analytics setup.
+Contribution and review instructions are in `AGENTS.md` and `CLAUDE.md`. Chromium tests do not replace a full accessibility or
 cross-browser audit. Pagefind does not stem `zh-tw` terms; Chinese query behavior
-is tested. Reading time is an estimate. No V2/V3 features were added.
+is tested. Reading time is an estimate.
 
 An explicit license should be chosen before public reuse of the code/content.

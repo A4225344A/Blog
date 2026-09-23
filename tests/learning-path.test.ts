@@ -34,7 +34,10 @@ test('Astro article series preserves bilingual order and teaches declared prereq
   const translations: string[][] = [];
   for (const locale of locales) {
     const lessons = orderedPathArticles(beginner, result.graph.articles, locale).flatMap(section => section.articles);
-    assert.equal(lessons.length, 4);
+    assert.deepEqual(lessons.map(lesson => lesson.translationKey), [
+      'beginner-tools', 'beginner-local-website', 'beginner-first-change',
+      'astro-github-pages', 'astro-knowledge-platform',
+    ]);
     assert.deepEqual(lessons[0]?.prerequisiteSkills, []);
     const learned = new Set<string>();
     for (const lesson of lessons) {

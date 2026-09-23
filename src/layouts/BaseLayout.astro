@@ -66,6 +66,6 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
       <main id="main" class:list={{ 'article-page': article }} tabindex="-1" data-pagefind-body={indexContent || undefined} data-pagefind-ignore={!indexContent || undefined}><slot /></main>
       {sidebar && <Sidebar locale={locale} showRecent={showRecent}><slot name="sidebar" /></Sidebar>}
     </div>
-    <footer><div class="footer-inner"><p>© 2026 {siteConfig.author.name} · {locale === 'zh-TW' ? '全端工程師' : 'Full-stack engineer'}</p><a href={siteConfig.author.githubUrl}>GitHub ↗</a><a href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)}>RSS</a></div></footer>
+    <footer><div class="footer-inner"><p>© 2026 {siteConfig.author.name[locale]} · {locale === 'zh-TW' ? '全端工程師' : 'Full-stack engineer'}</p><a href={siteConfig.author.githubUrl}>GitHub ↗</a><a href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)}>RSS</a></div></footer>
   </body>
 </html>

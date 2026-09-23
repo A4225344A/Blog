@@ -32,17 +32,15 @@ CSP is not introduced: existing inline theme code, Astro output and Pagefind nee
 a separately browser-verified policy. No custom GitHub Pages response-header
 protections are claimed. Existing minimal Actions permissions, main-only artifact
 deployment and the named environment remain intact. Human approval depends on
-GitHub Required reviewers configuration, not YAML alone. Claude's second re-review
-independently confirmed that rule through GitHub's API. No main deployment after
-the configuration change was available to verify the Waiting/approval cycle;
-see `docs/handoff-content-review-fixes.md` for the evidence and review outcome.
+GitHub Required reviewers configuration, not YAML alone. Repository settings
+must be checked separately; local tests cannot prove that a deployment waited.
 The main production build
 reads the public Measurement ID from repository Actions variables, not secrets.
 
 ## September 2026 presentation and dependency update
 
 Public branding is **從全端到雲原生 / From Full-Stack to Cloud Native**.
-The author is displayed as Jacky（謝宇逸） in both locales, a full-stack engineer moving toward cloud native and
+The author is displayed as Jacky（謝宇逸） in Chinese and Jacky (謝宇逸) in English, a full-stack engineer moving toward cloud native and
 platform engineering. Local reference screenshots inform indigo gradients, article cards and a
 desktop sidebar with author, actual content counts, article TOC and recent posts.
 Counts derive from published localized content; they are not visitor metrics.
@@ -52,13 +50,13 @@ build-time headings, use CSS visibility without JavaScript and are excluded from
 Pagefind. The hidden copy is outside the accessibility tree and tab order.
 Light/dark/system modes,
 storage fallback, reduced motion and static navigation remain supported.
-No reference-patch article split, image zoom or theme-test removal is adopted.
+The article/layout tutorial and deployment tutorial are separate articles.
+Image zoom and theme-test removal are not part of this change.
 
 Astro is pinned to 7.3.3 with Zod 4 shared schemas. CI uses Node 24, matching the
 tutorial commands. Security controls and settings that still need external
 verification are described in `docs/security.md`. The content graph, stable
 identities, route ownership, static hosting and GA4 acquisition policy are unchanged.
-Status: implementation awaiting Claude independent review.
 
 ## Purpose
 
@@ -77,10 +75,7 @@ locale/URL utilities, bilingual foundation pages and light/dark/system controls.
 The remaining sections describe the approved V1 target unless marked implemented.
 Content views (Phase 4), search/SEO (Phase 5), CI/deployment workflows (Phase 6),
 and the complete bilingual implementation article (Phase 7) are implemented.
-Status: `IMPLEMENTED_PENDING_INDEPENDENT_REVIEW`.
-The preceding V1 version received Claude's READY_WITH_MINOR_NOTES and was deployed.
-This branch adopts the maintainer-approved personal technical blog positioning.
-The implementation still awaits independent review.
+
 
 Implementation details:
 
@@ -179,8 +174,6 @@ Implementation details:
   `deploy`. Only successful main push CI uploads `verified-site`. Deployment uses
   `needs: validate`, requires a successful main push, and waits for required human
   reviewers on the `github-pages` environment only when configured in GitHub.
-  Claude's second re-review independently confirmed this rule after the initial
-  audit identified the missing configuration; a post-configuration run is pending.
   Once the job starts it checks the current
   main SHA against `context.sha`, downloads the same run's artifact, and repackages
   and deploys it without rebuilding or checking out code. The old `workflow_run`
@@ -198,7 +191,7 @@ Implementation details:
   validation boundary, routes, theme, Pagefind, SEO and artifact deployment. The
   `knowledge-platform` LearningPath owns its ordered Article membership. It is not
   falsely attached to AI SRE Platform. The Astro series Articles are also independent
-  of that lab, so eight `W_ARTICLE_NO_PROJECT` warnings remain. The six initial Skills
+  of that lab, so ten `W_ARTICLE_NO_PROJECT` warnings remain. The six initial Skills
   are supplemented by terminal basics, local preview and editing web pages.
   Cases remain an honest empty state until actual case content is authored.
 
@@ -212,27 +205,30 @@ production experience or measured results are inferred. At the maintainer's
 request, About describes technical interests and tools without industry history.
 
 LearningPath is presented as an Article Series. The `knowledge-platform` entity
-owns all four bilingual Astro articles, from selection and setup to publishing
+owns all five bilingual Astro articles, from selection and setup to publishing
 and this blog's content model. The duplicate `first-website` entity is retired.
 Article IDs and translation keys remain stable; public slugs now describe the
-intermediate content: `why-astro`, `astro-project-setup`, and
-`astro-content-and-deployment`. The old `beginner-*` and `learn/first-website`
-URLs render localized migration notices with manual links to the replacement,
+intermediate content: `why-astro`, `astro-project-setup`, `astro-content-and-layout`
+and `astro-github-pages`. The former `astro-content-and-deployment` route explains
+the split and links to both articles; its original ID belongs to the layout article.
+The new deployment article has its own stable ID and translation key.
+The old `beginner-*` and `learn/first-website` URLs link to current replacements,
 not the revised article body. They are noindex, omit canonical and hreflang,
 use their own URL for Open Graph, and are excluded from sitemap, RSS and Pagefind. This preserves shared links
 without implying the former zero-experience course still exists.
 
 The series assumes basic HTML and programming knowledge. Tool installation and
 Git initialization precede their first use; Windows examples use Node.js 24.x,
-pnpm 10.32.1 and `pnpm.cmd`. Article three includes a self-contained Pages workflow
+pnpm 10.32.1 and `pnpm.cmd`. Article four includes a self-contained Pages workflow
 for the minimal example. The final article describes the actual blog's five-entity
 Content Graph, without internal handoff or review-status prose.
 The bilingual tutorial pins Astro 7.3.3 for reproducibility and includes
 `@astrojs/check`/TypeScript plus executable `check` commands. Windows PowerShell
 is the documented shell; Unix readers are told which syntax needs adapting.
 Original publication dates remain historical metadata; series order is owned by
-LearningPath, not inferred from dates. The walkthrough explains why it predates
-the tutorials. Latest articles stay chronological and link readers to the series.
+LearningPath, not inferred from dates. The walkthrough keeps its original date
+without a chronology explanation in the prose. Latest articles stay chronological
+and link to the ordered series; publication dates are not fabricated to alter order.
 Topic discovery shares configured ordering, with a stable ID fallback for new
 topics. The walkthrough is classified under website and platform engineering.
 The selection article uses a static publishing-flow illustration; the other
@@ -255,12 +251,14 @@ relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
 
-The bilingual About page uses the maintainer's chosen display name Jacky（謝宇逸）, a
+The bilingual About page uses the maintainer's Chinese name in both locales, with
+locale-appropriate parentheses, a
 cloud-native exploration tagline, C#/Angular/React stack, and current exploration
 of cloud native and platform engineering. Exploration is not represented as production
 experience. Industry history is omitted at the maintainer's request. The page
 introduces the writing motivation before the personal introduction. The GitHub
-profile URL remains the existing account; Jacky（謝宇逸） is the site's display name. Its
+profile URL remains the existing account. The localized display names come from
+siteConfig.author.name. Its
 article count uses published Articles in the current locale at build
 time, avoiding double-counting translations. No founding year or public view count is
 shown without supplied evidence; no GA4 reporting API, credentials or scheduled job
@@ -761,9 +759,9 @@ Do not make these V1 blockers:
 ## Repository Walkthrough Article
 
 Public prose uses direct instructions and concrete file examples. The September
-editorial pass revises all eight localized articles and the public introductions;
+editorial pass revises the localized articles and the public introductions;
 it removes repetitive institutional phrasing and moves the detailed content-model
-discussion to the fourth article. Tutorial commands and deployment safeguards
+discussion to the final article. Tutorial commands and deployment safeguards
 remain explicit. The Markdown sample uses prose headings instead of an ADR-style
 Context/Decision/Tradeoff template. No invented incidents or measurements are added.
 

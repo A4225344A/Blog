@@ -31,7 +31,7 @@ skills: {
 },
 'learning-paths': {
   'knowledge-platform': { title: '用 Astro 建立技術部落格', description: '從空專案做到 GitHub Pages 上線，再整理雙語文章與系列順序。', targetAudience: ['工程師', '技術寫作者'], sections: {
-    foundation: { title: '從建立專案到發布文章', description: '需要基本 HTML 與程式經驗。第二篇從工具安裝開始，第四篇接著說明雙語文章的管理方式。' },
+    foundation: { title: '從建立專案到發布文章', description: '需要基本 HTML 與程式經驗。從工具安裝開始，接著加入文章、部署，最後整理雙語內容。' },
   } },
 },
 projects: {

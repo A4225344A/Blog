@@ -10,7 +10,7 @@
     {
       "id": "foundation",
       "title": "From project setup to published articles",
-      "description": "You will need basic HTML and programming experience. Article two starts with installing tools; article four covers managing translations.",
+      "description": "You will need basic HTML and programming experience. Start with setup, then add articles and deploy. The final post covers translations.",
       "articleIds": [
         "beginner-tools-zh-tw",
         "beginner-tools-en",
@@ -18,6 +18,8 @@
         "beginner-local-website-en",
         "beginner-first-change-zh-tw",
         "beginner-first-change-en",
+        "astro-github-pages-zh-tw",
+        "astro-github-pages-en",
         "astro-knowledge-platform-zh-tw",
         "astro-knowledge-platform-en"
       ]
