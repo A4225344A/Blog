@@ -2,7 +2,7 @@
 id: beginner-tools-zh-tw
 slug: why-astro
 title: "為什麼我用 Astro 建立技術部落格"
-description: "從小小工程師的角度，說明個人專案與技術文章的需求，以及靜態建置、Git 管理與 GitHub Pages 的取捨。"
+description: "我想用 Markdown 寫文章、用 Git 管理修改，再把靜態檔案放上 GitHub Pages。這些需求讓我選了 Astro。"
 locale: zh-TW
 translationKey: beginner-tools
 contentType: concept
@@ -12,17 +12,17 @@ skills: [static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-這個部落格要放的東西很單純：個人專案、實作筆記，還有一些值得寫下來的技術選擇。每位讀者打開同一篇文章，看到的正文都一樣；我改稿、發布，頁面才需要更新。
+我想把專案裡的做法寫下來，文章和程式碼一起放進 Git。寫完可以看 diff，之後要改版型，也能在同一個專案裡處理。
 
-這個需求不需要常駐的應用伺服器。用 Astro 在發布前把頁面做好，再交給 GitHub Pages 提供檔案，就能處理目前的需求。
+文章只在改稿後更新，沒有登入或即時資料。我選擇讓 Astro 先產生 HTML，再把檔案放上 GitHub Pages，不另外維護應用伺服器。
 
-## 把工作留在發布的時候
+## 先產生 HTML，再發布
 
-拿一篇專案筆記來說，標題、正文、相關文章連結都已經寫在專案裡。這些資料可以在建置時讀完，連同版型一起產生 HTML。搜尋索引也在這時產生，讀者搜尋時使用站內的靜態索引。
+執行 build 時，Astro 讀取 Markdown，把標題和正文放進版型，產生 HTML。Pagefind 接著掃描這些頁面，建立搜尋索引。開啟文章或搜尋時，瀏覽器直接讀取這批檔案。
 
 整個流程裡，Node.js 負責開發與建置。到了 GitHub Pages，剩下的就是 HTML、CSS 和必要的 JavaScript。
 
@@ -38,12 +38,12 @@ status: published
 
 ## 我怎麼看其他選擇
 
-以下比較的是本站需求，沒有做跨框架效能測試。
+我主要看兩件事：文章怎麼寫，以及上線後要維護什麼。
 
 | 選擇 | 適合這個需求的地方 | 我需要考慮的事 |
 | --- | --- | --- |
 | Hugo | 直接從內容產生靜態網站 | 需要使用它的模板與內容組織方式 |
-| Next.js 靜態匯出 | 可以沿用 React，產出靜態檔案 | 靜態匯出不能使用需要伺服器的功能；本站目前不需要以 React 組織整個頁面 |
+| Next.js 靜態匯出 | 可以沿用 React，產出靜態檔案 | 不能使用需要伺服器的功能；這個部落格也沒有需要 React 的複雜互動 |
 | 自架 WordPress | 有瀏覽器編輯介面與外掛生態 | 標準自架環境需要 PHP 與資料庫，不符合這次只部署檔案的目標 |
 | Astro | Markdown 與版型放在同一個專案，預設可產生靜態頁面 | 接受發布前重新建置，也要自己整理內容規則 |
 
@@ -51,18 +51,16 @@ status: published
 
 參考：[Hugo 簡介](https://gohugo.io/about/introduction/)、[Next.js 靜態匯出限制](https://nextjs.org/docs/app/guides/static-exports)、[WordPress 執行環境](https://wordpress.org/about/requirements/)。
 
-## 我願意接受重新建置這件事
+## 改一個錯字也要重新部署
 
-Astro 對這裡的吸引力，是 Markdown、頁面版型和程式碼可以放在同一個 Git 專案。寫文章時能看 diff，改版型時也能一起確認正文的呈現。產出的 HTML 已經包含文章，瀏覽器拿到就能閱讀。
+這個做法有個麻煩：即使只修正一個錯字，也得重新建置、部署。搜尋索引同樣要更新。我不需要編輯後立刻對外顯示，這段等待可以接受。
 
-代價也很直接：改一個錯字，仍然得跑完建置與發布。搜尋結果同樣要等索引更新。對這種由作者編輯、確認後才公開的內容，我可以接受這段等待。
+另一個要處理的是 `/Blog/` 子路徑。首頁、文章和圖片的連結都得帶上它；漏掉這段，瀏覽器就會去網域根目錄找檔案。第三篇會實際設定和檢查這些連結。
 
-GitHub Pages 也讓網址多了一個要注意的地方。本站放在 `/Blog/` 下，首頁、文章、圖片的連結都得帶上這段路徑。這是選了這種部署方式之後，要在程式和測試裡處理的事。
-
-## 從產物追查更新
+## 文章改了，頁面卻沒更新
 
 假設 Markdown 已經改好，正式站卻還是舊文章，我會沿著上面那張圖查：修改有沒有進入建置使用的 commit？產出的 HTML 是否包含新段落？部署的又是哪一次產物？
 
-這是把頁面生成移到建置階段後，很實際的差異。資料和版型的問題可以先在本機產物裡確認，部署則追蹤 commit 和產物之間的關係。本站會在部署前執行內容驗證與測試。
+先看 `dist` 裡的 HTML，可以分辨問題出在建置還是部署。如果 HTML 已經有新段落，就往 GitHub Actions 查這次發布用了哪一份產物。
 
 下一篇從空資料夾建立 Astro 專案與首頁。

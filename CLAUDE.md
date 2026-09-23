@@ -23,7 +23,7 @@ Responsibilities:
 
 ## Product Definition
 
-The repository should implement **Jacky's bilingual personal technical blog, 小小工程師的技術部落格 / A Little Engineer’s Blog**, combining:
+The repository should implement **Jacky's bilingual personal technical blog, 從全端到雲原生 / From Full-Stack to Cloud Native**, combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
@@ -33,9 +33,9 @@ The repository should implement **Jacky's bilingual personal technical blog, 小
 The maintainer-approved positioning shares personal projects, technical articles
 and architecture decisions. Explain unfamiliar tools clearly without framing
 the author as a first-time developer. LearningPath is presented as Article Series.
-「小小工程師」 is the public brand and self-description, not a claim of no
-development experience. Apply the no-first-time-developer rule to experience
-claims, not the brand. Full-stack development may describe technical background,
+The public positioning is a full-stack engineer moving toward cloud native and
+platform engineering. Use 全端工程師 / full-stack engineer for the author, and keep
+the site name for the blog itself. Technical background may be described,
 but must not replace the chosen public name.
 
 ## Source of Truth
@@ -310,10 +310,10 @@ Verify:
 Verify the first complete Article is:
 
 Traditional Chinese:
-> 本站 Astro 部落格的內容模型與交付設計
+> 用 Astro 整理雙語文章、系列與搜尋
 
 English:
-> The content model and delivery design of this Astro blog
+> Organizing bilingual articles, series and search with Astro
 
 It must match the actual implementation. AI SRE Platform remains a Project.
 

@@ -30,12 +30,12 @@ skills: {
   'ai-assisted-incident-handling': { title: 'AI 輔助事件處理', description: '在實驗室中探索 AI 輔助事件分析。' },
 },
 'learning-paths': {
-  'knowledge-platform': { title: '用 Astro 建立技術部落格', description: '四篇文章：選擇 Astro、建立專案、發布到 GitHub Pages，最後拆解本站的內容模型。', targetAudience: ['工程師', '技術寫作者'], sections: {
-    foundation: { title: '從選型到本站實作', description: '適合具備基本 HTML 與程式經驗的讀者；工具安裝放在第一個操作步驟之前。' },
+  'knowledge-platform': { title: '用 Astro 建立技術部落格', description: '從空專案做到 GitHub Pages 上線，再整理雙語文章與系列順序。', targetAudience: ['工程師', '技術寫作者'], sections: {
+    foundation: { title: '從建立專案到發布文章', description: '需要基本 HTML 與程式經驗。第二篇從工具安裝開始，第四篇接著說明雙語文章的管理方式。' },
   } },
 },
 projects: {
-  'ai-sre-platform': { title: 'AI SRE Platform', description: '整合 AWS 基礎設施、Kubernetes GitOps、可觀測性與 AI 輔助事件處理的架構實驗室，用於學習、展示與實驗，不用於正式環境部署。' },
+  'ai-sre-platform': { title: 'AI SRE Platform', description: '用來練習 AWS、Kubernetes GitOps、監控與 AI 輔助排障的實驗專案，目前定位為 lab，沒有用於正式環境。' },
 },
 };
 export function entityText(collection: SharedCollection, entity: { id: string; title?: string; name?: string; description?: string }, locale: Locale) {

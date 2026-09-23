@@ -35,7 +35,7 @@ const project = kind === 'projects' ? graph.projects.find(a => a.id === id) : un
 const entity = article ?? topic ?? path ?? project;
 const legacy = kind === 'legacy' ? legacyContentRoutes.find(route => route.from === id) : undefined;
 if (!entity && !legacy) throw new Error(`Missing entity ${id}`);
-const text = legacy ? { title: locale === 'zh-TW' ? '這份內容已改版' : 'This content has been revised', description: locale === 'zh-TW' ? '原本的新手內容已改寫為 Astro 部落格系列，適合具備基本 HTML 與程式經驗的讀者。' : 'The former beginner content has been rewritten as an Astro blog series for readers with basic HTML and programming experience.' } : article ? { title: article.title, description: article.description } : entityText(topic ? 'topics' : path ? 'learning-paths' : 'projects', entity!, locale);
+const text = legacy ? { title: locale === 'zh-TW' ? '這份內容已改版' : 'This content has been revised', description: locale === 'zh-TW' ? '這個網址原本是新手教學，現在已重寫為 Astro 部落格系列。新版需要基本 HTML 與程式經驗，可以從下方連結前往。' : 'This URL used to host a beginner tutorial. It has been rewritten as part of the Astro blog series, which assumes basic HTML and programming experience. Follow the link below for the new version.' } : article ? { title: article.title, description: article.description } : entityText(topic ? 'topics' : path ? 'learning-paths' : 'projects', entity!, locale);
 const entry = article ? (await getCollection('articles')).find(a => a.id === id) : undefined;
 const rendered = entry ? await render(entry) : undefined;
 const Content = rendered?.Content;

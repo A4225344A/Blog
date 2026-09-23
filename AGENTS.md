@@ -18,7 +18,7 @@ Do not act as the final reviewer of your own implementation.
 
 ## Product Definition
 
-This repository is **Jacky's bilingual personal technical blog, 小小工程師的技術部落格 / A Little Engineer’s Blog**, combining:
+This repository is **Jacky's bilingual personal technical blog, 從全端到雲原生 / From Full-Stack to Cloud Native**, combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
@@ -29,18 +29,17 @@ This repository is **Jacky's bilingual personal technical blog, 小小工程師�
 
 The product shares personal projects, technical articles and architecture decisions.
 Explain unfamiliar tools clearly without framing the author as a first-time developer.
-「小小工程師」 is the public brand and self-description; it does not claim the author
-has no development experience. The no-first-time-developer rule applies to claims
-about experience, not this brand. Full-stack development may describe technical
-background, but must not replace the chosen public name.
+The public positioning is a full-stack engineer moving toward cloud native and
+platform engineering. Use 全端工程師 / full-stack engineer for the author, and keep
+the site name for the blog itself.
 
 Public positioning:
 
-> Personal projects, full-stack implementation and architecture decisions.
+> A full-stack engineer’s notes on implementation, troubleshooting and architecture decisions, while moving toward cloud native.
 
 Traditional Chinese:
 
-> 記錄個人專案、全端實作與架構取捨。
+> 一位全端工程師走向雲原生的實作、排障與架構筆記。
 
 Primary domains:
 - Cloud Native
@@ -450,11 +449,11 @@ Do NOT make these V1 blockers:
 
 Traditional Chinese:
 
-> 本站 Astro 部落格的內容模型與交付設計
+> 用 Astro 整理雙語文章、系列與搜尋
 
 English:
 
-> The content model and delivery design of this Astro blog
+> Organizing bilingual articles, series and search with Astro
 
 It must describe the actual repository implementation. Do not document features that do not exist.
 

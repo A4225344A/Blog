@@ -2,7 +2,7 @@
 id: beginner-tools-en
 slug: why-astro
 title: "Why I use Astro for a technical blog"
-description: "An engineer's perspective on personal projects, technical writing and the tradeoffs of static builds, Git and GitHub Pages."
+description: "Why I chose Astro to write in Markdown, track edits in Git and publish static files to GitHub Pages."
 locale: en
 translationKey: beginner-tools
 contentType: concept
@@ -12,17 +12,17 @@ skills: [static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-I use this blog to publish personal projects, implementation notes and technical decisions worth writing down. Every reader opening the same article sees the same body. The page needs to change when I edit and publish it.
+I want to keep notes about my projects alongside the code in Git. I can review edits in a diff and change the page layout in the same project.
 
-This requirement does not need an application server to keep running. Astro generates the pages before publication, and GitHub Pages serves the files. That is enough for the blog’s current publishing needs.
+The articles only change when I edit them. There are no accounts or live data, so I chose to generate HTML with Astro and host the files on GitHub Pages. That leaves me without an application server to maintain.
 
-## Do the work at publication time
+## Generate the HTML before publishing
 
-Take a project note: its title, body and related links already live in the repository. The build can read them, combine them with a layout and produce HTML. It also generates the static index that readers use to search the site.
+During a build, Astro reads the Markdown and places the title and body into a layout to produce HTML. Pagefind then scans those pages and creates a search index. The browser loads these files when you open an article or search.
 
 Node.js handles development and building. What reaches GitHub Pages is HTML, CSS and the necessary JavaScript.
 
@@ -38,7 +38,7 @@ Node.js handles development and building. What reaches GitHub Pages is HTML, CSS
 
 ## The alternatives for this site
 
-This is a requirements comparison, not a cross-framework performance benchmark.
+I focused on how I would write articles and what I would need to maintain after publishing.
 
 | Choice | Useful here | What I would need to consider |
 | --- | --- | --- |
@@ -51,18 +51,16 @@ Astro fits how I want to maintain this blog: articles and layouts in the same Gi
 
 References: [Hugo introduction](https://gohugo.io/about/introduction/), [Next.js static exports](https://nextjs.org/docs/app/guides/static-exports), [WordPress requirements](https://wordpress.org/about/requirements/).
 
-## Rebuilding is a tradeoff I can accept
+## Even a typo needs another deployment
 
-What appeals to me here is keeping Markdown, layouts and code in the same Git project. I can review a writing diff and check how a layout change affects the text. The generated HTML already contains the article when the browser receives it.
+There is an inconvenience: fixing a single typo still means building and deploying again. The search index needs updating too. I do not need edits to appear immediately, so I can live with that wait.
 
-The cost: even a typo correction goes through a build and publication. Search results wait for the index to update. For content that an author edits and approves before publishing, I can accept that delay.
+The `/Blog/` path also needs attention. Links to home, articles and images must include it; otherwise the browser looks at the domain root. Article three walks through configuring and checking those links.
 
-GitHub Pages adds a detail to the URLs: this site lives under `/Blog/`. Links to home, articles and images need that prefix. Choosing this hosting setup means accounting for it in the code and tests.
-
-## Trace updates through the output
+## When the live article still shows old text
 
 Suppose the Markdown has changed but the live article still shows the old paragraph. I would follow the diagram: did the edit reach the commit used for the build? Does the generated HTML contain it? Which artifact was deployed?
 
-That is a practical consequence of generating pages during the build. Content and layout issues can be inspected in local output; deployment follows the connection between a commit and its artifact. This repository runs content validation and tests before deployment.
+Checking the HTML in `dist` helps separate a build problem from a deployment problem. If the new paragraph is already there, the next place to look is GitHub Actions: which output did that deployment publish?
 
 Next, create an empty Astro project and a home page.

@@ -41,9 +41,9 @@ reads the public Measurement ID from repository Actions variables, not secrets.
 
 ## September 2026 presentation and dependency update
 
-Public branding is **小小工程師的技術部落格 / A Little Engineer’s Blog**.
-The author remains Jacky; full-stack tools describe experience, not the display
-name. Local reference screenshots inform indigo gradients, article cards and a
+Public branding is **從全端到雲原生 / From Full-Stack to Cloud Native**.
+The author is displayed as Jacky（謝宇逸） in both locales, a full-stack engineer moving toward cloud native and
+platform engineering. Local reference screenshots inform indigo gradients, article cards and a
 desktop sidebar with author, actual content counts, article TOC and recent posts.
 Counts derive from published localized content; they are not visitor metrics.
 On smaller screens the TOC appears before the article body; the desktop TOC is
@@ -255,12 +255,12 @@ relationship ownership, backend or deployment permissions change.
 
 ## V1 Validation and Operational Boundary
 
-The bilingual About page uses the maintainer's chosen display name Jacky, a
+The bilingual About page uses the maintainer's chosen display name Jacky（謝宇逸）, a
 cloud-native exploration tagline, C#/Angular/React stack, and current exploration
 of cloud native and platform engineering. Exploration is not represented as production
 experience. Industry history is omitted at the maintainer's request. The page
 introduces the writing motivation before the personal introduction. The GitHub
-profile URL remains the existing account; Jacky is the site's display name. Its
+profile URL remains the existing account; Jacky（謝宇逸） is the site's display name. Its
 article count uses published Articles in the current locale at build
 time, avoiding double-counting translations. No founding year or public view count is
 shown without supplied evidence; no GA4 reporting API, credentials or scheduled job
@@ -312,7 +312,7 @@ and [configuration](https://docs.astro.build/en/reference/configuration-referenc
 
 ## Product Definition
 
-The system is **Jacky's bilingual personal technical blog, 小小工程師的技術部落格 / A Little Engineer’s Blog**, combining:
+The system is **Jacky's bilingual personal technical blog, 從全端到雲原生 / From Full-Stack to Cloud Native**, combining:
 - structured Learning Paths
 - technical references
 - troubleshooting Case Studies
@@ -324,11 +324,11 @@ Explain unfamiliar tools clearly without framing the author as a first-time deve
 
 Public direction:
 
-> Personal projects, full-stack implementation and architecture decisions.
+> A full-stack engineer’s notes on implementation, troubleshooting and architecture decisions, while moving toward cloud native.
 
 Traditional Chinese:
 
-> 記錄個人專案、全端實作與架構取捨。
+> 一位全端工程師走向雲原生的實作、排障與架構筆記。
 
 Primary domains:
 - Cloud Native
@@ -760,13 +760,20 @@ Do not make these V1 blockers:
 
 ## Repository Walkthrough Article
 
+Public prose uses direct instructions and concrete file examples. The September
+editorial pass revises all eight localized articles and the public introductions;
+it removes repetitive institutional phrasing and moves the detailed content-model
+discussion to the fourth article. Tutorial commands and deployment safeguards
+remain explicit. The Markdown sample uses prose headings instead of an ADR-style
+Context/Decision/Tradeoff template. No invented incidents or measurements are added.
+
 Traditional Chinese:
 
-> 本站 Astro 部落格的內容模型與交付設計
+> 用 Astro 整理雙語文章、系列與搜尋
 
 English:
 
-> The content model and delivery design of this Astro blog
+> Organizing bilingual articles, series and search with Astro
 
 It must describe the actual implementation.
 

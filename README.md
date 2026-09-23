@@ -1,8 +1,8 @@
-# A Little Engineer’s Blog · 小小工程師的技術部落格
+# From Full-Stack to Cloud Native · 從全端到雲原生
 
-> Personal projects, full-stack implementation and architecture decisions.
+> A full-stack engineer’s notes on implementation, troubleshooting and architecture decisions, while moving toward cloud native.
 >
-> 記錄個人專案、全端實作與架構取捨。
+> 一位全端工程師走向雲原生的實作、排障與架構筆記。
 
 **Status: IMPLEMENTED_PENDING_INDEPENDENT_REVIEW**
 
@@ -12,7 +12,7 @@ evidence; the human remains the final merge authority.
 
 ## What is implemented
 
-- Astro 5 static output, strict TypeScript, Markdown and pnpm.
+- Astro 7 static output, strict TypeScript, Markdown and pnpm.
 - Five content entities: Article, Topic, Skill, LearningPath and Project.
 - Raw-file schema/graph validation, reverse indexes and build-time reading time.
 - Traditional Chinese and English Home, Start, Learn, Topics, Blog, Cases,

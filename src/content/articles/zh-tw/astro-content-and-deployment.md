@@ -12,13 +12,13 @@ skills: [astro-content-modeling]
 prerequisiteSkills: [local-website-preview]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-21
+updatedAt: 2026-09-23
 status: published
 ---
 
-準備新增第一篇文章時，我不想複製首頁的 HTML，再逐個修改 title、標題和正文。頁面外框應該共用，文章檔案裡留下要寫的內容就好。
+上一篇已經有首頁了，接著加一篇文章。我把標題、導覽和樣式放進共用版型，正文用 Markdown 寫。以後改頁面外觀，就不用逐篇修改 HTML。
 
-延續前面的 `engineering-blog`，這篇會加入 Markdown 文章，再用一份完整 workflow 發布到 GitHub Pages。
+繼續使用 `engineering-blog` 資料夾。完成文章後，再設定 GitHub Actions，將它發布到 GitHub Pages。
 
 ## 把重複的 HTML 留給版型
 
@@ -65,20 +65,16 @@ title: "Why this blog is static"
 description: "How prebuilt pages fit the needs of a personal blog."
 ---
 
-## Context
+## Writing in Markdown
 
-This blog publishes articles and project notes.
+I keep articles in Markdown and use a shared layout for the HTML around them.
 
-## Decision
+## Publishing an edit
 
-Generate pages before publishing and serve the static output.
-
-## Tradeoff
-
-Content changes need a new build.
+Astro builds the pages before I upload them. Changing an article means building again.
 ```
 
-frontmatter 是兩條 `---` 中間的資料；layout 指向剛建立的共用版型。正文從二級標題開始，因為版型已經輸出 h1。這種用法對應 [Astro 的 Markdown 頁面與 layout 機制](https://v5.docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property)。
+frontmatter 是兩條 `---` 中間的資料；layout 指向剛建立的共用版型。正文從二級標題開始，因為版型已經輸出 h1。這種用法對應 [Astro 的 Markdown 頁面與 layout 機制](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout-property)。
 
 在首頁 `src/pages/index.astro` 的段落下加入：
 
@@ -88,17 +84,13 @@ frontmatter 是兩條 `---` 中間的資料；layout 指向剛建立的共用版
 
 用 Ctrl+S 儲存，啟動 dev 後從首頁點進文章。標題、描述和正文會一起出現，但它們來自兩個檔案：Markdown 提供文字，版型負責把它們放進頁面。回首頁的連結也放在版型裡，以後新增文章可以共用。
 
-## 文章多了以後，檔案位置也要考慮
+## 從單篇文章到文章集合
 
-上面的 Markdown 位於 pages，檔案直接對應網址，適合看清內容與版型關係。**本站正式文章放在 src/content/articles**，透過 Content Collections 與 schema 驗證，再由路由統一渲染。
-
-本站還要把同一篇文章放進主題、文章系列和專案頁。這些頁面都連回同一份正文。系列的順序記在 LearningPath，專案收錄哪些文章則記在 Project，建置時再算出文章被哪些地方引用。
-
-因此，內容的固定 ID 和網址用的 slug 也分開存放。修改網址時，系列與專案仍用原本的 ID 找文章。眼前只有一篇 Markdown 的範例，先不加這套關聯模型。
+放在 `src/pages` 的 Markdown 會直接產生頁面。一篇文章用這種方式就夠了。如果還要讓文章出現在主題頁、系列目錄，或提供中英切換，就需要另外管理這些關係。我把這個部落格的文章放在 `src/content/articles`，用 Content Collections 載入；第四篇會沿著實際檔案說明。
 
 ## 部署到子路徑 /Blog/
 
-剛才的連結用了 `base`。原因在這裡：本站部署在 `/Blog/`，文章網址也要從這個子路徑開始。如果把連結寫死成 `/posts/build-notes/`，瀏覽器會直接去網域根目錄找，跳過 `/Blog/`。
+GitHub Pages 的專案網站會多一段儲存庫名稱，例如 `/Blog/`。如果把文章連結寫成 `/posts/build-notes/`，瀏覽器會去網域根目錄找，跳過 `/Blog/`。前面使用的 `base` 就是要補上這段路徑。
 
 在範例新增 `astro.config.mjs`，讓建置時可以指定這個路徑：
 
@@ -126,7 +118,7 @@ pnpm.cmd run preview
 
 把 YOUR_USERNAME 與 Blog 換成自己的帳號和儲存庫。用 preview 顯示的網址檢查首頁和文章往返；連結使用 BASE_URL，所以不會固定指向網域根目錄。新增圖片時也要同樣考慮 base。
 
-build 成功後會有 `dist`。preview 只提供這次的產物；修改原始檔後，要重新 build 才會更新。以上仍是本機檢查，沒有上傳動作。
+build 成功後會產生 `dist`，preview 開啟的就是這個目錄。修改文章後記得再 build；上傳則留給下面的 GitHub Actions。
 
 ## 回到本機開發前清除設定
 
@@ -238,4 +230,6 @@ git push -u origin main
 
 後續修改用分支與 PR：先看 build 結果，合併 main 後再批准部署。
 
-本站在相同交付原則上還加入內容驗證、搜尋與瀏覽器測試；下一篇會說明那一層內容模型。參考：[GitHub Pages 自訂 workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)、[Astro 部署指南](https://docs.astro.build/en/guides/deploy/github/)。
+下一篇會打開這個部落格的原始碼，看看四篇文章的翻譯、分類和系列順序怎麼存放。
+
+參考：[GitHub Pages 自訂 workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)、[Astro 部署指南](https://docs.astro.build/en/guides/deploy/github/)。
