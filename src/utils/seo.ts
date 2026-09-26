@@ -16,6 +16,14 @@ export function authorPerson(locale: Locale, site: string, base: string) {
 export function aboutJsonLd(locale: Locale, site: string, base: string) {
   return { '@context': 'https://schema.org', ...authorPerson(locale, site, base) };
 }
+export function websiteJsonLd(site: string, base: string) {
+  const url = absoluteUrl(base, site);
+  return {
+    '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${url}#website`,
+    url, name: messages['zh-TW'].title, alternateName: messages.en.title,
+    inLanguage: ['zh-TW', 'en'], publisher: authorPerson('zh-TW', site, base),
+  };
+}
 
 export function xmlEscape(value: string): string {
   return value.replace(/[<>&"']/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c] ?? c);

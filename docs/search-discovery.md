@@ -6,6 +6,12 @@ discoverable; they do not guarantee indexing, ranking, or inclusion in AI answer
 An empty `site:` search is not a complete inventory of an engine's index. Use the
 verified site's URL inspection reports to establish indexing status.
 
+The home pages and language chooser share WebSite structured data with bilingual
+names and the confirmed publisher. Google's site-name feature supports domains
+and subdomains, not a separate name for a subdirectory such as `/Blog/`. This
+markup is descriptive and does not promise that Google will display the requested
+name. See [Google's site-name documentation](https://developers.google.com/search/docs/appearance/site-names).
+
 ## Google Search Console
 
 1. Add the URL-prefix property `https://a4225344a.github.io/Blog/`.

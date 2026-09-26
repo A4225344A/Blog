@@ -32,6 +32,19 @@ export function pathArticleNavigation(path: LearningPath, articles: Article[], l
   const index = ordered.findIndex(article => article.id === articleId);
   return index < 0 ? undefined : { previous: ordered[index - 1], next: ordered[index + 1] };
 }
+
+/** Series order is owned by LearningPath; standalone articles remain chronological. */
+export function readingOrder(articles: Article[], paths: LearningPath[], locale: Locale): Article[] {
+  const candidates = new Map(publishedArticles(articles, locale).map(article => [article.id, article]));
+  const result: Article[] = [];
+  for (const path of [...paths].sort((a, b) => a.id.localeCompare(b.id, 'en'))) {
+    for (const section of path.sections) for (const id of section.articleIds) {
+      const article = candidates.get(id);
+      if (article) { result.push(article); candidates.delete(id); }
+    }
+  }
+  return [...result, ...candidates.values()];
+}
 export function publicRoutes(graph: ContentGraph, base = '/') {
   const routes = [base];
   for (const locale of ['zh-TW', 'en'] as const) {

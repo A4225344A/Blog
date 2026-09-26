@@ -1,12 +1,29 @@
 ---
-import type { Article } from '../content/schemas';
+import type { Article, ContentGraph } from '../content/schemas';
 import type { Locale } from '../i18n';
 import { ui } from '../i18n/ui';
 import { articlePath } from '../utils/routes';
-interface Props { articles: Article[]; locale: Locale; ordered?: boolean }
-const { articles, locale, ordered = false } = Astro.props;
+import { localePath } from '../utils/routes';
+import { orderedPathArticles } from '../utils/catalog';
+import { entityText } from '../i18n/content';
+type Props = { articles: Article[]; locale: Locale; ordered?: boolean } & (
+  { details: true; graph: ContentGraph } | { details?: false; graph?: never }
+);
+const { articles, locale, ordered = false, details = false } = Astro.props;
+const graph = Astro.props.details ? Astro.props.graph : undefined;
+const memberships = graph ? graph['learning-paths'].map(path => ({ path, articles: orderedPathArticles(path, graph.articles, locale).flatMap(section => section.articles) })) : [];
 const List = ordered ? 'ol' : 'ul';
 ---
 {articles.length ? <List class="cards article-list">
-  {articles.map(article => <li class="post-card">{!ordered && <p class="post-card-meta">{article.publishedAt && <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time>}</p>}<a href={articlePath(article, import.meta.env.BASE_URL)}>{article.title}</a><p>{article.description}</p></li>)}
+  {articles.map(article => <li class="post-card">{!ordered && !details && <p class="post-card-meta">{article.publishedAt && <time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time>}</p>}<a class="article-title" href={articlePath(article, import.meta.env.BASE_URL)}>{article.title}</a><p>{article.description}</p>
+    {details && <div class="article-context">
+      <p>{graph?.topics.filter(topic => article.topics.includes(topic.id)).map(topic => <a class="chip" href={localePath(locale, `topics/${encodeURIComponent(topic.id)}`, import.meta.env.BASE_URL)}>{entityText('topics', topic, locale).title}</a>)}</p>
+      {memberships.filter(entry => entry.articles.some(item => item.id === article.id)).map(entry => <p class="series-position"><a href={localePath(locale, `learn/${encodeURIComponent(entry.path.id)}`, import.meta.env.BASE_URL)}>{entityText('learning-paths', entry.path, locale).title}</a>{locale === 'zh-TW' ? ` · 第 ${entry.articles.findIndex(item => item.id === article.id) + 1} / ${entry.articles.length} 篇` : ` · Part ${entry.articles.findIndex(item => item.id === article.id) + 1} of ${entry.articles.length}`}</p>)}
+    </div>}
+  </li>)}
 </List> : <p class="muted">{ui[locale].empty}</p>}
+<style>
+  .article-context { margin-top: .75rem; }
+  .article-context .chip { font-size: .8rem; margin-right: .4rem; }
+  .series-position a { font-size: .9rem; color: var(--link); }
+</style>

@@ -8,7 +8,7 @@ import { localePath } from '../utils/routes';
 import '../styles/global.css';
 import { sections, ui } from '../i18n/ui';
 import { absoluteUrl, withBase } from '../utils/routes';
-import { safeJson } from '../utils/seo';
+import { safeJson, websiteJsonLd } from '../utils/seo';
 import Sidebar from '../components/Sidebar.astro';
 import { siteConfig } from '../config/site';
 import { getContentGraph } from '../utils/build-graph';
@@ -47,6 +47,7 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
     <meta property="og:image" content={absoluteUrl(withBase('images/social-card.png', import.meta.env.BASE_URL), site)} />
     <link rel="alternate" type="application/rss+xml" title={`${t.title} RSS`} href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)} />
     {jsonLd !== undefined && <script type="application/ld+json" set:html={safeJson(jsonLd)} />}
+    {isHomeCluster && <script type="application/ld+json" set:html={safeJson(websiteJsonLd(site, import.meta.env.BASE_URL))} />}
   </head>
   <body>
     <a class="skip" href="#main">{t.skip}</a>
