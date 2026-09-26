@@ -16,14 +16,14 @@ const separator = locale === 'zh-TW' ? '：' : ': ';
 const memberships = graph ? graph['learning-paths'].map(path => ({ path, articles: orderedPathArticles(path, graph.articles, locale).flatMap(section => section.articles) })) : [];
 const List = ordered ? 'ol' : 'ul';
 ---
-{articles.length ? <List class="cards article-list">
+{articles.length ? <List class="cards article-list" data-pagefind-ignore>
   {articles.map(article => <li class="post-card">{!ordered && <p class="post-card-meta">{article.publishedAt && <span>{details && `${ui[locale].published}${separator}`}<time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></span>}{details && article.updatedAt && <span>{ui[locale].updated}{separator}<time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></span>}</p>}<a class="article-title" href={articlePath(article, import.meta.env.BASE_URL)}>{article.title}</a><p>{article.description}</p>
     {details && <div class="article-context">
       {graph?.topics.some(topic => topic.id !== currentTopic && article.topics.includes(topic.id)) && <p>{graph.topics.filter(topic => topic.id !== currentTopic && article.topics.includes(topic.id)).map(topic => <a class="chip" href={localePath(locale, `topics/${encodeURIComponent(topic.id)}`, import.meta.env.BASE_URL)}>{entityText('topics', topic, locale).title}</a>)}</p>}
       {memberships.filter(entry => entry.articles.some(item => item.id === article.id)).map(entry => <p class="series-position"><a href={localePath(locale, `learn/${encodeURIComponent(entry.path.id)}`, import.meta.env.BASE_URL)}>{entityText('learning-paths', entry.path, locale).title}</a>{locale === 'zh-TW' ? ` · 第 ${entry.articles.findIndex(item => item.id === article.id) + 1} / ${entry.articles.length} 篇` : ` · Part ${entry.articles.findIndex(item => item.id === article.id) + 1} of ${entry.articles.length}`}</p>)}
     </div>}
   </li>)}
-</List> : <p class="muted">{ui[locale].empty}</p>}
+</List> : <p class="muted" data-pagefind-ignore>{ui[locale].empty}</p>}
 <style>
   .post-card-meta { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
   .article-context { margin-top: .75rem; }

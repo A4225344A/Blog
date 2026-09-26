@@ -65,7 +65,7 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
 ---
 <BaseLayout locale={locale} indexContent={!noindex} noindex={noindex} title={text.title} description={text.description} languageLinks={legacy ? Object.fromEntries(locales.map(target => [target, localePath(target, legacy.from, base)])) : languageLinks} alternates={alternates} article={Boolean(article)} jsonLd={article ? articleJsonLd(article, Astro.site?.href ?? 'http://localhost:4321', base) : undefined}>
   <article data-search-terms={searchTerms} data-pagefind-index-attrs={article ? 'data-search-terms' : undefined}>
-    <h1 data-pagefind-meta="title">{text.title}</h1><p class="lead" data-pagefind-meta="description">{text.description}</p>
+    <h1 data-pagefind-meta="title">{text.title}</h1><p class="lead">{text.description}</p>
     {legacy && <p><a href={localePath(locale, legacy.to, base)}>{legacy.continuation ? (locale === 'zh-TW' ? '加入文章與共用版型' : 'Adding articles and a shared layout') : (locale === 'zh-TW' ? '閱讀新版內容' : 'Read the revised content')}</a></p>}
     {legacy?.continuation && <p><a href={localePath(locale, legacy.continuation, base)}>{locale === 'zh-TW' ? '部署 Astro 部落格到 GitHub Pages' : 'Deploying an Astro blog to GitHub Pages'}</a></p>}
     {article && <>
