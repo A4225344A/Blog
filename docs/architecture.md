@@ -139,7 +139,7 @@ Implementation details:
   handles blocked storage. CSS follows OS preference when JavaScript is disabled.
   No React, hydration framework, remote service or browser graph computation is used.
 
-- Pagefind indexes canonical Articles and populated Topic/LearningPath/Project detail pages
+- Pagefind indexes localized About pages, canonical Articles and populated Topic/LearningPath/Project detail pages
   after every production build. Homes, section indexes and the language chooser
   are not indexed. Main content
   includes title, description, body and localized Topic/Skill labels supplied by
@@ -166,6 +166,16 @@ Implementation details:
   repository and include `https://a4225344a.github.io/Blog/sitemap.xml`. Search Console
   submission is another discovery mechanism, but does not configure crawler policy.
   Local output checks cannot prove either external step.
+  About provides a Person JSON-LD entity with one shared author ID across locales,
+  confirmed aliases Jacky and 謝宇逸, and the existing GitHub profile as sameAs.
+  Articles reference that Person as author and publisher and show a linked byline.
+  Shared pages emit meta author and og:site_name. RSS uses dc:creator for the public
+  name without exposing an email address. Article sitemap lastmod comes from
+  updatedAt, falling back to publishedAt; other routes omit it rather than use build time.
+  Series cards omit dates because LearningPath determines reading order; article
+  pages and chronological lists retain their real dates. Empty topics remain
+  noindex with a link to the published Astro series. See docs/search-discovery.md
+  for external verification and sitemap submission steps; metadata does not guarantee indexing.
 - CI validates PRs and main pushes with read-only repository permissions. It runs
   frozen install, content validation, tests, Astro/TypeScript checks and both root
   and production-base builds, HTML checks and Chromium tests. The production base

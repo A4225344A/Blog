@@ -19,7 +19,7 @@ export const sectionDescriptions: Record<Locale, Record<Section, string>> = {
     blog: 'Notes on building software and how it works.',
     cases: 'Problems, the steps used to investigate them, and what fixed them.',
     projects: 'Project notes, source code and current progress.',
-    about: 'Meet the full-stack engineer moving toward cloud native and platform engineering.',
+    about: 'Jacky (謝宇逸), a full-stack engineer learning cloud native and platform engineering.',
   },
   'zh-TW': {
     start: '依照需求選擇 Astro 系列的起點，並確認閱讀前需要的基礎。',
@@ -28,7 +28,7 @@ export const sectionDescriptions: Record<Locale, Record<Section, string>> = {
     blog: '寫程式、建網站，以及弄懂它們怎麼運作的筆記。',
     cases: '記下問題怎麼查、原因在哪裡，最後怎麼修好。',
     projects: '專案介紹、原始碼與目前進度。',
-    about: '認識作者：一位正從全端開發走向雲原生與平台工程的工程師。',
+    about: 'Jacky（謝宇逸）的學習筆記：從全端開發走向雲原生與平台工程。',
   },
 };
 const en = {

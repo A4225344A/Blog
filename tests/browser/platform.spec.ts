@@ -29,7 +29,7 @@ test('old links explain the rewrite and empty cases are not recommended', async 
     await expect(page).toHaveURL(new RegExp(`${locale}/blog/why-astro/$`));
     await page.goto(`${locale}/about/`);
     await expect(page.locator(`a[href="${base}${locale}/cases/"]`)).toHaveCount(0);
-    await expect(page.locator('.profile-intro .eyebrow')).toContainText(locale === 'en' ? 'full-stack engineer' : '全端工程師');
+    await expect(page.locator('.profile-intro h1')).toHaveText(locale === 'en' ? 'About Jacky (謝宇逸)' : '關於 Jacky（謝宇逸）');
     await page.setViewportSize({ width: 375, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `test-results/about-${locale}.png`, fullPage: true });
@@ -227,6 +227,32 @@ test('theme works with denied storage and mobile navigation remains accessible',
   await expect(page).toHaveURL(new RegExp(`${base}zh-tw/topics/$`));
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+test('author is discoverable by Chinese name in both locale search indexes', async ({ page }) => {
+  for (const locale of ['en', 'zh-tw']) {
+    await page.goto(`${locale}/search/`);
+    await page.locator('.pagefind-ui__search-input').fill('謝宇逸');
+    const result = page.locator(`.pagefind-ui__result-link[href="${base}${locale}/about/"]`).first();
+    await expect(page.locator('.pagefind-ui__result-link').first()).toBeVisible();
+    const loadMore = page.locator('.pagefind-ui__button');
+    for (let i = 0; i < 10 && await result.count() === 0; i++) {
+      if (!await loadMore.isVisible()) break;
+      const before = await page.locator('.pagefind-ui__result-link').count();
+      await loadMore.click();
+      await expect.poll(() => page.locator('.pagefind-ui__result-link').count()).toBeGreaterThan(before);
+    }
+    await expect(result).toBeVisible();
+    await result.click();
+    await expect(page.locator('h1')).toContainText('謝宇逸');
+    await page.goto(`${locale}/learn/knowledge-platform/`);
+    await expect(page.locator('.article-list time')).toHaveCount(0);
+    await page.goto(`${locale}/blog/astro-github-pages/`);
+    await expect(page.locator('.learning-diagram svg')).toBeVisible();
+    await page.setViewportSize({ width: 375, height: 900 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator('.learning-diagram').screenshot({ path: `test-results/deployment-flow-${locale}.png` });
+  }
+});
+
 test('local search returns working canonical URLs in both locales', async ({ page }) => {
   for (const locale of ['en', 'zh-tw']) {
     await page.goto(`${locale}/search/`);
