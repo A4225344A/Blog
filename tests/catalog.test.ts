@@ -26,6 +26,17 @@ test('empty topics keep routes but enter the sitemap only for published locales'
   assert.ok(!sitemapRoutes(g, '/Blog/').includes('/Blog/zh-tw/topics/topic/'));
   assert.ok(sitemapRoutes(g, '/Blog/').includes('/Blog/en/topics/topic/'));
 });
+test('case indexes enter sitemap only for locales with published cases', () => {
+  for (const base of ['/', '/Blog/']) {
+    const g = graph();
+    g.articles.push(article({ id: 'draft-case', slug: 'draft-case', contentType: 'case-study', status: 'draft' }));
+    assert.ok(publicRoutes(g, base).includes(`${base}en/cases/`));
+    assert.ok(!sitemapRoutes(g, base).includes(`${base}en/cases/`));
+    g.articles.push(article({ id: 'published-case', slug: 'published-case', contentType: 'troubleshooting' }));
+    assert.ok(sitemapRoutes(g, base).includes(`${base}en/cases/`));
+    assert.ok(!sitemapRoutes(g, base).includes(`${base}zh-tw/cases/`));
+  }
+});
 test('LearningPath order survives locale and publication filtering', () => {
   const g = graph();
   g.articles.push(article({ id: 'second' }));

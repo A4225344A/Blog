@@ -63,5 +63,7 @@ export function sitemapRoutes(graph: ContentGraph, base = '/') {
   const emptyTopics = new Set(locales.flatMap(locale => graph.topics
     .filter(topic => !publishedArticles(graph.articles, locale).some(article => article.topics.includes(topic.id)))
     .map(topic => localePath(locale, `topics/${encodeURIComponent(topic.id)}`, base))));
-  return publicRoutes(graph, base).filter(route => !emptyTopics.has(route));
+  const emptyCases = new Set(locales.filter(locale => !publishedArticles(graph.articles, locale).some(isCase))
+    .map(locale => localePath(locale, 'cases', base)));
+  return publicRoutes(graph, base).filter(route => !emptyTopics.has(route) && !emptyCases.has(route));
 }

@@ -32,7 +32,7 @@ Windows 使用 `pnpm.cmd`，不需要放寬 PowerShell 執行原則。另請安�
 
 ## 從空資料夾建立專案
 
-先在預計存放專案的父資料夾開啟 PowerShell，例如自己的「文件」資料夾。以下會在目前位置建立 `engineering-blog`：
+先在 VS Code 用 File → Open Folder 開啟預計存放專案的父資料夾，例如自己的「文件」資料夾。選 Terminal → New Terminal，終端機會從這個資料夾啟動；若不是 PowerShell，可從終端機旁的下拉選單選擇 PowerShell。以下會在目前位置建立 `engineering-blog`：
 
 ```powershell
 mkdir engineering-blog
@@ -40,7 +40,7 @@ cd engineering-blog
 git init -b main
 ```
 
-在 VS Code 用 File → Open Folder 開啟 `engineering-blog`，再選 Terminal → New Terminal。建立 `.gitignore`，讓版本控制忽略可重建的檔案與本機設定：
+在 VS Code 用 File → Open Folder 開啟 `engineering-blog`，再選 Terminal → New Terminal。在 VS Code 左側檔案總管選取專案根目錄，按「新增檔案」並輸入 `.gitignore`，讓版本控制忽略可重建的檔案與本機設定：
 
 ```text
 node_modules/
@@ -99,7 +99,7 @@ pnpm 10 可能顯示 esbuild 的「Ignored build scripts」提醒。本篇純文
 
 ## 建立首頁
 
-建立 `src/pages/index.astro`，內容如下。程式碼中的英文是範例文案，可換成自己的文字：
+在 VS Code 左側檔案總管，先在專案根目錄新增 `src` 資料夾，再於其中新增 `pages` 資料夾，最後在 `pages` 裡新增 `index.astro`。完整路徑是 `src/pages/index.astro`，內容如下。程式碼中的英文是範例文案，可換成自己的文字：
 
 ```astro
 <!doctype html>

@@ -51,6 +51,11 @@ try {
   assert.ok(blog.includes('datetime="2099-01-01T00:00:00.000Z"'));
   assert.ok(blog.includes('datetime="2099-01-02T00:00:00.000Z"'));
   for (const locale of ['en', 'zh-tw']) {
+    const cases = await readFile(`dist/${locale}/cases/index.html`, 'utf8');
+    assert.equal(cases.includes('name="robots" content="noindex,follow"'), locale !== 'en');
+    assert.equal(cases.includes('rel="canonical"'), locale === 'en');
+    assert.equal(sitemap.includes(`${base}${locale}/cases/</loc>`), locale === 'en');
+    assert.doesNotMatch(cases, /<link\b[^>]*hreflang="zh-TW"/, 'Empty cases locale is not an indexing alternate');
     const about = await readFile(`dist/${locale}/about/index.html`, 'utf8');
     const home = await readFile(`dist/${locale}/index.html`, 'utf8');
     assert.equal(about.includes(`href="${base}${locale}/cases/"`), locale === 'en', 'Cases are recommended only with published content in this locale');
