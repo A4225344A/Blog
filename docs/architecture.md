@@ -53,6 +53,8 @@ storage fallback, reduced motion and static navigation remain supported.
 The article/layout tutorial and deployment tutorial are separate articles.
 Article code blocks gain a client-side copy button using the Clipboard API.
 Copy failures show a manual-copy hint; the original code stays selectable.
+The copy button sits inside the code frame at the upper right, with reserved
+space above the code; status messages appear below the frame.
 Inline SVG learning diagrams have a native modal dialog for enlargement, with a
 keyboard-focusable scroll region, Escape/Close dismissal and focus restoration.
 Both controls are progressive enhancements: without JavaScript, code and diagrams
@@ -66,6 +68,13 @@ verification are described in `docs/security.md`. The content graph, stable
 identities, route ownership, static hosting and GA4 acquisition policy are unchanged.
 
 ## Purpose
+
+Search indexes each page's own introduction and body, excluding ArticleList cards
+(including related-article lists). Descriptions remain searchable prose and SEO
+metadata, without a redundant Pagefind UI metadata row. Chinese excerpt boundaries
+remain subject to Pagefind's tokenization.
+A bilingual static `404.html` offers base-aware search, reading-guide and article
+links without JavaScript. It is noindex and excluded from sitemap and Pagefind.
 
 Empty case indexes remain reachable but are noindex and omitted from the sitemap,
 canonical and hreflang output. A locale becomes indexable once it has published

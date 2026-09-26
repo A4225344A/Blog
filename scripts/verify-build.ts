@@ -173,5 +173,13 @@ for (const article of graph.articles) {
 }
 assert.ok((await readFile('dist/robots.txt', 'utf8')).includes(`Sitemap: ${site}${base}sitemap.xml`));
 await access('dist/pagefind/pagefind.js');
+const notFound = await readFile('dist/404.html', 'utf8');
+assert.ok(notFound.includes('name="robots" content="noindex,follow"'));
+assert.ok(!notFound.includes('rel="canonical"') && !notFound.includes('hreflang="x-default"'));
+assert.ok(!notFound.includes('data-pagefind-body'));
+assert.ok(!sitemap.includes('/404'));
+for (const locale of locales) for (const section of ['search', 'start', 'blog']) {
+  assert.ok(notFound.includes(`href="${localePath(locale, section, base)}"`), `404 recovery: ${locale} ${section}`);
+}
 await access('dist/images/social-card.png');
 console.log(`Verified ${routes.length} public pages, reciprocal hreflang clusters, ${indexedRoutes.size} search content markers, featured order, descriptions, assets, sitemap, RSS and generated robots text for ${site}${base}. Live origin-root robots and GitHub settings are not checked.`);

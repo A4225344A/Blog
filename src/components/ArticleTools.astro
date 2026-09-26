@@ -11,6 +11,8 @@
     toolbar.setAttribute('data-pagefind-ignore', '');
     const status = document.createElement('span');
     status.setAttribute('role', 'status');
+    status.className = 'code-copy-status';
+    status.setAttribute('data-pagefind-ignore', '');
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = copyLabel;
@@ -27,8 +29,8 @@
       }
     });
     pre.before(wrapper);
-    toolbar.append(status, button);
-    wrapper.append(toolbar, pre);
+    toolbar.append(button);
+    wrapper.append(toolbar, pre, status);
   }
 
   for (const svg of document.querySelectorAll<SVGSVGElement>('.prose .learning-diagram > svg')) {
@@ -65,10 +67,12 @@
 </script>
 
 <style is:global>
-  .code-block { margin: 1.5rem 0; min-width: 0; }
-  .code-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: .75rem; flex-wrap: wrap; font-size: .85rem; }
+  .code-block { position: relative; margin: 1.5rem 0; min-width: 0; }
+  .code-toolbar { font-size: .85rem; }
+  .code-toolbar button { position: absolute; top: .5rem; right: .5rem; }
+  .code-copy-status:not(:empty) { display: block; padding: .5rem 1rem; font-size: .85rem; }
   .code-toolbar button, .diagram-zoom, .diagram-dialog button { font: inherit; padding: .4rem .8rem; color: var(--link); background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; cursor: pointer; }
-  .code-block pre { margin-top: .5rem; }
+  .code-block pre { margin: 0; padding-top: 3.5rem; }
   .diagram-zoom { display: block; margin: 1rem auto 0; }
   .diagram-dialog { width: min(90vw, 720px); max-width: calc(100vw - 2rem); max-height: 90vh; padding: 1rem; color: var(--fg); background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; }
   .diagram-dialog::backdrop { background: rgb(0 0 0 / .65); }
