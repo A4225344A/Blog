@@ -14,6 +14,7 @@ try {
   fixtures.topics.push({ id: 'english-only', name: 'English topic', description: 'Locale filtering fixture' });
   fixtures.articles[0]!.topics.push('english-only');
   fixtures.articles.push(article({ id: 'fixture-case', slug: 'fixture-case', contentType: 'case-study' }),
+    article({ id: 'fixture-recent-solo', slug: 'fixture-recent-solo', publishedAt: new Date('2099-01-01'), updatedAt: new Date('2099-01-02') }),
     article({ id: 'fixture-draft', slug: 'fixture-draft', status: 'draft' }),
     article({ id: 'fixture-archived', slug: 'fixture-archived', status: 'archived' }));
   for (const [collection, entries] of Object.entries(fixtures)) {
@@ -44,6 +45,11 @@ try {
   assert.ok(rendered.includes('Test-only Markdown body.'));
   assert.ok(rendered.includes('"@type":"TechArticle"'));
   const base = normalizeBase(process.env.SITE_BASE);
+  const blog = await readFile('dist/en/blog/index.html', 'utf8');
+  const titles = [...blog.matchAll(/<a\b[^>]*class="article-title"[^>]*href="([^"]+)"/g)].map(match => match[1]);
+  assert.equal(titles[0], `${base}en/blog/fixture-recent-solo/`, 'Newest standalone article must appear before series articles');
+  assert.ok(blog.includes('datetime="2099-01-01T00:00:00.000Z"'));
+  assert.ok(blog.includes('datetime="2099-01-02T00:00:00.000Z"'));
   for (const locale of ['en', 'zh-tw']) {
     const about = await readFile(`dist/${locale}/about/index.html`, 'utf8');
     const home = await readFile(`dist/${locale}/index.html`, 'utf8');
