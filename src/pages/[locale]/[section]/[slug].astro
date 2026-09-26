@@ -52,6 +52,11 @@ const base = import.meta.env.BASE_URL;
 const languageLinks = Object.fromEntries(locales.map(target => [target, article ? translatedArticlePath(article, target, graph.articles, base) : localePath(target, `${kind}/${encodeURIComponent(id)}`, base)]));
 const articleReverse = reverse.articles.get(id);
 const tocHeadings = rendered?.headings.filter(heading => heading.depth === 2) ?? [];
+const topicArticles = topic ? articles.filter(article => article.topics.includes(topic.id)) : [];
+const topicSeries = topicArticles.length ? graph['learning-paths'].filter(path => topicArticles.every(article => path.sections.some(section => section.articleIds.includes(article.id)))) : [];
+const topicIntro = topicSeries.length === 1
+  ? (locale === 'zh-TW' ? `這些文章屬於《${entityText('learning-paths', topicSeries[0]!, locale).title}》系列，以下依閱讀順序排列。` : `These articles belong to the “${entityText('learning-paths', topicSeries[0]!, locale).title}” series and are listed in reading order.`)
+  : (locale === 'zh-TW' ? '系列文章依閱讀順序列出，其他文章接在後面。' : 'Articles are grouped in series reading order, followed by standalone posts.');
 const searchTerms = article ? [
   ...graph.topics.filter(topic => article.topics.includes(topic.id)).map(topic => entityText('topics', topic, locale).title),
   ...graph.skills.filter(skill => article.skills.includes(skill.id) || article.prerequisiteSkills.includes(skill.id)).map(skill => entityText('skills', skill, locale).title),
@@ -82,7 +87,7 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
       {articles.some(a => article.recommendedArticles.includes(a.id)) && <section><h2>{t.recommended}</h2><ArticleList articles={articles.filter(a => article.recommendedArticles.includes(a.id))} locale={locale} /></section>}
       {articleReverse?.projectIds.length ? <section><h2>{t.projects}</h2><EntityList entries={graph.projects.filter(p => articleReverse?.projectIds.includes(p.id))} section="projects" locale={locale} /></section> : null}
     </>}
-    {topic && <><TopicFilter locale={locale} selected={topic.id} graph={graph} /><p>{locale === 'zh-TW' ? '依系列閱讀順序排列，篇次以完整系列為準。' : 'Listed in series reading order; part numbers refer to the full series.'}</p><ArticleList articles={readingOrder(articles.filter(a => a.topics.includes(topic.id)), graph['learning-paths'], locale)} locale={locale} details graph={graph} /></>}
+    {topic && <><TopicFilter locale={locale} selected={topic.id} graph={graph} /><p>{topicIntro}</p><ArticleList articles={readingOrder(topicArticles, graph['learning-paths'], locale)} locale={locale} details graph={graph} currentTopic={topic.id} /></>}
     {topic && noindex && <p>{locale === 'zh-TW' ? '這個主題還在學習與整理中，目前已發布的是 Astro 部落格系列。' : 'I’m still learning and gathering notes on this topic. The published articles currently cover building an Astro blog.'} <a href={localePath(locale, 'learn/knowledge-platform', base)}>{locale === 'zh-TW' ? '閱讀 Astro 系列' : 'Read the Astro series'}</a></p>}
     {path && <>{path.targetAudience.length > 0 && <p>{t.audience}{separator}{pathAudience(path, locale).join(' · ')}</p>}{orderedPathArticles(path, graph.articles, locale).map(section => <section><h2>{sectionText(path.id, section, locale).title}</h2><p>{sectionText(path.id, section, locale).description}</p><ArticleList articles={section.articles} locale={locale} ordered /></section>)}</>}
     {project && <><p>{t.maturity}{separator}{maturityLabels[locale][project.maturity]}</p>{project.repositoryUrl && <a href={project.repositoryUrl}>{t.repository}</a>}<h2>{t.skills}</h2><ul>{graph.skills.filter(s => project.featuredSkills.includes(s.id)).map(s => <li>{entityText('skills', s, locale).title}</li>)}</ul>{articles.some(a => project.relatedArticles.includes(a.id)) && <><h2>{t.related}</h2><ArticleList articles={articles.filter(a => project.relatedArticles.includes(a.id))} locale={locale} /></>}{project.relatedLearningPaths.length > 0 && <><h2>{t.paths}</h2><EntityList entries={graph['learning-paths'].filter(p => project.relatedLearningPaths.includes(p.id))} section="learn" locale={locale} /></>}</>}

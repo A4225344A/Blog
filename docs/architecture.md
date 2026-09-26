@@ -207,14 +207,20 @@ Implementation details:
 
 ## Personal Blog Positioning Within V1
 
-Blog and topic detail lists follow LearningPath membership order, then show
-standalone articles chronologically. When multiple series match, stable path-ID
+The Blog index lists all published non-case articles by publication date, newest
+first regardless of series membership. Topic detail lists follow LearningPath
+membership order, then show standalone articles chronologically. When multiple series match, stable path-ID
 order breaks ties and each article appears once. Cards show localized topic links
 and their positions in each complete published localized series, not positions in
 the filtered subset. A topic navigation bar filters through existing canonical
 topic pages using ordinary links, so it works without JavaScript. Empty topics
-are not offered as filter options. Homepage latest articles remain chronological;
-series/discovery cards omit dates while article pages retain their real dates.
+are not offered as filter options. Homepage latest articles remain chronological.
+Blog/topic cards show labeled publication and available update dates; series-page
+cards alone omit dates. Updating an article does not change publication ordering.
+Topic cards omit the current topic chip while retaining other topic links. The
+topic introduction names a shared series only when it covers all visible articles;
+otherwise it describes the general grouping rule. Filter links use pill styling
+with a border indicating the current page and retain keyboard focus indicators.
 Discovery lists and topic filters receive the graph already loaded by their page.
 ArticleList derives series membership only when details are requested; ordinary
 latest/recommended/series-section lists do not reload or derive the content graph.

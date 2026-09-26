@@ -259,10 +259,17 @@ test('topic filters and series order work without JavaScript and diagrams follow
   try {
     for (const locale of ['en', 'zh-tw']) {
       await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/`);
-      await expect(page.locator('.article-title').first()).toHaveAttribute('href', `${base}${locale}/blog/why-astro/`);
-      await expect(page.locator('.series-position').first()).toContainText(locale === 'en' ? 'Part 1 of 5' : '第 1 / 5 篇');
+      await expect(page.locator('.article-title').first()).toHaveAttribute('href', `${base}${locale}/blog/astro-github-pages/`);
+      await expect(page.locator('.series-position').first()).toContainText(locale === 'en' ? 'Part 4 of 5' : '第 4 / 5 篇');
+      await expect(page.locator('.post-card').first().locator('time')).toHaveCount(2);
+      await expect(page.locator('.post-card').first()).toContainText('2026-09-26');
       await page.locator(`.topic-filter a[href="${base}${locale}/topics/web-foundations/"]`).click();
       await expect(page.locator('.article-title').first()).toHaveAttribute('href', `${base}${locale}/blog/why-astro/`);
+      await expect(page.locator(`.article-context .chip[href="${base}${locale}/topics/web-foundations/"]`)).toHaveCount(0);
+      const walkthroughCard = page.locator('.post-card').filter({ has: page.locator(`.article-title[href="${base}${locale}/blog/astro-knowledge-platform/"]`) });
+      await expect(walkthroughCard.locator(`.article-context .chip[href="${base}${locale}/topics/platform-engineering/"]`)).toBeVisible();
+      await expect(page.locator('.post-card').first().locator('time').first()).toHaveText('2026-09-19');
+      expect(await page.locator('.topic-filter a').first().evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
       await page.locator(`.topic-filter a[href="${base}${locale}/topics/platform-engineering/"]`).click();
       await expect(page.locator('.article-title')).toHaveCount(1);
       await expect(page.locator('.series-position')).toContainText(locale === 'en' ? 'Part 5 of 5' : '第 5 / 5 篇');
@@ -321,7 +328,7 @@ test('Article translation preserves context and search indexes Skill text', asyn
     }
     await expect(articleResult).toBeVisible();
     for (const href of await page.locator('.pagefind-ui__result-link').evaluateAll(links => links.map(link => link.getAttribute('href'))))
-      expect(href).toMatch(new RegExp(`${base}${locale}/(?:blog|cases|topics|learn|projects)/[^/]+/$`));
+      expect(href).toMatch(new RegExp(`^${base}${locale}/(?:(?:blog|cases|topics|learn|projects)/[^/]+|about)/$`));
   }
 });
 

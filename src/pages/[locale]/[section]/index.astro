@@ -7,7 +7,7 @@ import AboutProfile from '../../../components/AboutProfile.astro';
 import { locales, localePrefix, type Locale } from '../../../i18n';
 import { ui, sections, sectionDescriptions, type Section } from '../../../i18n/ui';
 import { getContentGraph } from '../../../utils/build-graph';
-import { publishedArticles, isCase, topicsWithArticles, readingOrder } from '../../../utils/catalog';
+import { publishedArticles, isCase, topicsWithArticles } from '../../../utils/catalog';
 import { localePath } from '../../../utils/routes';
 import { aboutJsonLd } from '../../../utils/seo';
 import { siteConfig } from '../../../config/site';
@@ -32,7 +32,7 @@ const languageLinks = Object.fromEntries(locales.map(target => [target, localePa
   {section === 'learn' && <EntityList entries={graph['learning-paths']} section="learn" locale={locale} />}
   {section === 'topics' && <EntityList entries={topicsWithArticles(graph, locale)} section="topics" locale={locale} />}
   {section === 'projects' && <EntityList entries={graph.projects} section="projects" locale={locale} />}
-  {section === 'blog' && <><TopicFilter locale={locale} graph={graph} /><p>{locale === 'zh-TW' ? '系列文章依閱讀順序排列；主題標籤可切換列表。' : 'Series articles follow their reading order. Use a topic to narrow the list.'}</p><ArticleList articles={readingOrder(articles.filter(a => !isCase(a)), graph['learning-paths'], locale)} locale={locale} details graph={graph} /></>}
+  {section === 'blog' && <><TopicFilter locale={locale} graph={graph} /><p>{locale === 'zh-TW' ? '最新發布的文章排在前面。想照順序閱讀，可以點卡片上的系列名稱。' : 'Newest articles appear first. Follow a series link on a card to read it in order.'}</p><ArticleList articles={articles.filter(a => !isCase(a))} locale={locale} details graph={graph} /></>}
   {section === 'cases' && <ArticleList articles={articles.filter(isCase)} locale={locale} />}
   {section === 'about' && <AboutProfile locale={locale} articleCount={articles.length} hasCases={articles.some(isCase)} />}
 </BaseLayout>
