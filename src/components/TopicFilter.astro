@@ -1,0 +1,18 @@
+---
+import type { Locale } from '../i18n';
+import type { ContentGraph } from '../content/schemas';
+import { topicsWithArticles } from '../utils/catalog';
+import { entityText } from '../i18n/content';
+import { localePath } from '../utils/routes';
+interface Props { locale: Locale; selected?: string; graph: ContentGraph }
+const { locale, selected, graph } = Astro.props;
+---
+<nav class="topic-filter" aria-label={locale === 'zh-TW' ? '依主題篩選文章' : 'Filter articles by topic'}>
+  <a href={localePath(locale, 'blog', import.meta.env.BASE_URL)} aria-current={!selected ? 'page' : undefined}>{locale === 'zh-TW' ? '全部文章' : 'All articles'}</a>
+  {topicsWithArticles(graph, locale).map(topic => <a href={localePath(locale, `topics/${encodeURIComponent(topic.id)}`, import.meta.env.BASE_URL)} aria-current={selected === topic.id ? 'page' : undefined}>{entityText('topics', topic, locale).title}</a>)}
+</nav>
+<style>
+  .topic-filter { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0 1.5rem; }
+  a { padding: .25rem .65rem; border: 1px solid var(--border); border-radius: .5rem; }
+  a[aria-current] { background: var(--soft); font-weight: 700; text-decoration: underline; }
+</style>

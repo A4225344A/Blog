@@ -253,6 +253,39 @@ test('author is discoverable by Chinese name in both locale search indexes', asy
   }
 });
 
+test('topic filters and series order work without JavaScript and diagrams follow the theme', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 900 } });
+  const page = await context.newPage();
+  try {
+    for (const locale of ['en', 'zh-tw']) {
+      await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/`);
+      await expect(page.locator('.article-title').first()).toHaveAttribute('href', `${base}${locale}/blog/why-astro/`);
+      await expect(page.locator('.series-position').first()).toContainText(locale === 'en' ? 'Part 1 of 5' : '第 1 / 5 篇');
+      await page.locator(`.topic-filter a[href="${base}${locale}/topics/web-foundations/"]`).click();
+      await expect(page.locator('.article-title').first()).toHaveAttribute('href', `${base}${locale}/blog/why-astro/`);
+      await page.locator(`.topic-filter a[href="${base}${locale}/topics/platform-engineering/"]`).click();
+      await expect(page.locator('.article-title')).toHaveCount(1);
+      await expect(page.locator('.series-position')).toContainText(locale === 'en' ? 'Part 5 of 5' : '第 5 / 5 篇');
+      await page.locator(`.topic-filter a[href="${base}${locale}/blog/"]`).click();
+      await expect(page.locator('.article-title')).toHaveCount(5);
+      await page.screenshot({ path: `test-results/reading-list-${locale}.png`, fullPage: true });
+      for (const mode of ['light', 'dark'] as const) {
+        await page.emulateMedia({ colorScheme: mode });
+        await page.goto(`http://127.0.0.1:4322${base}${locale}/blog/astro-github-pages/`);
+        const svg = page.locator('.learning-diagram svg');
+        const fill = await svg.evaluate(element => {
+          const rect = element.querySelector('rect');
+          if (!rect) throw new Error('Missing diagram node');
+          return getComputedStyle(rect).fill;
+        });
+        expect(fill).toBe(mode === 'dark' ? 'rgb(34, 37, 56)' : 'rgb(255, 255, 255)');
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await svg.screenshot({ path: `test-results/reading-flow-${locale}-${mode}.png` });
+      }
+    }
+  } finally { await context.close(); }
+});
+
 test('local search returns working canonical URLs in both locales', async ({ page }) => {
   for (const locale of ['en', 'zh-tw']) {
     await page.goto(`${locale}/search/`);

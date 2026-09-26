@@ -12,22 +12,23 @@ skills: [static-site-delivery]
 prerequisiteSkills: [astro-content-modeling]
 recommendedArticles: []
 publishedAt: 2026-09-24
-updatedAt: 2026-09-24
+updatedAt: 2026-09-26
 status: published
 ---
 
 Continue with `engineering-blog` from the previous tutorials: the home page links to an article, and Home returns from the article. We can now publish it to GitHub Pages. Commands use Windows PowerShell; complete the previous article and layout steps first if those pages are not ready.
 
 <figure class="learning-diagram">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 610" role="img" aria-label="PR and main deployment paths" style="display:block;max-width:100%;width:400px;height:auto;margin:auto;background:#f5f6ff;border-radius:8px">
-<g fill="none" stroke="#4857a5" stroke-width="2"><path d="M200 80 V110 M200 95 H25 V225 H45 M200 250 V280 M200 335 V365 M200 420 V450 M200 505 V535"/><path d="m194 104 6 6 6-6 M39 219 l6 6-6 6 m155 43 6 6 6-6 m-12 85 6 6 6-6 m-12 85 6 6 6-6 m-12 85 6 6 6-6"/></g>
-<rect x="45" y="25" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="58" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">Push changes</text>
-<rect x="45" y="110" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="143" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">PR: checks only, no deploy</text>
-<rect x="45" y="195" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="228" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">main: check and build</text>
-<rect x="45" y="280" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="313" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">Upload artifact after checks pass</text>
-<rect x="45" y="365" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="398" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">Wait for github-pages approval</text>
-<rect x="45" y="450" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="483" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">Deploy the same artifact</text>
-<rect x="45" y="535" width="310" height="55" rx="8" fill="white" stroke="#4857a5"/><text x="200" y="568" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#26304b">GitHub Pages</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 680" role="img" aria-label="PR and main deployment paths" style="display:block;max-width:100%;width:400px;height:auto;margin:auto;background:var(--soft);border-radius:8px">
+<g fill="none" stroke="var(--link)" stroke-width="2"><path d="M200 80 V105 H100 V150 M200 105 H300 V150 M300 210 V250 H200 V280 M200 340 V365 M200 425 V450 M200 510 V535"/><path d="M94 144 l6 6 6-6 M294 144 l6 6 6-6 M194 274 l6 6 6-6 M194 359 l6 6 6-6 M194 444 l6 6 6-6 M194 529 l6 6 6-6"/></g>
+<rect x="100" y="20" width="200" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="56" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">Push changes</text>
+<rect x="10" y="150" width="180" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="100" y="186" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">Run checks only</text>
+<rect x="210" y="150" width="180" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="300" y="186" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">Check and build</text>
+<rect x="30" y="280" width="340" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="316" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">Upload verified artifact</text>
+<rect x="30" y="365" width="340" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="401" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">Wait for github-pages approval</text>
+<rect x="30" y="450" width="340" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="486" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">Deploy the same artifact</text>
+<rect x="30" y="535" width="340" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="571" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">GitHub Pages</text>
+<g font-family="sans-serif" font-size="16" text-anchor="middle" fill="var(--fg)"><text x="70" y="135">PR</text><text x="335" y="135">main</text><text x="100" y="235">Stop — no deployment</text></g>
 </svg>
 <figcaption>Deployment flow: PRs do not deploy. Main publishes its artifact only after checks and human approval.</figcaption>
 </figure>

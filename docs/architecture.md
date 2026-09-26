@@ -61,9 +61,9 @@ identities, route ownership, static hosting and GA4 acquisition policy are uncha
 ## Purpose
 
 This document is the shared architecture source of truth for:
-- Human maintainers
-- Codex
-- Claude Code
+- Maintainers
+- Contributors
+- Reviewers
 
 It describes only implemented or explicitly approved architecture.
 
@@ -206,6 +206,25 @@ Implementation details:
   Cases remain an honest empty state until actual case content is authored.
 
 ## Personal Blog Positioning Within V1
+
+Blog and topic detail lists follow LearningPath membership order, then show
+standalone articles chronologically. When multiple series match, stable path-ID
+order breaks ties and each article appears once. Cards show localized topic links
+and their positions in each complete published localized series, not positions in
+the filtered subset. A topic navigation bar filters through existing canonical
+topic pages using ordinary links, so it works without JavaScript. Empty topics
+are not offered as filter options. Homepage latest articles remain chronological;
+series/discovery cards omit dates while article pages retain their real dates.
+Discovery lists and topic filters receive the graph already loaded by their page.
+ArticleList derives series membership only when details are requested; ordinary
+latest/recommended/series-section lists do not reload or derive the content graph.
+
+Home and the language chooser emit the same WebSite identity, bilingual names,
+languages and the established Person publisher. This describes the project site;
+it does not promise a distinct Google site-name result for a subdirectory.
+The deployment SVG has separate labeled PR/main branches. The PR branch stops;
+only main reaches artifact upload, human approval and deployment. Diagram fills,
+text and connectors inherit the existing theme variables without JavaScript.
 
 The maintainer approved replacing the zero-experience course positioning with a
 Jacky's personal technical blog. Home prioritizes recent articles
@@ -357,7 +376,7 @@ V1 goals:
 7. Keep content static-first.
 8. Keep hosting cost at or near zero.
 9. Use Git as the primary publishing workflow.
-10. Use Codex build + Claude independent review + human merge authority.
+10. Require independent review and maintainer approval before merging.
 
 ## Non-Goals
 
@@ -378,9 +397,7 @@ V1 does NOT include:
 ## High-Level Architecture
 
 ```text
-Human Requirement
-      ↓
-Codex Builder
+Content and source files
       ↓
 Git / Pull Request
       ↓
@@ -391,13 +408,9 @@ CI Quality Gate
  ├─ Astro check
  └─ build
       ↓
-Claude Independent Review
+Independent review
       ↓
-Codex Fixes
-      ↓
-Claude Re-review
-      ↓
-Human Approval
+Maintainer approval
       ↓
 Merge to main
       ↓
@@ -839,13 +852,10 @@ before starting its deploy job. YAML references the environment; GitHub reposito
 settings enforce the approval. Keep required reviewers enabled. The workflow name
 `CI` and job ID `validate` remain unchanged for existing required-check settings.
 
-## AI Roles
+## Review responsibility
 
-- Codex = Primary Builder
-- Claude Code = Independent Reviewer
-- Human = Final Merge Authority
-
-AI `READY` is evidence, not approval.
+Changes require independent review. The maintainer controls merging and deployment
+approval; a review result alone does not authorize either operation.
 
 ## V1 Included
 
@@ -911,7 +921,7 @@ Status: Accepted. Cases use `/cases/`, other Articles use `/blog/`.
 ### ADR-008 — Minimal V1 Graph Validation
 Status: Accepted. Advanced graph checks are deferred.
 
-### ADR-009 — Codex Builder / Claude Reviewer
+### ADR-009 — Independent review and maintainer approval
 Status: Accepted.
 
 ### ADR-010 — CI-Gated Deployment
@@ -945,4 +955,4 @@ Update this file in the same PR when materially changing:
 - graph validation
 - SEO
 - search
-- AI workflow
+- review and release workflow

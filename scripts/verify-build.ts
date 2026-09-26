@@ -84,6 +84,13 @@ for (const route of routes) {
   assert.equal((html.match(/www\.googletagmanager\.com\/gtag\/js/g) ?? []).length, gaId ? 1 : 0, `Conditional guarded loader: ${route}`);
   if (!gaId) assert.ok(!html.includes('googletagmanager'), `No Google tag references when disabled: ${route}`);
   const indexable = sitemapInventory.has(route);
+  if (Object.values(homeCluster).includes(canonical)) {
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+    const websites = blocks.map(match => JSON.parse(match[1] ?? '{}') as Record<string, unknown>).filter(data => data['@type'] === 'WebSite');
+    assert.equal(websites.length, 1);
+    assert.equal(websites[0]?.url, `${site}${base}`);
+    assert.equal(websites[0]?.['@id'], `${site}${base}#website`);
+  }
   if (!indexable) assert.ok(!html.includes('rel="canonical"'), `No canonical on noindex pages: ${route}`);
   assert.equal(html.includes(`rel="canonical" href="${canonical}"`), indexable, `Canonical: ${route}`);
   assert.equal(html.includes('name="robots" content="noindex,follow"'), !indexable, `Indexability: ${route}`);
