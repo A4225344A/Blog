@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { article } from './fixtures';
-import { articleJsonLd, rssXml, safeJson, sitemapXml, xmlEscape } from '../src/utils/seo';
+import { aboutJsonLd, articleJsonLd, rssXml, safeJson, sitemapXml, xmlEscape } from '../src/utils/seo';
 import { locales, localePrefix, messages } from '../src/i18n';
 test('RSS channel titles and Atom self URLs follow locale and hosting base', () => {
   for (const base of ['/', '/Blog/']) for (const locale of locales) {
@@ -31,4 +31,29 @@ test('JSON-LD escapes script termination and uses canonical Article URL', () => 
 test('sitemap emits absolute URLs and XML escaping is deterministic', () => {
   assert.match(sitemapXml(['/repo/en/'], 'https://example.github.io'), /<loc>https:\/\/example.github.io\/repo\/en\/<\/loc>/);
   assert.equal(xmlEscape('<>&"\''), '&lt;&gt;&amp;&quot;&apos;');
+});
+
+test('author identity connects both locales, articles and RSS without exposing email', () => {
+  for (const base of ['/', '/Blog/']) for (const locale of locales) {
+    const person = aboutJsonLd(locale, 'https://example.github.io', base);
+    const data = articleJsonLd(article({ locale }), 'https://example.github.io', base);
+    assert.deepEqual(data.author, data.publisher);
+    assert.equal(data.author['@id'], person['@id']);
+    assert.equal(person['@id'], `https://example.github.io${base}zh-tw/about/#author`);
+    assert.equal(person.url, `https://example.github.io${base}${localePrefix[locale]}/about/`);
+    assert.deepEqual(person.alternateName, ['Jacky', '謝宇逸']);
+    const xml = rssXml([article({ locale })], locale, 'https://example.github.io', base);
+    assert.ok(xml.includes('xmlns:dc="http://purl.org/dc/elements/1.1/"'));
+    assert.equal(xml.split(`<dc:creator>${person.name}</dc:creator>`).length - 1, 2);
+    assert.ok(!xml.includes('<author>'));
+  }
+});
+
+test('sitemap dates use supplied content dates only', () => {
+  const xml = sitemapXml(['/en/', '/en/blog/intro/'], 'https://example.github.io', new Map([
+    ['/en/blog/intro/', new Date('2026-09-24')],
+  ]));
+  assert.equal((xml.match(/<lastmod>/g) ?? []).length, 1);
+  assert.ok(xml.includes('/en/</loc></url>'));
+  assert.ok(xml.includes('/en/blog/intro/</loc><lastmod>2026-09-24T00:00:00.000Z</lastmod>'));
 });

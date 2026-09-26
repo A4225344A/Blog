@@ -94,11 +94,19 @@ src/content/
 
 給搜尋引擎的 `canonical` 指定正文的主要網址；`hreflang` 列出實際存在的語言版本。語言入口另外使用 `x-default` 表示未指定語言時的入口。這些標記集中在版型產生，不需每篇文章自行填寫。
 
+例如這篇繁體中文文章的 `<head>` 會包含以下標記。英文版的 canonical 指向英文網址，兩邊的 hreflang 清單相同。文章不加 `x-default`；那是語言入口與首頁的設定。
+
+```html
+<link rel="canonical" href="https://a4225344a.github.io/Blog/zh-tw/blog/astro-knowledge-platform/">
+<link rel="alternate" hreflang="zh-TW" href="https://a4225344a.github.io/Blog/zh-tw/blog/astro-knowledge-platform/">
+<link rel="alternate" hreflang="en" href="https://a4225344a.github.io/Blog/en/blog/astro-knowledge-platform/">
+```
+
 主題與專案是中英文共用的資料，翻譯放在 `src/i18n/content.ts`。這裡只翻譯顯示名稱，不另建兩份專案實體。
 
 ## 不靠後端的搜尋與閱讀介面
 
-Pagefind 在 `dist` 的 HTML 中擷取文章與內容詳情頁，建立本地搜尋索引。首頁與導覽不加入索引，避免每次搜尋都重複命中選單文字。搜尋頁讀取部署目錄裡的索引檔，不呼叫遠端搜尋服務。
+Pagefind 在 `dist` 的 HTML 中擷取文章、作者介紹與內容詳情頁，建立本地搜尋索引。首頁與導覽不加入索引，避免每次搜尋都重複命中選單文字。搜尋頁讀取部署目錄裡的索引檔，不呼叫遠端搜尋服務。
 
 繁體中文可搜尋，但 Pagefind 不會替 `zh-tw` 做詞形還原，也就是不自動把不同詞形當作相同字詞。
 

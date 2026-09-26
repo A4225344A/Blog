@@ -69,6 +69,7 @@ for (const locale of locales) for (const [section, entries] of [['topics', graph
     const route = localePath(locale, `${section}/${encodeURIComponent(entry.id)}`, base);
     if (sitemapInventory.has(route)) indexedRoutes.add(route);
   }
+for (const locale of locales) indexedRoutes.add(localePath(locale, 'about', base));
 for (const article of publishedArticles(graph.articles)) indexedRoutes.add(articlePath(article, base));
 for (const route of routes) {
   const html = await readFile(resolve('dist', decodeURIComponent(route.slice(base.length)), 'index.html'), 'utf8');
@@ -90,6 +91,8 @@ for (const route of routes) {
   assert.equal(sitemap.includes(`<loc>${xmlEscape(canonical)}</loc>`), indexable, `Sitemap: ${route}`);
   assert.ok(html.includes('name="description"'));
   assert.ok(html.includes('property="og:title"'));
+  assert.ok(html.includes('property="og:site_name"'));
+  assert.ok(html.includes('name="author"'));
   assert.equal((html.match(/<h1[ >]/g) ?? []).length, 1, `One h1: ${route}`);
   assert.ok(html.includes('id="main"'));
   assert.ok(html.includes('value="system"'));
@@ -129,6 +132,10 @@ for (const locale of locales) {
     assert.ok(html?.includes(`name="description" content="${sectionDescriptions[locale][section]}"`), `Section description: ${locale}/${section}`);
   }
   const home = htmlByRoute.get(localePath(locale, '', base)) ?? '';
+  const about = htmlByRoute.get(localePath(locale, 'about', base)) ?? '';
+  assert.ok(about.includes('"@type":"Person"'));
+  assert.ok(about.includes('"alternateName":["Jacky","謝宇逸"]'));
+  assert.ok(about.includes(`name="author" content="${siteConfig.author.name[locale]}"`));
   const featured = home.split(`<h2>${ui[locale].featuredTopics}</h2>`)[1]?.split('</section>')[0] ?? '';
   const actualLinks = [...featured.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
   assert.deepEqual(actualLinks, siteConfig.featuredTopicIds.filter(id => publishedArticles(graph.articles, locale).some(article => article.topics.includes(id))).map(id => localePath(locale, `topics/${id}`, base)), `Featured order: ${locale}`);
@@ -137,6 +144,7 @@ for (const locale of ['en', 'zh-TW'] as const) {
   const rss = await readFile(`dist/${locale === 'en' ? 'en' : 'zh-tw'}/rss.xml`, 'utf8');
   assert.equal((rss.match(/<item>/g) ?? []).length, publishedArticles(graph.articles, locale).length);
   assert.ok(rss.includes(`<title>${messages[locale].title}</title>`));
+  assert.equal((rss.match(/<dc:creator>/g) ?? []).length, publishedArticles(graph.articles, locale).length + 1);
   assert.ok(rss.includes(`<atom:link href="${site}${base}${localePrefix[locale]}/rss.xml" rel="self" type="application/rss+xml"/>`));
 }
 for (const article of graph.articles) {
@@ -148,6 +156,11 @@ for (const article of graph.articles) {
       assert.match(html, /<code>https:\/\/name\.github\.io<\/code>/);
     }
     assert.match(html, /application\/ld\+json/);
+    assert.ok(html.includes('"author":{"@type":"Person"'));
+    assert.ok(html.includes('"publisher":{"@type":"Person"'));
+    assert.ok(html.includes(`rel="author" href="${localePath(article.locale, 'about', base)}"`));
+    const modified = article.updatedAt ?? article.publishedAt;
+    if (modified) assert.ok(sitemap.includes(`<loc>${xmlEscape(new URL(route, site).href)}</loc><lastmod>${modified.toISOString()}</lastmod>`));
     assert.ok(html.includes(article.contentType === 'opinion' ? '"@type":"Article"' : '"@type":"TechArticle"'));
   } else assert.ok(!sitemap.includes(new URL(route, site).href));
 }

@@ -90,11 +90,19 @@ Language switching uses `translationKey` to find the corresponding published art
 
 `canonical` identifies the article’s primary URL, and `hreflang` lists its translations. `x-default` points to the language chooser when no language is specified. The layout generates these tags, so I do not fill them in for each article.
 
+For example, this article’s Traditional Chinese `<head>` contains these tags. The English version points its canonical to the English URL and carries the same hreflang list. Articles do not use `x-default`; that belongs to the language chooser and home pages.
+
+```html
+<link rel="canonical" href="https://a4225344a.github.io/Blog/zh-tw/blog/astro-knowledge-platform/">
+<link rel="alternate" hreflang="zh-TW" href="https://a4225344a.github.io/Blog/zh-tw/blog/astro-knowledge-platform/">
+<link rel="alternate" hreflang="en" href="https://a4225344a.github.io/Blog/en/blog/astro-knowledge-platform/">
+```
+
 Shared topics and projects have one entity each. Their display translations live in `src/i18n/content.ts` and do not create extra graph entities.
 
 ## Search and reading without a backend
 
-Pagefind reads generated article and detail-page HTML to build a local index. It excludes home pages and navigation so menus do not dominate results. The search page loads files from the deployment directory without a remote search service.
+Pagefind reads generated article, author profile and detail-page HTML to build a local index. It excludes home pages and navigation so menus do not dominate results. The search page loads files from the deployment directory without a remote search service.
 
 Traditional Chinese queries work, but Pagefind does not stem `zh-tw` words: it does not automatically match different word forms.
 

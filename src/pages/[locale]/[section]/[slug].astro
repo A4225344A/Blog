@@ -11,6 +11,7 @@ import { isCase, orderedPathArticles, publishedArticles, pathArticleNavigation }
 import { localePath, translatedArticlePath } from '../../../utils/routes';
 import { articlePath } from '../../../utils/routes';
 import { articleJsonLd } from '../../../utils/seo';
+import { siteConfig } from '../../../config/site';
 import { legacyContentRoutes } from '../../../config/legacy-routes';
 export async function getStaticPaths() {
   const { graph } = await getContentGraph();
@@ -62,6 +63,7 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
     {legacy && <p><a href={localePath(locale, legacy.to, base)}>{legacy.continuation ? (locale === 'zh-TW' ? '加入文章與共用版型' : 'Adding articles and a shared layout') : (locale === 'zh-TW' ? '閱讀新版內容' : 'Read the revised content')}</a></p>}
     {legacy?.continuation && <p><a href={localePath(locale, legacy.continuation, base)}>{locale === 'zh-TW' ? '部署 Astro 部落格到 GitHub Pages' : 'Deploying an Astro blog to GitHub Pages'}</a></p>}
     {article && <>
+      <p class="byline">{locale === 'zh-TW' ? '作者：' : 'By '}<a rel="author" href={localePath(locale, 'about', base)}>{siteConfig.author.name[locale]}</a></p>
       <p class="post-meta">{article.publishedAt && <span>{t.published}{separator}<time datetime={article.publishedAt.toISOString()}>{article.publishedAt.toISOString().slice(0, 10)}</time></span>}{article.updatedAt && <span>{t.updated}{separator}<time datetime={article.updatedAt.toISOString()}>{article.updatedAt.toISOString().slice(0, 10)}</time></span>}{graph.topics.filter(topic => article.topics.includes(topic.id)).map(topic => <a class="chip" href={localePath(locale, `topics/${encodeURIComponent(topic.id)}`, base)}>{entityText('topics', topic, locale).title}</a>)}</p>
       {tocHeadings.length > 0 && <nav class="mobile-toc" aria-label={t.contents} data-pagefind-ignore><h2>{t.contents}</h2><ol>{tocHeadings.map(heading => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}</ol></nav>}
       {Content && <div class="prose"><Content /></div>}
@@ -80,6 +82,7 @@ const alternates = article ? Object.fromEntries(publishedArticles(graph.articles
       {articleReverse?.projectIds.length ? <section><h2>{t.projects}</h2><EntityList entries={graph.projects.filter(p => articleReverse?.projectIds.includes(p.id))} section="projects" locale={locale} /></section> : null}
     </>}
     {topic && <ArticleList articles={articles.filter(a => a.topics.includes(topic.id))} locale={locale} />}
+    {topic && noindex && <p>{locale === 'zh-TW' ? '這個主題還在學習與整理中，目前已發布的是 Astro 部落格系列。' : 'I’m still learning and gathering notes on this topic. The published articles currently cover building an Astro blog.'} <a href={localePath(locale, 'learn/knowledge-platform', base)}>{locale === 'zh-TW' ? '閱讀 Astro 系列' : 'Read the Astro series'}</a></p>}
     {path && <>{path.targetAudience.length > 0 && <p>{t.audience}{separator}{pathAudience(path, locale).join(' · ')}</p>}{orderedPathArticles(path, graph.articles, locale).map(section => <section><h2>{sectionText(path.id, section, locale).title}</h2><p>{sectionText(path.id, section, locale).description}</p><ArticleList articles={section.articles} locale={locale} ordered /></section>)}</>}
     {project && <><p>{t.maturity}{separator}{maturityLabels[locale][project.maturity]}</p>{project.repositoryUrl && <a href={project.repositoryUrl}>{t.repository}</a>}<h2>{t.skills}</h2><ul>{graph.skills.filter(s => project.featuredSkills.includes(s.id)).map(s => <li>{entityText('skills', s, locale).title}</li>)}</ul>{articles.some(a => project.relatedArticles.includes(a.id)) && <><h2>{t.related}</h2><ArticleList articles={articles.filter(a => project.relatedArticles.includes(a.id))} locale={locale} /></>}{project.relatedLearningPaths.length > 0 && <><h2>{t.paths}</h2><EntityList entries={graph['learning-paths'].filter(p => project.relatedLearningPaths.includes(p.id))} section="learn" locale={locale} /></>}</>}
   </article>
