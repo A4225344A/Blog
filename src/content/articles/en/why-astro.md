@@ -55,13 +55,13 @@ References: [Hugo introduction](https://gohugo.io/about/introduction/), [Next.js
 
 There is an inconvenience: fixing a single typo still means building and deploying again. The search index needs updating too. I do not need edits to appear immediately, so I can live with that wait.
 
-One local run on 2026-09-24 took about 3.8 seconds for `corepack.cmd pnpm run build`. It used Windows x64, Node 24.15.0, installed dependencies and an existing Astro cache, with five bilingual articles, `/Blog/` as the base and GA4 disabled. That includes content validation, Astro and Pagefind, but not installation, GitHub CI or time waiting to deploy. It is a measurement of that run, not a general build-time guarantee.
+One local run on 2026-09-24 took about 3.8 seconds for a production build. It used Windows x64, Node 24.15.0, installed dependencies and an existing Astro cache, with five bilingual articles and `/Blog/` as the base. That includes content validation, Astro and Pagefind, but not installation, GitHub CI or time waiting to deploy. It is a measurement of that run, not a general build-time guarantee.
 
 The `/Blog/` path also needs attention. Links to home, articles and images must include it; otherwise the browser looks at the domain root. The GitHub Pages deployment article walks through configuring and checking those links.
 
 ## When the live article still shows old text
 
-Suppose the Markdown has changed but the live article still shows the old paragraph. I would follow the diagram: did the edit reach the commit used for the build? Does the generated HTML contain it? Which artifact was deployed?
+Suppose the Markdown has changed but the live article still shows the old paragraph. I would check each stage: did the edit reach the commit used for the build? Does the generated HTML contain it? Which artifact was deployed?
 
 Checking the HTML in `dist` helps separate a build problem from a deployment problem. If the new paragraph is already there, the next place to look is GitHub Actions: which output did that deployment publish?
 

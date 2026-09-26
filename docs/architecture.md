@@ -51,7 +51,14 @@ Pagefind. The hidden copy is outside the accessibility tree and tab order.
 Light/dark/system modes,
 storage fallback, reduced motion and static navigation remain supported.
 The article/layout tutorial and deployment tutorial are separate articles.
-Image zoom and theme-test removal are not part of this change.
+Article code blocks gain a client-side copy button using the Clipboard API.
+Copy failures show a manual-copy hint; the original code stays selectable.
+Inline SVG learning diagrams have a native modal dialog for enlargement, with a
+keyboard-focusable scroll region, Escape/Close dismissal and focus restoration.
+Both controls are progressive enhancements: without JavaScript, code and diagrams
+remain readable. No React, dependency, network request or analytics event is added.
+Figure captions precede the content consistently; diagrams are added where they
+explain a flow, not to meet a per-article quota.
 
 Astro is pinned to 7.3.3 with Zod 4 shared schemas. CI uses Node 24, matching the
 tutorial commands. Security controls and settings that still need external
@@ -59,6 +66,12 @@ verification are described in `docs/security.md`. The content graph, stable
 identities, route ownership, static hosting and GA4 acquisition policy are unchanged.
 
 ## Purpose
+
+Empty case indexes remain reachable but are noindex and omitted from the sitemap,
+canonical and hreflang output. A locale becomes indexable once it has published
+cases; alternates only name populated locales. Empty topics omit ordering prose.
+The chronological article list links directly to the first published article in
+the configured introductory series, deriving its order from LearningPath.
 
 This document is the shared architecture source of truth for:
 - Maintainers
@@ -266,15 +279,16 @@ without a chronology explanation in the prose. Latest articles stay chronologica
 and link to the ordered series; publication dates are not fabricated to alter order.
 Topic discovery shares configured ordering, with a stable ID fallback for new
 topics. The walkthrough is classified under website and platform engineering.
-The selection article uses a static publishing-flow illustration; the other
-articles use code examples where a diagram would only repeat a short list.
+The selection article uses a static publishing-flow illustration, and the
+deployment article uses a branching SVG. Other articles use code examples where
+a diagram would only repeat a short list.
 Start is a reading guide, distinct from the author's About page. Discovery lists
 only topics with published articles in the current locale. Empty topic detail
 routes remain accessible but are noindex, without canonical/hreflang, and excluded
 from sitemap and Pagefind. Populated topic hreflang includes only populated locales.
 Navigation, About
 entry links and the homepage omit cases until that locale has published cases;
-the canonical Cases section remains available with an honest empty state.
+the Cases section remains available with an honest noindex empty state until populated.
 About distinguishes the published Astro series, the AI SRE lab introduction and
 future cloud-native case writing. The lab has no related articles yet.
 Article pages show dates, topic chips, a sidebar TOC, body and previous/next series

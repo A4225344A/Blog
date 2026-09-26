@@ -12,6 +12,7 @@ import { safeJson, websiteJsonLd } from '../utils/seo';
 import Sidebar from '../components/Sidebar.astro';
 import { siteConfig } from '../config/site';
 import { getContentGraph } from '../utils/build-graph';
+import ArticleTools from '../components/ArticleTools.astro';
 import { publishedArticles, isCase } from '../utils/catalog';
 interface Props { locale: Locale; title?: string; description?: string; languageLinks?: Partial<Record<Locale, string>>; alternates?: Partial<Record<Locale, string>>; jsonLd?: unknown; article?: boolean; search?: boolean; indexContent?: boolean; noindex?: boolean; sidebar?: boolean; showRecent?: boolean }
 const { locale, title, description, languageLinks = {}, alternates = languageLinks, jsonLd, article = false, indexContent = false, sidebar = true, showRecent = true } = Astro.props;
@@ -70,5 +71,6 @@ const isHomeCluster = [import.meta.env.BASE_URL, ...locales.map(target => locale
       {sidebar && <Sidebar locale={locale} showRecent={showRecent}><slot name="sidebar" /></Sidebar>}
     </div>
     <footer><div class="footer-inner"><p>© 2026 {siteConfig.author.name[locale]} · {locale === 'zh-TW' ? '全端工程師' : 'Full-stack engineer'}</p><a href={siteConfig.author.githubUrl}>GitHub ↗</a><a href={withBase(`${locale === 'zh-TW' ? 'zh-tw' : 'en'}/rss.xml`, import.meta.env.BASE_URL)}>RSS</a></div></footer>
+    {article && <ArticleTools />}
   </body>
 </html>

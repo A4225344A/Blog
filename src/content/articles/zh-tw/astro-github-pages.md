@@ -19,7 +19,8 @@ status: published
 沿用前兩篇建立的 `engineering-blog`：首頁已有文章連結，文章也能用 Home 返回首頁。接下來把它放上 GitHub Pages。指令使用 Windows PowerShell；如果還沒做出這兩個頁面，先完成上一篇的文章與版型。
 
 <figure class="learning-diagram">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 680" role="img" aria-label="PR 與 main 的部署分流" style="display:block;max-width:100%;width:400px;height:auto;margin:auto;background:var(--soft);border-radius:8px">
+<figcaption>部署流程：PR 不部署；main 通過檢查並獲核准後，才發布產物。</figcaption>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 610" role="img" aria-label="PR 與 main 的部署分流" style="display:block;max-width:100%;width:400px;height:auto;margin:auto;background:var(--soft);border-radius:8px">
 <g fill="none" stroke="var(--link)" stroke-width="2"><path d="M200 80 V105 H100 V150 M200 105 H300 V150 M300 210 V250 H200 V280 M200 340 V365 M200 425 V450 M200 510 V535"/><path d="M94 144 l6 6 6-6 M294 144 l6 6 6-6 M194 274 l6 6 6-6 M194 359 l6 6 6-6 M194 444 l6 6 6-6 M194 529 l6 6 6-6"/></g>
 <rect x="100" y="20" width="200" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="56" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">推送修改</text>
 <rect x="10" y="150" width="180" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="100" y="186" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">只執行檢查</text>
@@ -30,7 +31,6 @@ status: published
 <rect x="30" y="535" width="340" height="60" rx="8" fill="var(--surface)" stroke="var(--link)"/><text x="200" y="571" text-anchor="middle" font-family="sans-serif" font-size="16" fill="var(--fg)">GitHub Pages</text>
 <g font-family="sans-serif" font-size="16" text-anchor="middle" fill="var(--fg)"><text x="70" y="135">PR</text><text x="335" y="135">main</text><text x="100" y="235">到此結束，不部署</text></g>
 </svg>
-<figcaption>部署流程：PR 不部署；main 通過檢查並獲核准後，才發布產物。</figcaption>
 </figure>
 
 ## 部署到子路徑 /Blog/

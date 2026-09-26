@@ -32,7 +32,7 @@ Run installation and dev from `engineering-blog`, the directory containing `pack
 
 ## Create an empty project
 
-Open PowerShell in the parent directory where you keep projects, such as your Documents folder. The commands create `engineering-blog` inside that directory:
+In VS Code, use File → Open Folder to open the parent directory where you keep projects, such as your Documents folder. Choose Terminal → New Terminal to open a terminal there. If it uses another shell, select PowerShell from the terminal dropdown. The commands create `engineering-blog` inside that directory:
 
 ```powershell
 mkdir engineering-blog
@@ -40,7 +40,7 @@ cd engineering-blog
 git init -b main
 ```
 
-Use File → Open Folder to open `engineering-blog` in VS Code, then Terminal → New Terminal. Create `.gitignore` to exclude generated files and local configuration:
+Use File → Open Folder to open `engineering-blog` in VS Code, then Terminal → New Terminal. Select the project root in the VS Code Explorer and use New File to create `.gitignore` to exclude generated files and local configuration:
 
 ```text
 node_modules/
@@ -99,7 +99,7 @@ Create `tsconfig.json`:
 
 ## Create the home page
 
-Create `src/pages/index.astro`:
+In the VS Code Explorer, create a `src` folder at the project root, then a `pages` folder inside it. Create `index.astro` inside `pages`, giving it the full path `src/pages/index.astro`:
 
 ```astro
 <!doctype html>
