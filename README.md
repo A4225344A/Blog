@@ -21,6 +21,8 @@ The source includes the articles, layouts and build checks used by the website.
   approval requires Required reviewers configured separately in GitHub.
 - One five-article bilingual Astro series: selection, project setup, Markdown
   and layouts, GitHub Pages deployment, then the content model.
+- The `technical-blog` Project links both language versions of that series to
+  this published static website on GitHub Pages.
 - AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
   for learning, demonstration and experimentation, not production deployment.
 
@@ -119,8 +121,8 @@ Content validation fails for duplicate entity IDs, required missing references,
 forbidden fields, published Article route collisions (`E_ROUTE_COLLISION`), stale
 translation keys and schema/read errors. The six V1 graph warning categories and
 the editorial translation warning remain nonblocking.
-The ten Article-to-Project membership warnings are intentional: the architecture
-and Astro series are not part of the AI SRE lab. Advanced graph checks remain
+The technical-blog Project links both language versions of the Astro series;
+they are not part of the AI SRE lab. Advanced graph checks remain
 deferred. See [architecture](docs/architecture.md) for exact diagnostic IDs.
 
 ## GitHub Pages

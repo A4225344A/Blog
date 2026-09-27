@@ -53,8 +53,12 @@ storage fallback, reduced motion and static navigation remain supported.
 The article/layout tutorial and deployment tutorial are separate articles.
 Article code blocks gain a client-side copy button using the Clipboard API.
 Copy failures show a manual-copy hint; the original code stays selectable.
+Success status clears two seconds after the most recent successful copy; a new
+attempt cancels the old timer. Failure hints remain until another attempt.
 The copy button sits inside the code frame at the upper right, with reserved
 space above the code; status messages appear below the frame.
+The compact button fits above 2.5rem code padding. Dark mode uses a deeper code
+background, including system-dark rendering without JavaScript.
 Inline SVG learning diagrams have a native modal dialog for enlargement, with a
 keyboard-focusable scroll region, Escape/Close dismissal and focus restoration.
 Both controls are progressive enhancements: without JavaScript, code and diagrams
@@ -68,6 +72,16 @@ verification are described in `docs/security.md`. The content graph, stable
 identities, route ownership, static hosting and GA4 acquisition policy are unchanged.
 
 ## Purpose
+
+Projects have explicit in-page links back to articles, series and the project
+catalog. AI SRE Platform remains a lab; its overview summarizes the public README's
+infrastructure, GitOps and agent directories without claiming deployed outcomes.
+The technical-blog Project owns the ten localized Astro article references and
+their LearningPath, so the reverse index links the articles back to that project.
+Its production maturity refers only to this published static blog. It does not
+change the lab maturity or imply production experience with cloud infrastructure.
+The layout tutorial has a semantic HTML flow diagram matching the publishing-flow
+illustration; branching deployment remains an SVG. No schema entity is added.
 
 Search indexes each page's own introduction and body, excluding ArticleList cards
 (including related-article lists). Descriptions remain searchable prose and SEO
@@ -222,8 +236,8 @@ Implementation details:
 - The first complete bilingual Article describes this repository, including its
   validation boundary, routes, theme, Pagefind, SEO and artifact deployment. The
   `knowledge-platform` LearningPath owns its ordered Article membership. It is not
-  falsely attached to AI SRE Platform. The Astro series Articles are also independent
-  of that lab, so ten `W_ARTICLE_NO_PROJECT` warnings remain. The six initial Skills
+  falsely attached to AI SRE Platform. The Astro series Articles belong to the
+  separate technical-blog Project, resolving their membership warnings. The six initial Skills
   are supplemented by terminal basics, local preview and editing web pages.
   Cases remain an honest empty state until actual case content is authored.
 

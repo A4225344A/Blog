@@ -4,6 +4,7 @@ const base = normalizeBase(process.env.SITE_BASE);
 
 test('code copies exact text and a denied clipboard keeps code readable', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.clock.install();
   for (const locale of ['en', 'zh-tw']) {
     await page.goto(`${locale}/blog/astro-project-setup/`);
     const block = page.locator('.code-block').first();
@@ -13,10 +14,21 @@ test('code copies exact text and a denied clipboard keeps code readable', async 
     await expect(block.getByRole('status')).toHaveText(locale === 'en' ? 'Copied' : '已複製');
     // Windows normalizes clipboard line endings to CRLF; code content must match.
     expect((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n')).toBe(text?.replace(/\r\n/g, '\n'));
+    await page.clock.fastForward(1500);
+    await block.getByRole('button').click();
+    await expect(block.getByRole('status')).toHaveText(locale === 'en' ? 'Copied' : '已複製');
+    await page.clock.fastForward(600);
+    await expect(block.getByRole('status')).not.toBeEmpty();
+    await page.clock.fastForward(1400);
+    await expect(block.getByRole('status')).toBeEmpty();
+    await block.getByRole('button').click();
+    await expect(block.getByRole('status')).not.toBeEmpty();
     await page.evaluate(() => {
       Object.defineProperty(navigator.clipboard, 'writeText', { configurable: true, value: async () => { throw new Error('Permission denied'); } });
     });
     await block.getByRole('button').click();
+    await expect(block.getByRole('status')).toContainText(locale === 'en' ? 'copy it manually' : '手動複製');
+    await page.clock.fastForward(2500);
     await expect(block.getByRole('status')).toContainText(locale === 'en' ? 'copy it manually' : '手動複製');
     await expect(block.locator('code')).toHaveText(text ?? '');
     await expect(block.getByRole('button')).toBeEnabled();

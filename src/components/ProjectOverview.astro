@@ -1,0 +1,16 @@
+---
+import type { Locale } from '../i18n';
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const zh = locale === 'zh-TW';
+---
+<section aria-labelledby="project-overview">
+  <h2 id="project-overview">{zh ? '從哪裡看起' : 'Where to start exploring'}</h2>
+  <p>{zh ? '這個實驗把基礎設施設定、應用程式與告警處理放在同一個倉庫。可以先看這三個目錄：' : 'This lab keeps infrastructure configuration, applications and alert handling in one repository. These three directories are useful starting points:'}</p>
+  <ul>
+    <li><code>platform-infra/</code> — {zh ? 'AWS 的 Terraform 設定與 OIDC 部署範例。' : 'Terraform configuration for AWS and OIDC deployment examples.'}</li>
+    <li><code>platform-gitops/</code> — {zh ? 'Kubernetes、監控與 Argo CD 設定。Argo CD 預設由人手動同步。' : 'Kubernetes, monitoring and Argo CD configuration. Argo CD defaults to manual sync.'}</li>
+    <li><code>platform-agent/</code> — {zh ? '告警處理、資料遮罩與 AI 輔助判斷。' : 'Alert handling, data masking and AI-assisted analysis.'}</li>
+  </ul>
+  <p>{zh ? '完整環境仍需自行整合；閱讀程式與架構文件不需要 AWS 帳號。實驗的設定與限制整理在倉庫 README。' : 'The full environment still needs integration. Reading the code and architecture documents does not require an AWS account; the repository README explains the experiment setup and limitations.'}</p>
+</section>

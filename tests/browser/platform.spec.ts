@@ -340,7 +340,8 @@ test('detail pages localize metadata and omit empty optional relationships', asy
     await page.goto(`${locale}/blog/astro-knowledge-platform/`);
     await expect(page.locator('main')).not.toContainText(difficulty);
     await expect(page.getByRole('heading', { name: recommended, exact: true })).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: projects, exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: projects, exact: true })).toBeVisible();
+    await expect(page.locator(`main a[href="${base}${locale}/projects/technical-blog/"]`)).toBeVisible();
     await page.goto(`${locale}/projects/ai-sre-platform/`);
     await expect(page.getByRole('heading', { name: related, exact: true })).toHaveCount(0);
     await expect(page.getByRole('heading', { name: paths, exact: true })).toHaveCount(0);
