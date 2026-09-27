@@ -16,12 +16,15 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = copyLabel;
+    let clearStatus: number | undefined;
     button.addEventListener('click', async () => {
+      window.clearTimeout(clearStatus);
       button.disabled = true;
       status.textContent = '';
       try {
         await navigator.clipboard.writeText(code.textContent ?? '');
         status.textContent = zh ? '已複製' : 'Copied';
+        clearStatus = window.setTimeout(() => { status.textContent = ''; }, 2000);
       } catch {
         status.textContent = zh ? '無法複製，請選取程式碼手動複製。' : 'Could not copy. Select the code and copy it manually.';
       } finally {
@@ -72,7 +75,8 @@
   .code-toolbar button { position: absolute; top: .5rem; right: .5rem; }
   .code-copy-status:not(:empty) { display: block; padding: .5rem 1rem; font-size: .85rem; }
   .code-toolbar button, .diagram-zoom, .diagram-dialog button { font: inherit; padding: .4rem .8rem; color: var(--link); background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; cursor: pointer; }
-  .code-block pre { margin: 0; padding-top: 3.5rem; }
+  .code-toolbar button { top: .25rem; padding: .15rem .6rem; line-height: 1.5; }
+  .code-block pre { margin: 0; padding-top: 2.5rem; }
   .diagram-zoom { display: block; margin: 1rem auto 0; }
   .diagram-dialog { width: min(90vw, 720px); max-width: calc(100vw - 2rem); max-height: 90vh; padding: 1rem; color: var(--fg); background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; }
   .diagram-dialog::backdrop { background: rgb(0 0 0 / .65); }

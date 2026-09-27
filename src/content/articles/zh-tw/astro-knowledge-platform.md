@@ -12,7 +12,7 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
-updatedAt: 2026-09-24
+updatedAt: 2026-09-27
 status: published
 ---
 
@@ -82,7 +82,7 @@ src/content/
 
 會中止建置的錯誤包括重複 ID、引用不存在的文章或分類、缺少必要欄位，以及使用禁止的文章欄位。例如文章不能自己填 `order`：順序已由系列決定。錯誤輸出會指出對應檔案，指令也會回傳失敗狀態，讓 CI 停止。
 
-執行驗證時，也會看到 `W_ARTICLE_NO_PROJECT`。五篇 Astro 文章的中英版本都沒有掛在 Project 下，因此會產生十個警告，但不會中止建置。
+五篇 Astro 文章的中英版本由 `technical-blog` 專案的 `relatedArticles` 關聯。之後若有文章尚未歸入專案，驗證會印出 `W_ARTICLE_NO_PROJECT` 提醒，但不會中止建置。
 
 技能依賴是否形成循環等進階檢查尚未加入。現有驗證先處理會讓頁面引用失效的問題。
 

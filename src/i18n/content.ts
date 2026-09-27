@@ -35,6 +35,7 @@ skills: {
   } },
 },
 projects: {
+  'technical-blog': { title: '這個部落格', description: '你正在看的雙語 Astro 部落格：用 Markdown 寫文章、依系列排列內容，以 Pagefind 搜尋。「正式環境」指已在 GitHub Pages 發布的這個靜態網站。五篇系列文章記錄了建置方式。' },
   'ai-sre-platform': { title: 'AI SRE Platform', description: '用來練習 AWS、Kubernetes GitOps、監控與 AI 輔助排障的實驗專案，目前定位為 lab，沒有用於正式環境。' },
 },
 };

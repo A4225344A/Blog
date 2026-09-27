@@ -12,13 +12,22 @@ skills: [astro-content-modeling]
 prerequisiteSkills: [local-website-preview]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-24
+updatedAt: 2026-09-27
 status: published
 ---
 
 With the home page in place, I can add an article. I put the heading, navigation and styles in a shared layout and write the body in Markdown. Later layout changes will not require editing every article’s HTML.
 
 Keep working in the `engineering-blog` folder. This article gets the post running locally.
+
+<figure class="learning-diagram">
+<figcaption>From Markdown to a complete article page</figcaption>
+<ol role="list">
+<li><strong>Markdown article</strong><span><code>build-notes.md</code> provides the title, description and body, and selects its layout.</span></li>
+<li><strong>Shared layout</strong><span><code>PostLayout.astro</code> reads the metadata and places the rendered body in <code>&lt;slot /&gt;</code>.</span></li>
+<li><strong>HTML page</strong><span>Astro combines the navigation, heading and article body into a page the browser can display.</span></li>
+</ol>
+</figure>
 
 ## Give the repeated HTML a layout
 

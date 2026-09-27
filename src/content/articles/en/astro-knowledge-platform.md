@@ -12,7 +12,7 @@ skills: [astro-content-modeling, static-site-delivery]
 prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-18
-updatedAt: 2026-09-24
+updatedAt: 2026-09-27
 status: published
 ---
 
@@ -80,7 +80,7 @@ Astro loads content by ID. Duplicate IDs can overwrite one another before a late
 
 Duplicate IDs, missing references, invalid metadata and forbidden article fields stop the build with a nonzero exit. For example, Article cannot declare `order` because the series already owns it. Diagnostics identify the source so the error can be corrected before deployment.
 
-Validation also prints `W_ARTICLE_NO_PROJECT`. None of the five Astro articles belongs to a Project, so their two language versions produce ten warnings without stopping the build. Checks for skill dependency cycles have not been added.
+The `technical-blog` project links both language versions of the five Astro articles through `relatedArticles`. An article without a project would produce `W_ARTICLE_NO_PROJECT`, a reminder that does not stop the build. Checks for skill dependency cycles have not been added.
 
 ## Language routes and search metadata
 

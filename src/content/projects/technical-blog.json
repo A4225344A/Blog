@@ -1,0 +1,10 @@
+{
+  "id": "technical-blog",
+  "title": "This blog",
+  "description": "The bilingual Astro blog you are reading, with Markdown articles, ordered series and Pagefind search. Production refers to this static site published on GitHub Pages. The five-part series explains how it is built.",
+  "maturity": "production",
+  "featuredSkills": ["astro-content-modeling", "static-site-delivery"],
+  "relatedArticles": ["beginner-tools-en", "beginner-tools-zh-tw", "beginner-local-website-en", "beginner-local-website-zh-tw", "beginner-first-change-en", "beginner-first-change-zh-tw", "astro-github-pages-en", "astro-github-pages-zh-tw", "astro-knowledge-platform-en", "astro-knowledge-platform-zh-tw"],
+  "relatedLearningPaths": ["knowledge-platform"],
+  "repositoryUrl": "https://github.com/A4225344A/Blog"
+}

@@ -223,6 +223,7 @@ footer { background: var(--surface); border-top: 1px solid var(--border); color:
   --bg: #161824; --surface: #222538; --fg: #e3e5f0; --heading: #f4f2ff;
   --muted: #b4bad2; --link: #b9afff; --link-hover: #dbd5ff;
   --soft: #2e324c; --border: #454b6a; --code: #ffadc4;
+  --code-block-bg: #0d101a;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
@@ -230,8 +231,10 @@ footer { background: var(--surface); border-top: 1px solid var(--border); color:
     --bg: #161824; --surface: #222538; --fg: #e3e5f0; --heading: #f4f2ff;
     --muted: #b4bad2; --link: #b9afff; --link-hover: #dbd5ff;
     --soft: #2e324c; --border: #454b6a; --code: #ffadc4;
+    --code-block-bg: #0d101a;
   }
 }
+.prose pre { background-color: var(--code-block-bg, #24292e) !important; }
 .banner .button, .banner .button:hover { color: #3445b8; }
 .theme-control { display: flex; align-items: center; gap: .4rem; font-size: .85rem; }
 .theme-control select { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; padding: .3rem; }

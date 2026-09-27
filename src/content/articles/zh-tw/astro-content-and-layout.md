@@ -12,13 +12,22 @@ skills: [astro-content-modeling]
 prerequisiteSkills: [local-website-preview]
 recommendedArticles: []
 publishedAt: 2026-09-19
-updatedAt: 2026-09-24
+updatedAt: 2026-09-27
 status: published
 ---
 
 上一篇已經有首頁了，接著加一篇文章。我把標題、導覽和樣式放進共用版型，正文用 Markdown 寫。以後改頁面外觀，就不用逐篇修改 HTML。
 
 繼續使用 `engineering-blog` 資料夾，這篇先把文章在本機跑起來。
+
+<figure class="learning-diagram">
+<figcaption>Markdown 如何套用版型，成為完整文章頁</figcaption>
+<ol role="list">
+<li><strong>Markdown 文章</strong><span><code>build-notes.md</code> 提供標題、描述與正文，並指定使用的版型。</span></li>
+<li><strong>共用版型</strong><span><code>PostLayout.astro</code> 讀取文章資料，將轉好的正文放進 <code>&lt;slot /&gt;</code>。</span></li>
+<li><strong>HTML 頁面</strong><span>Astro 將導覽、標題與文章正文組成瀏覽器可以顯示的頁面。</span></li>
+</ol>
+</figure>
 
 ## 把重複的 HTML 留給版型
 
