@@ -239,7 +239,12 @@ Implementation details:
   falsely attached to AI SRE Platform. The Astro series Articles belong to the
   separate technical-blog Project, resolving their membership warnings. The six initial Skills
   are supplemented by terminal basics, local preview and editing web pages.
-  Cases remain an honest empty state until actual case content is authored.
+  The bilingual AI SRE rollout-verification case is published with date 2026-09-28
+  and belongs to the AI SRE Platform lab Project, not the Astro LearningPath.
+  Its two W_ARTICLE_NO_PATH warnings are expected for a standalone case.
+  This case retains kubernetes-gitops as external prerequisite knowledge with an
+  official Kubernetes reading link in both locales. It is an explicit exception
+  to requiring on-site prerequisite teaching; no global schema rule is changed.
 
 ## Personal Blog Positioning Within V1
 
@@ -250,7 +255,9 @@ order breaks ties and each article appears once. Cards show localized topic link
 and their positions in each complete published localized series, not positions in
 the filtered subset. A topic navigation bar filters through existing canonical
 topic pages using ordinary links, so it works without JavaScript. Empty topics
-are not offered as filter options. Homepage latest articles remain chronological.
+are not offered as filter options. Homepage latest articles include cases and remain
+chronological; the Blog index still excludes cases, which have their own canonical
+section. Topics with only standalone articles omit the series-order introduction.
 Blog/topic cards show labeled publication and available update dates; series-page
 cards alone omit dates. Updating an article does not change publication ordering.
 Topic cards omit the current topic chip while retaining other topic links. The

@@ -44,7 +44,7 @@ const en = {
   exploreIntro: 'Already have an Astro project? The final article covers translations and series navigation. The Projects page introduces the AI SRE Platform lab.',
   previousLesson: 'Previous article', nextLesson: 'Next article', pathNavigation: 'Continue this series', pathOverview: 'Back to the series',
   aboutBlog: 'About this blog',
-  homeBlogIntro: 'I write down how my projects work so I can return to the details later. The published articles currently cover building this blog with Astro.',
+  homeBlogIntro: 'I write down how my projects work so I can return to the details later. Start with the Astro blog series or the AI SRE Platform troubleshooting case.',
   aboutIntro: `I’m ${siteConfig.author.name.en}, a full-stack engineer moving toward cloud native and platform engineering. This blog records what I learn through implementation.`,
 
   experience: 'About the author', updated: 'Updated', published: 'Published', home: 'Home', all: 'View all',
@@ -62,7 +62,7 @@ const zh: typeof en = {
   exploreIntro: '已經有 Astro 專案，可以直接看最後一篇的雙語文章與系列整理方式。專案頁另有 AI SRE Platform 實驗室的介紹。',
   previousLesson: '上一篇', nextLesson: '下一篇', pathNavigation: '繼續閱讀系列', pathOverview: '回到文章系列',
   aboutBlog: '關於這個部落格',
-  homeBlogIntro: '把專案怎麼做的寫下來，之後需要時可以回頭查。目前已發布的文章從這個 Astro 部落格的建置過程寫起。',
+  homeBlogIntro: '把專案怎麼做的寫下來，之後需要時可以回頭查。可以從 Astro 部落格系列開始，也可以看看 AI SRE Platform 的排障案例。',
   aboutIntro: `我是 ${siteConfig.author.name['zh-TW']}，一名全端工程師，正在走向雲原生與平台工程。這裡記錄我在實作中學到的事。`,
 
   experience: '關於作者', updated: '更新日期', published: '發布日期', home: '首頁', all: '查看全部',

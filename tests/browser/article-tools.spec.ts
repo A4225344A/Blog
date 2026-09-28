@@ -82,8 +82,14 @@ test('series entry and empty indexes work without JavaScript; original code and 
       await expect(page.locator('.code-toolbar, .diagram-zoom')).toHaveCount(0);
       for (const path of ['cases', 'topics/cloud-native', 'topics/sre', 'topics/ai-engineering', 'topics/backend-engineering']) {
         await page.goto(`http://127.0.0.1:4322${base}${locale}/${path}/`);
-        await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
-        await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+        if (path === 'topics/backend-engineering') {
+          await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
+          await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+        } else {
+          await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
+          await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+          await expect(page.locator('main .article-title')).toHaveAttribute('href', `${base}${locale}/cases/ai-sre-rollout-verification/`);
+        }
         await expect(page.locator('main')).not.toContainText(locale === 'en' ? 'reading order' : '依閱讀順序');
       }
     }
