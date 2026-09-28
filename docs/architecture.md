@@ -781,6 +781,9 @@ Main sections:
 - `/about`
 
 Homepage order:
+The second section introduces the blog and its currently published content;
+the Reading guide remains a separate link within that section.
+
 1. Hero
 2. About This Blog
 3. Latest Articles
