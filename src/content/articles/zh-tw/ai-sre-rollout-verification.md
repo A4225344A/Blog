@@ -9,7 +9,7 @@ contentType: case-study
 difficulty: intermediate
 topics: [cloud-native, sre, ai-engineering]
 skills: [observability, ai-assisted-incident-handling]
-prerequisiteSkills: [kubernetes-gitops]
+prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-28
 status: published
@@ -68,7 +68,7 @@ count(kube_pod_status_ready{pod=~"orders-api-.*"} == 1) > 0
 
 這比只找一個健康 Pod 更接近問題。不過，`readyReplicas`、`availableReplicas` 是 Deployment 的彙總數字，不能只看它們就認定「新版本的 Pod 全部正常」。新舊副本是否仍然並存，也要一起檢查。
 
-下面把這個判斷整理成 Python 函式，輸入是 Kubernetes API 回傳的 Deployment JSON。這是本文的驗證範例，不是歷史 commit 的原始碼。副本數判斷參照 Kubernetes 的 [DeploymentComplete 實作](https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/deployment/util/deployment_util.go)，另外固定要驗證的物件 UID 與 generation：
+下面把這個判斷整理成 Python 函式，輸入是 Kubernetes API 回傳的 Deployment JSON。這是本文的驗證範例，不是歷史 commit 的原始碼。副本數判斷參照 Kubernetes 的 [DeploymentComplete 實作](https://github.com/kubernetes/kubernetes/blob/v1.33.0/pkg/controller/deployment/util/deployment_util.go#L744-L749)，另外固定要驗證的物件 UID 與 generation：
 
 ```python
 def rollout_complete(deployment, *, target_uid, target_generation):
@@ -86,20 +86,30 @@ def rollout_complete(deployment, *, target_uid, target_generation):
     ):
         return False
 
-    return (
+    complete = (
         status.get("observedGeneration", 0) >= target_generation
         and status.get("updatedReplicas", 0) == desired
         and status.get("replicas", 0) == desired
         and status.get("availableReplicas", 0) == desired
-        and status.get("terminatingReplicas", 0) == 0
     )
+    if not complete:
+        return False
+
+    terminating = status.get("terminatingReplicas")
+    if terminating is None:
+        raise ValueError(
+            "terminatingReplicas unavailable; inspect terminating Pods separately"
+        )
+    return terminating == 0
 ```
 
 在修復動作被 API 接受後，從回應記下 `metadata.uid` 和 `metadata.generation`；後續輪詢都帶入這兩個固定值，不要每次重新取目標值。Deployment 若被刪除重建，UID 會不同；若有人再改設定，generation 會不同。這兩種情況都不應繼續替原本那次動作宣告成功。
 
 最關鍵的是 `replicas == updatedReplicas == desired`。假設期望兩個副本，新的兩個已建立但都不健康，舊的兩個還能服務，此時 available 可能是 2，但 replicas 是 4，函式會回傳 false。待舊副本退出、兩個新副本可用，才可能通過。零副本也回傳 false，因為這裡驗證的是服務恢復，不是成功縮容到零。
 
-`terminatingReplicas` 在 API 有提供時也納入檢查；缺少這個欄位時，這段不能證明所有正在終止的 Pod 都已實際消失。若修復目標包含「舊程序完全退出」，還要查 Pod 的 owner reference 與終止狀態。
+`terminatingReplicas` 受 `DeploymentReplicaSetTerminatingReplicas` feature gate 控制。[官方版本表](https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/#feature-gates-for-alpha-or-beta-features)列出它在 Kubernetes 1.33–1.34 為 alpha、預設關閉，從 1.35 起為 beta、預設開啟。這裡引用的 `DeploymentComplete` 原始碼固定在 v1.33.0，避免上游更新後對照失準。
+
+範例多要求一個條件：已知的 terminating 副本數必須為零。四個 rollout 條件成立後，若欄位缺少或為 `null`，函式會拋出 `ValueError`，不再把「不知道」當成零。呼叫端應記錄驗證資料不足，另外檢查屬於該 Deployment 的 ReplicaSet 與 Pod 的 owner reference、終止狀態，再決定是否繼續；不要捕捉例外後直接回報成功。這個額外檢查也只是 API 狀態快照，並非所有舊程序已實際退出的證明。
 
 呼叫端要在期限內持續輪詢：false 代表尚未符合條件，不是第一次檢查就判定修復失敗；逾時或目標已被替換時，保留狀態並交由後續處理。函式通過後，仍要用應用程式的健康檢查或實際請求確認服務可用。
 

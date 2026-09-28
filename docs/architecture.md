@@ -242,9 +242,10 @@ Implementation details:
   The bilingual AI SRE rollout-verification case is published with date 2026-09-28
   and belongs to the AI SRE Platform lab Project, not the Astro LearningPath.
   Its two W_ARTICLE_NO_PATH warnings are expected for a standalone case.
-  This case retains kubernetes-gitops as external prerequisite knowledge with an
-  official Kubernetes reading link in both locales. It is an explicit exception
-  to requiring on-site prerequisite teaching; no global schema rule is changed.
+  This case has no declared prerequisite Skill: kubernetes-gitops describes
+  Git-managed delivery, not the workload basics used here. Both locales retain
+  an official Deployment reading link in the introduction. No global schema rule
+  is changed.
 
 ## Personal Blog Positioning Within V1
 
@@ -306,7 +307,7 @@ is the documented shell; Unix readers are told which syntax needs adapting.
 Original publication dates remain historical metadata; series order is owned by
 LearningPath, not inferred from dates. The walkthrough keeps its original date
 without a chronology explanation in the prose. Latest articles stay chronological
-and link to the ordered series; publication dates are not fabricated to alter order.
+and link to the ordered series.
 Topic discovery shares configured ordering, with a stable ID fallback for new
 topics. The walkthrough is classified under website and platform engineering.
 The selection article uses a static publishing-flow illustration, and the
@@ -430,7 +431,7 @@ V1 goals:
 
 ## Non-Goals
 
-V1 does NOT include:
+V1 scope exclusions:
 - authentication
 - user accounts
 - database-backed CMS
