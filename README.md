@@ -23,13 +23,14 @@ The source includes the articles, layouts and build checks used by the website.
   and layouts, GitHub Pages deployment, then the content model.
 - The `technical-blog` Project links both language versions of that series to
   this published static website on GitHub Pages.
-- AI SRE Platform as a **lab** Project, using maintainer-supplied metadata. It is
+- AI SRE Platform as a **lab** Project. It is
   for learning, demonstration and experimentation, not production deployment.
 
-No backend, database, authentication, accounts, AI functionality, progress tracking,
-quiz or interactive Skill Graph is implemented. The AI SRE lab is content about
-an external project, not an AI feature in this website. Cases currently have no
-published entries; About does not invent employment history or operational metrics.
+Astro generates this website as static HTML, with Pagefind providing local search.
+The AI SRE lab is a separate project documented here, not an AI feature running
+inside the blog. See [architecture scope](docs/architecture.md#non-goals) for the
+website's backend, account and interactive-feature exclusions. The lab's first bilingual case
+examines rollout verification when new Pods crash while old Pods remain healthy.
 
 Start is a reading guide; About introduces the author. Home prioritizes articles
 and the featured project. LearningPath owns series membership and order in the

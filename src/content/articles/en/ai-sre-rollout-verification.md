@@ -9,7 +9,7 @@ contentType: case-study
 difficulty: intermediate
 topics: [cloud-native, sre, ai-engineering]
 skills: [observability, ai-assisted-incident-handling]
-prerequisiteSkills: [kubernetes-gitops]
+prerequisiteSkills: []
 recommendedArticles: []
 publishedAt: 2026-09-28
 status: published
@@ -68,7 +68,7 @@ The historical fix switched verification to Deployment status and recorded the d
 
 That gets closer to the actual question. However, `readyReplicas` and `availableReplicas` are aggregate Deployment counts. They do not independently prove that every new-version Pod is healthy. Old and new replicas still coexisting must also be considered.
 
-Here is a Python function that takes a Deployment JSON response from the Kubernetes API. This is an example prepared for this article, not the source of the historical commit. Its replica-count checks follow Kubernetes' [DeploymentComplete implementation](https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/deployment/util/deployment_util.go), with additional checks for a fixed target UID and generation:
+Here is a Python function that takes a Deployment JSON response from the Kubernetes API. This is an example prepared for this article, not the source of the historical commit. Its replica-count checks follow Kubernetes' [DeploymentComplete implementation](https://github.com/kubernetes/kubernetes/blob/v1.33.0/pkg/controller/deployment/util/deployment_util.go#L744-L749), with additional checks for a fixed target UID and generation:
 
 ```python
 def rollout_complete(deployment, *, target_uid, target_generation):
@@ -86,20 +86,30 @@ def rollout_complete(deployment, *, target_uid, target_generation):
     ):
         return False
 
-    return (
+    complete = (
         status.get("observedGeneration", 0) >= target_generation
         and status.get("updatedReplicas", 0) == desired
         and status.get("replicas", 0) == desired
         and status.get("availableReplicas", 0) == desired
-        and status.get("terminatingReplicas", 0) == 0
     )
+    if not complete:
+        return False
+
+    terminating = status.get("terminatingReplicas")
+    if terminating is None:
+        raise ValueError(
+            "terminatingReplicas unavailable; inspect terminating Pods separately"
+        )
+    return terminating == 0
 ```
 
 After the API accepts the repair action, capture `metadata.uid` and `metadata.generation` from its response. Pass those fixed values on every subsequent poll rather than taking a fresh target each time. Deleting and recreating the Deployment changes its UID; another specification change changes its generation. Neither should let a later result count as success for the original action.
 
 The key is `replicas == updatedReplicas == desired`. Suppose two replicas are desired, two new ones have been created but are unhealthy, and two old ones still serve traffic. Available replicas may be 2, but total replicas are 4, so the function returns false. It can pass once the old replicas leave and the two new ones become available. Zero desired replicas also returns false: the goal here is service recovery, not a successful scale-down to zero.
 
-The function checks `terminatingReplicas` when the API supplies it. Without that field, it cannot establish that every terminating Pod has physically disappeared. If the repair requires all old processes to exit, inspect Pod owner references and termination state as well.
+`terminatingReplicas` is controlled by the `DeploymentReplicaSetTerminatingReplicas` feature gate. The [official version table](https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/#feature-gates-for-alpha-or-beta-features) lists it as alpha and disabled by default in Kubernetes 1.33–1.34, then beta and enabled by default from 1.35. The linked `DeploymentComplete` source is pinned to v1.33.0 so the comparison does not move with upstream changes.
+
+The example adds one requirement: the known terminating replica count must be zero. After the four rollout conditions pass, an absent or `null` field raises `ValueError` instead of treating an unknown count as zero. The caller should record insufficient verification data, then inspect the owner references and termination state of the Deployment's ReplicaSets and Pods before deciding how to proceed. Do not catch the exception and report success. This extra check is still an API status snapshot, not proof that every old process has physically exited.
 
 The caller should poll until a deadline. False means the conditions are not yet met, rather than declaring failure after the first check. On timeout or target replacement, preserve the status for follow-up handling. After the function passes, use an application health check or real request to verify that the service works.
 
