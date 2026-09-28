@@ -1,22 +1,23 @@
 ---
 id: ai-sre-rollout-verification-en
 slug: ai-sre-rollout-verification
-title: The agent reported success while the new Pods kept crashing
+title: The agent reported success, but the new Pods were still in CrashLoopBackOff
 description: A fault-injection drill in AI SRE Platform exposed how old Pods could fool repair verification, and why an action, a completed rollout and service recovery need separate evidence.
 locale: en
 translationKey: ai-sre-rollout-verification
 contentType: case-study
 difficulty: intermediate
 topics: [cloud-native, sre, ai-engineering]
-skills: [kubernetes-gitops, observability, ai-assisted-incident-handling]
+skills: [observability, ai-assisted-incident-handling]
 prerequisiteSkills: [kubernetes-gitops]
 recommendedArticles: []
-status: draft
+publishedAt: 2026-09-28
+status: published
 ---
 
 While organizing my AI SRE Platform drill notes, one pair of results stood out: the agent logged `verified=True`, but a new `orders-api` Pod was still in `CrashLoopBackOff`. Its container kept starting, failing and waiting before another retry.
 
-This article covers a historical drill in the lab project. The notes now identify `REQUIRE_HUMAN_APPROVAL=true` as the current setting, requiring human approval for repairs. The automatic restart described here belongs to the configuration used during that drill.
+This case assumes you know how Deployments, ReplicaSets and Pods relate. If those are unfamiliar, start with the [official Kubernetes Deployment guide](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) before returning to the drill.
 
 ## A fault that restart could not fix
 
@@ -24,7 +25,7 @@ At the time, `orders-api` was classified as a tier 2 service eligible for a repa
 
 The expected result was therefore a restart attempt followed by an honest failure report. Testing only faults that happen to recover after restart could let a verifier that always returns success go unnoticed.
 
-The original notes preserved these contradictory outputs, with the Pod suffix already abbreviated:
+The log and Pod status disagreed:
 
 ```text
 INFO:agent:done PodCrashLooping/orders-api action=restart verified=True outcome=verified
@@ -39,7 +40,7 @@ orders-api-xxxx   0/1   CrashLoopBackOff
 
 During a rolling update, a Deployment can have old and new ReplicaSets at the same time. Each ReplicaSet maintains a group of Pod replicas. The new group scales up as the old group scales down, with the pace controlled by settings such as `maxSurge` and `maxUnavailable`. The [Kubernetes Deployment documentation](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment) describes those rules.
 
-The misleading state recorded in the notes looked like this:
+The old and new Pods were in different states:
 
 ```text
 orders-api Deployment
@@ -51,7 +52,7 @@ Ask only “Is any Pod Ready?” → the old Pod can satisfy the check
 
 The old verifier did not distinguish an existing healthy Pod from a completed update.
 
-There is also a separate problem in the original PromQL recorded in the notes:
+There is also a separate problem in the original PromQL:
 
 ```text
 count(kube_pod_status_ready{pod=~"orders-api-.*"} == 1) > 0
@@ -61,13 +62,48 @@ count(kube_pod_status_ready{pod=~"orders-api-.*"} == 1) > 0
 
 Adding that condition would still allow a healthy old Pod to satisfy the check. The query also needs the appropriate namespace and workload scope, but tighter filtering alone cannot establish that a rollout completed.
 
-## Record the state of the update being checked
+## Verify this update, not any healthy Pod
 
 The historical fix switched verification to Deployment status and recorded the details in `incident_steps`. It checked whether the controller had observed the change, along with updated, ready, available and unavailable replica counts.
 
 That gets closer to the actual question. However, `readyReplicas` and `availableReplicas` are aggregate Deployment counts. They do not independently prove that every new-version Pod is healthy. Old and new replicas still coexisting must also be considered.
 
-For a manual investigation, these two read-only commands provide a starting point. Replace the namespace with the one used by your environment:
+Here is a Python function that takes a Deployment JSON response from the Kubernetes API. This is an example prepared for this article, not the source of the historical commit. Its replica-count checks follow Kubernetes' [DeploymentComplete implementation](https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/deployment/util/deployment_util.go), with additional checks for a fixed target UID and generation:
+
+```python
+def rollout_complete(deployment, *, target_uid, target_generation):
+    metadata = deployment.get("metadata", {})
+    spec = deployment.get("spec", {})
+    status = deployment.get("status", {})
+    desired = spec.get("replicas", 1)
+
+    if (
+        metadata.get("uid") != target_uid
+        or metadata.get("generation") != target_generation
+        or metadata.get("deletionTimestamp") is not None
+        or spec.get("paused", False)
+        or desired <= 0
+    ):
+        return False
+
+    return (
+        status.get("observedGeneration", 0) >= target_generation
+        and status.get("updatedReplicas", 0) == desired
+        and status.get("replicas", 0) == desired
+        and status.get("availableReplicas", 0) == desired
+        and status.get("terminatingReplicas", 0) == 0
+    )
+```
+
+After the API accepts the repair action, capture `metadata.uid` and `metadata.generation` from its response. Pass those fixed values on every subsequent poll rather than taking a fresh target each time. Deleting and recreating the Deployment changes its UID; another specification change changes its generation. Neither should let a later result count as success for the original action.
+
+The key is `replicas == updatedReplicas == desired`. Suppose two replicas are desired, two new ones have been created but are unhealthy, and two old ones still serve traffic. Available replicas may be 2, but total replicas are 4, so the function returns false. It can pass once the old replicas leave and the two new ones become available. Zero desired replicas also returns false: the goal here is service recovery, not a successful scale-down to zero.
+
+The function checks `terminatingReplicas` when the API supplies it. Without that field, it cannot establish that every terminating Pod has physically disappeared. If the repair requires all old processes to exit, inspect Pod owner references and termination state as well.
+
+The caller should poll until a deadline. False means the conditions are not yet met, rather than declaring failure after the first check. On timeout or target replacement, preserve the status for follow-up handling. After the function passes, use an application health check or real request to verify that the service works.
+
+For a manual investigation, these two read-only commands also provide a starting point. Replace the namespace with the one used by your environment:
 
 ```powershell
 $namespace = "your-namespace"
@@ -75,18 +111,20 @@ kubectl -n $namespace get deployment orders-api -o yaml
 kubectl -n $namespace rollout status deployment/orders-api --timeout=60s
 ```
 
-The 60-second timeout is an example waiting limit, not a measured recovery time from this drill. By default, `rollout status` follows the latest rollout. If someone updates the Deployment again while it is being observed, check the revision too, so that another update's result is not attributed to the original repair.
+By default, `rollout status` follows the latest rollout. If someone updates the Deployment again while it is being observed, check the revision too, so that another update's result is not attributed to the original repair.
 
 Kubernetes defines a [complete Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#complete-deployment) in terms of updated and available replicas, with no old replicas still running. A completed rollout still needs a separate check that application requests succeed; Kubernetes status alone does not establish service recovery.
 
 ## The final result was failure
 
-The final records in the notes show restart attempts for both `PodNotReady` and `TargetDown`. Both had `verified=false`, and both corresponding incidents had an outcome of `failed`. One recorded log line was:
+The final records show restart attempts for both `PodNotReady` and `TargetDown`. Both had `verified=false`, and both corresponding incidents had an outcome of `failed`. One recorded log line was:
 
 ```text
 INFO:agent:done PodNotReady/orders-api action=restart verified=False outcome=failed
 ```
 
-That matched the drill's expectation: restart had not removed the broken configuration, and the verifier no longer classified these two attempts as successful repairs. These results come from the existing drill notes; I did not inject the fault into the cloud environment again while preparing this article.
+That matched the drill's expectation: restart had not removed the broken configuration, and the verifier no longer classified these two attempts as successful repairs.
 
 The case made me pay more attention to the evidence behind an agent's final result. Sending a command, completing a Deployment update and restoring successful requests each need their own checks. When two versions coexist, a healthy old Pod can easily hide a broken new one.
+
+This article draws on an earlier lab drill. According to the current project documentation, the agent now requires human approval before executing a repair (`REQUIRE_HUMAN_APPROVAL=true`).

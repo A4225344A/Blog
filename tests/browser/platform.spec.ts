@@ -17,7 +17,7 @@ test('discovery topic order is consistent and example URLs are not clickable', a
   }
 });
 
-test('old links explain the rewrite and empty cases are not recommended', async ({ page }) => {
+test('old links explain the rewrite and published cases are discoverable', async ({ page }) => {
   for (const locale of ['en', 'zh-tw']) {
     await page.goto(`${locale}/blog/beginner-tools/`);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
@@ -28,14 +28,15 @@ test('old links explain the rewrite and empty cases are not recommended', async 
     await replacement.click();
     await expect(page).toHaveURL(new RegExp(`${locale}/blog/why-astro/$`));
     await page.goto(`${locale}/about/`);
-    await expect(page.locator(`a[href="${base}${locale}/cases/"]`)).toHaveCount(0);
+    await expect(page.locator(`a[href="${base}${locale}/cases/"]`).first()).toBeVisible();
     await expect(page.locator('.profile-intro h1')).toHaveText(locale === 'en' ? 'About Jacky (謝宇逸)' : '關於 Jacky（謝宇逸）');
     await page.setViewportSize({ width: 375, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `test-results/about-${locale}.png`, fullPage: true });
     await page.goto(`${locale}/topics/sre/`);
-    await expect(page.locator('[data-pagefind-body]')).toHaveCount(0);
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,follow');
+    await expect(page.locator('[data-pagefind-body]')).toHaveCount(1);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
+    await expect(page.locator('main .article-title')).toHaveAttribute('href', `${base}${locale}/cases/ai-sre-rollout-verification/`);
   }
   await page.goto('./');
   await expect(page.getByText('Choose your language', { exact: true })).toHaveAttribute('lang', 'en');
@@ -58,7 +59,7 @@ test('author avatars link to GitHub and the blog layout fits both screen sizes',
         expect(await avatar.locator('img').evaluate(img => img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0)).toBe(true);
         await avatar.focus();
         await expect(avatar).toBeFocused();
-        await expect(page.locator('.sidebar .stats strong')).toHaveText(['5', '2', '1']);
+        await expect(page.locator('.sidebar .stats strong')).toHaveText(['6', '5', '1']);
         expect(await page.locator('body').evaluate(element => getComputedStyle(element).color)).toBe(width === 375 ? 'rgb(227, 229, 240)' : 'rgb(51, 56, 77)');
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         if (locale === 'zh-tw') await page.screenshot({ path: `test-results/blog-${route ? 'article' : 'home'}-${width}.png`, fullPage: true });
@@ -343,7 +344,8 @@ test('detail pages localize metadata and omit empty optional relationships', asy
     await expect(page.getByRole('heading', { name: projects, exact: true })).toBeVisible();
     await expect(page.locator(`main a[href="${base}${locale}/projects/technical-blog/"]`)).toBeVisible();
     await page.goto(`${locale}/projects/ai-sre-platform/`);
-    await expect(page.getByRole('heading', { name: related, exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: related, exact: true })).toBeVisible();
+    await expect(page.locator('main .article-title')).toHaveAttribute('href', `${base}${locale}/cases/ai-sre-rollout-verification/`);
     await expect(page.getByRole('heading', { name: paths, exact: true })).toHaveCount(0);
     await expect(page.locator('main')).toContainText(locale === 'en' ? 'Maturity: Lab' : '成熟度：實驗室（lab）');
     await page.goto(`${locale}/learn/knowledge-platform/`);

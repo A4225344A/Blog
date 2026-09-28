@@ -5,15 +5,19 @@ import { spawnSync } from 'node:child_process';
 import { graph } from '../tests/fixtures';
 import { article } from '../tests/fixtures';
 import { normalizeBase } from '../src/config/hosting';
+import { readContent, validateContent } from '../src/utils/content-source';
+import { isCase, publishedArticles } from '../src/utils/catalog';
 
 // Temporary test-only content exercises Astro's real loaders and build graph.
 // Exclusive creation and per-file cleanup preserve all existing author content.
 const created: string[] = [];
 try {
+  const existing = validateContent(await readContent(resolve('src/content'))).graph;
   const fixtures = graph();
   fixtures.topics.push({ id: 'english-only', name: 'English topic', description: 'Locale filtering fixture' });
+  fixtures.topics.push({ id: 'standalone-only', name: 'Standalone topic', description: 'Standalone case fixture' });
   fixtures.articles[0]!.topics.push('english-only');
-  fixtures.articles.push(article({ id: 'fixture-case', slug: 'fixture-case', contentType: 'case-study' }),
+  fixtures.articles.push(article({ id: 'fixture-case', slug: 'fixture-case', contentType: 'case-study', topics: ['standalone-only'], publishedAt: new Date('2100-01-01') }),
     article({ id: 'fixture-recent-solo', slug: 'fixture-recent-solo', publishedAt: new Date('2099-01-01'), updatedAt: new Date('2099-01-02') }),
     article({ id: 'fixture-draft', slug: 'fixture-draft', status: 'draft' }),
     article({ id: 'fixture-archived', slug: 'fixture-archived', status: 'archived' }));
@@ -50,15 +54,24 @@ try {
   assert.equal(titles[0], `${base}en/blog/fixture-recent-solo/`, 'Newest standalone article must appear before series articles');
   assert.ok(blog.includes('datetime="2099-01-01T00:00:00.000Z"'));
   assert.ok(blog.includes('datetime="2099-01-02T00:00:00.000Z"'));
+  const homeLatest = (await readFile('dist/en/index.html', 'utf8')).split('<section class="latest-articles">')[1]?.split('</section>')[0] ?? '';
+  const latestTitles = [...homeLatest.matchAll(/<a\b[^>]*class="article-title"[^>]*href="([^"]+)"/g)].map(match => match[1]);
+  assert.equal(latestTitles[0], `${base}en/cases/fixture-case/`, 'Newest case must appear in homepage latest articles');
+  assert.ok(!titles.includes(`${base}en/cases/fixture-case/`), 'Blog list retains its non-case scope');
+  const standaloneTopic = await readFile('dist/en/topics/standalone-only/index.html', 'utf8');
+  assert.ok(standaloneTopic.includes(`${base}en/cases/fixture-case/`));
+  assert.ok(!standaloneTopic.includes('Articles are grouped in series reading order'), 'Standalone-only topic must not describe nonexistent series');
   for (const locale of ['en', 'zh-tw']) {
+    const hasCases = locale === 'en' || publishedArticles(existing.articles, 'zh-TW').some(isCase);
+    const hasChineseCases = publishedArticles(existing.articles, 'zh-TW').some(isCase);
     const cases = await readFile(`dist/${locale}/cases/index.html`, 'utf8');
-    assert.equal(cases.includes('name="robots" content="noindex,follow"'), locale !== 'en');
-    assert.equal(cases.includes('rel="canonical"'), locale === 'en');
-    assert.equal(sitemap.includes(`${base}${locale}/cases/</loc>`), locale === 'en');
-    assert.doesNotMatch(cases, /<link\b[^>]*hreflang="zh-TW"/, 'Empty cases locale is not an indexing alternate');
+    assert.equal(cases.includes('name="robots" content="noindex,follow"'), !hasCases);
+    assert.equal(cases.includes('rel="canonical"'), hasCases);
+    assert.equal(sitemap.includes(`${base}${locale}/cases/</loc>`), hasCases);
+    assert.equal(/<link\b[^>]*hreflang="zh-TW"/.test(cases), hasChineseCases, 'Cases alternates reflect published locale content');
     const about = await readFile(`dist/${locale}/about/index.html`, 'utf8');
     const home = await readFile(`dist/${locale}/index.html`, 'utf8');
-    assert.equal(about.includes(`href="${base}${locale}/cases/"`), locale === 'en', 'Cases are recommended only with published content in this locale');
+    assert.equal(about.includes(`href="${base}${locale}/cases/"`), hasCases, 'Cases are recommended only with published content in this locale');
     assert.equal(home.includes(`href="${base}${locale}/cases/fixture-case/"`), locale === 'en');
     assert.ok(!about.includes('will follow when there is work') && !about.includes('有實作內容後補上'));
     const topic = await readFile(`dist/${locale}/topics/english-only/index.html`, 'utf8');
