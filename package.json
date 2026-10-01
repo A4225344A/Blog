@@ -21,17 +21,17 @@
     "security:check": "tsx scripts/verify-security.ts"
   },
   "dependencies": {
-    "astro": "7.3.3",
+    "astro": "7.3.5",
     "yaml": "^2.8.2",
     "zod": "4.6.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
-    "@playwright/test": "1.58.0",
-    "@types/node": "^22.19.0",
-    "pagefind": "1.4.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "^26.6.3",
+    "pagefind": "1.5.2",
     "tsx": "4.23.15",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
